@@ -1,20 +1,26 @@
 {
   "name": "next-advanced-sitemap",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Advanced sitemap generator for Next.js with Image, Video and Hreflang support.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsup src/index.ts --watch",
+    "build": "tsup",
+    "test": "vitest",
+    "lint": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "devDependencies": {
-    "@types/node": "^25.6.0",
-    "glob": "^13.0.6",
-    "tsup": "^8.5.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.5"
-  }
+  "keywords": [
+    "nextjs",
+    "sitemap",
+    "seo",
+    "google-images",
+    "typescript"
+  ],
+  "author": "Votre Nom",
+  "license": "MIT"
 }

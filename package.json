@@ -1,7 +1,7 @@
 {
   "name": "next-advanced-sitemap",
   "version": "1.0.0",
-  "description": "Advanced sitemap generator for Next.js with Image, Video and Hreflang support.",
+  "description": "Advanced sitemap generator for Next.js. Supports Google Images, Video, and News metadata for superior SEO. Type-safe and zero-dependency.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "type": "module",

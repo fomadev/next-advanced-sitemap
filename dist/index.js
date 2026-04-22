@@ -22,13 +22,27 @@ function escapeXml(unsafe) {
 function generateXml(entries) {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 `;
-  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+`;
+  xml += `        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+`;
+  xml += `        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
+`;
+  xml += `        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"
+`;
+  xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
   for (const entry of entries) {
     xml += `  <url>
 `;
     xml += `    <loc>${escapeXml(entry.url)}</loc>
 `;
+    if (entry.alternates?.length) {
+      for (const alt of entry.alternates) {
+        xml += `    <xhtml:link rel="alternate" hreflang="${escapeXml(alt.hreflang)}" href="${escapeXml(alt.href)}" />
+`;
+      }
+    }
     if (entry.lastmod) {
       const date = entry.lastmod instanceof Date ? entry.lastmod.toISOString() : entry.lastmod;
       xml += `    <lastmod>${date}</lastmod>
@@ -42,7 +56,7 @@ function generateXml(entries) {
       xml += `    <priority>${entry.priority.toFixed(1)}</priority>
 `;
     }
-    if (entry.images && entry.images.length > 0) {
+    if (entry.images?.length) {
       for (const img of entry.images) {
         xml += `    <image:image>
 `;
@@ -55,6 +69,48 @@ function generateXml(entries) {
         xml += `    </image:image>
 `;
       }
+    }
+    if (entry.videos?.length) {
+      for (const vid of entry.videos) {
+        xml += `    <video:video>
+`;
+        xml += `      <video:thumbnail_loc>${escapeXml(vid.thumbnail_loc)}</video:thumbnail_loc>
+`;
+        xml += `      <video:title>${escapeXml(vid.title)}</video:title>
+`;
+        xml += `      <video:description>${escapeXml(vid.description)}</video:description>
+`;
+        if (vid.content_loc) xml += `      <video:content_loc>${escapeXml(vid.content_loc)}</video:content_loc>
+`;
+        if (vid.player_loc) xml += `      <video:player_loc>${escapeXml(vid.player_loc)}</video:player_loc>
+`;
+        if (vid.publication_date) {
+          const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;
+          xml += `      <video:publication_date>${vDate}</video:publication_date>
+`;
+        }
+        xml += `    </video:video>
+`;
+      }
+    }
+    if (entry.news) {
+      const nDate = entry.news.publication_date instanceof Date ? entry.news.publication_date.toISOString() : entry.news.publication_date;
+      xml += `    <news:news>
+`;
+      xml += `      <news:publication>
+`;
+      xml += `        <news:name>${escapeXml(entry.news.name)}</news:name>
+`;
+      xml += `        <news:language>${escapeXml(entry.news.language)}</news:language>
+`;
+      xml += `      </news:publication>
+`;
+      xml += `      <news:publication_date>${nDate}</news:publication_date>
+`;
+      xml += `      <news:title>${escapeXml(entry.news.title)}</news:title>
+`;
+      xml += `    </news:news>
+`;
     }
     xml += `  </url>
 `;

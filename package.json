@@ -4,7 +4,7 @@
   "description": "Advanced sitemap generator for Next.js with Image, Video and Hreflang support.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
+  "type": "module",
   "files": [
     "dist"
   ],

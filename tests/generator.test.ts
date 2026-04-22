@@ -6,13 +6,13 @@ describe('generateXml', () => {
     const entries = [
       {
         url: 'https://fomadev.com/dashboard',
-        images: [{ loc: 'https://fomadev.com/chart.png', title: 'Stats' }]
+        images: [{ loc: 'hero_banner.jpg', title: 'Stats' }]
       }
     ];
     const result = generateXml(entries);
     
     expect(result).toContain('<image:image>');
-    expect(result).toContain('<image:loc>https://fomadev.com/chart.png</image:loc>');
+    expect(result).toContain('<image:loc>hero_banner.jpg</image:loc>');
     expect(result).toContain('<image:title>Stats</image:title>');
   });
 });

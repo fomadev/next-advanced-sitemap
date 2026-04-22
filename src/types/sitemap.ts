@@ -1,4 +1,13 @@
 /**
+ * Interface pour les liens alternatifs (Hreflang / Multilingue)
+ * @see https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap
+ */
+export interface SitemapAlternate {
+  hreflang: string;
+  href: string;
+}
+
+/**
  * Interface pour les images dans le sitemap
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps
  */
@@ -48,4 +57,5 @@ export interface SitemapEntry {
   images?: SitemapImage[];
   videos?: SitemapVideo[];
   news?: SitemapNews;
+  alternates?: SitemapAlternate[];
 }

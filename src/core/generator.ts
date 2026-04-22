@@ -2,18 +2,26 @@ import { SitemapEntry } from '../types/sitemap.js';
 import { escapeXml } from '../utils/xml-escape.js';
 
 /**
- * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos et News.
+ * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
  */
 export function generateXml(entries: SitemapEntry[]): string {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
   xml += `        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"\n`;
   xml += `        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"\n`;
-  xml += `        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">\n`;
+  xml += `        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"\n`;
+  xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
   for (const entry of entries) {
     xml += `  <url>\n`;
     xml += `    <loc>${escapeXml(entry.url)}</loc>\n`;
+
+    // Support Hreflang (Internationalisation)
+    if (entry.alternates?.length) {
+      for (const alt of entry.alternates) {
+        xml += `    <xhtml:link rel="alternate" hreflang="${escapeXml(alt.hreflang)}" href="${escapeXml(alt.href)}" />\n`;
+      }
+    }
 
     // Métadonnées standard
     if (entry.lastmod) {

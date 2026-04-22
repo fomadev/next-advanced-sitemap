@@ -1,0 +1,47 @@
+# Dépendances
+node_modules/
+.pnp
+.pnp.js
+
+# Build / Sortie de compilation (généré par tsup/tsc)
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Tests et Couverture
+coverage/
+*.lcov
+.vitest/
+
+# Environnement et Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE / Éditeurs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fichiers temporaires de Next.js (si vous créez un dossier 'example' pour tester)
+.next/
+
+
+
+package-lock.json

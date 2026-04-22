@@ -11,8 +11,9 @@
   "scripts": {
     "dev": "tsup src/index.ts --watch",
     "build": "tsup",
-    "test": "vitest",
-    "lint": "tsc --noEmit"
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "keywords": [
     "nextjs",
@@ -21,6 +22,6 @@
     "google-images",
     "typescript"
   ],
-  "author": "Votre Nom",
+  "author": "FomaDev",
   "license": "MIT"
 }

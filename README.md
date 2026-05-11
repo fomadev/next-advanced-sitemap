@@ -12,6 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Strict Validation (v1.0.1)**: Built-in safety checks to ensure all URLs follow absolute protocols (http/https), preventing search engine rejection.
 - **Developer Experience**: Fully typed with TypeScript, zero external dependencies, and optimized for Next.js Route Handlers.
 
 ## Installation
@@ -24,36 +25,36 @@ npm install next-advanced-sitemap
 
 To implement an advanced sitemap in the Next.js App Router, create a Route Handler at `app/sitemap.xml/route.ts`.
 
-```ts
-import { getServerSitemapResponse } from 'next-advanced-sitemap';
+```typescript
+import { getServerSitemapResponse, SitemapEntry } from 'next-advanced-sitemap';
 
 export async function GET() {
-  const entries = [
+  const entries: SitemapEntry[] = [
     {
-      url: 'https://fomadev.com',
+      url: '[https://fomadev.com](https://fomadev.com)',
       lastmod: new Date(),
       changefreq: 'daily',
       priority: 1.0,
       alternates: [
-        { hreflang: 'fr', href: 'https://fomadev.com/fr' },
-        { hreflang: 'en', href: 'https://fomadev.com/en' }
+        { hreflang: 'fr', href: '[https://fomadev.com/fr](https://fomadev.com/fr)' },
+        { hreflang: 'en', href: '[https://fomadev.com/en](https://fomadev.com/en)' }
       ]
     },
     {
-      url: 'https://fomadev.com/dashboard',
+      url: '[https://fomadev.com/dashboard](https://fomadev.com/dashboard)',
       images: [
         {
-          loc: 'https://fomadev.com/charts/analytics.png',
+          loc: '[https://fomadev.com/charts/analytics.png](https://fomadev.com/charts/analytics.png)',
           title: 'Growth Analytics Chart',
           caption: 'Visual representation of monthly user growth.'
         }
       ]
     },
     {
-      url: 'https://fomadev.com/video-tutorial',
+      url: '[https://fomadev.com/video-tutorial](https://fomadev.com/video-tutorial)',
       videos: [
         {
-          thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg',
+          thumbnail_loc: '[https://fomadev.com/thumbs/tutorial.jpg](https://fomadev.com/thumbs/tutorial.jpg)',
           title: 'Next.js Advanced SEO Tutorial',
           description: 'Learn how to implement advanced sitemaps in Next.js.',
           publication_date: new Date('2026-04-22')
@@ -75,65 +76,75 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 ### SitemapEntry Object
 
 <table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>url</code></td>
-            <td>string</td>
-            <td>The absolute URL of the page.</td>
-        </tr>
-        <tr>
-            <td><code>lastmod</code></td>
-            <td>Date | string</td>
-            <td>(Optional) Last modification date in ISO format.</td>
-        </tr>
-        <tr>
-            <td><code>changefreq</code></td>
-            <td>string</td>
-            <td>(Optional) Search engine hint for crawl frequency.</td>
-        </tr>
-        <tr>
-            <td><code>priority</code></td>
-            <td>number</td>
-            <td>(Optional) Priority of the URL (0.0 to 1.0).</td>
-        </tr>
-        <tr>
-            <td><code>images</code></td>
-            <td>SitemapImage[]</td>
-            <td>(Optional) Array of image metadata for Google Images.</td>
-        </tr>
-        <tr>
-            <td><code>videos</code></td>
-            <td>SitemapVideo[]</td>
-            <td>(Optional) Array of video metadata for Google Videos.</td>
-        </tr>
-        <tr>
-            <td><code>news</code></td>
-            <td>SitemapNews</td>
-            <td>(Optional) Metadata for Google News indexing.</td>
-        </tr>
-        <tr>
-            <td><code>alternates</code></td>
-            <td>SitemapAlternate[]</td>
-            <td>(Optional) Language and regional alternate URLs (Hreflang).</td>
-        </tr>
-    </tbody>
+  <thead>
+      <tr>
+          <th>Property</th>
+          <th>Type</th>
+          <th>Description</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><code>url</code></td>
+          <td class="type-label">string</td>
+          <td>The absolute URL of the page (must start with <strong>http/https</strong>).</td>
+      </tr>
+      <tr>
+          <td><code>lastmod</code></td>
+          <td class="type-label">Date | string</td>
+          <td>(Optional) Last modification date in ISO format.</td>
+      </tr>
+      <tr>
+          <td><code>changefreq</code></td>
+          <td class="type-label">string</td>
+          <td>(Optional) Search engine hint (always, hourly, daily, etc.).</td>
+      </tr>
+      <tr>
+          <td><code>priority</code></td>
+          <td class="type-label">number</td>
+          <td>(Optional) Priority of the URL (0.0 to 1.0).</td>
+      </tr>
+      <tr>
+          <td><code>images</code></td>
+          <td class="type-label">SitemapImage[]</td>
+          <td>(Optional) Array of image metadata for Google Images.</td>
+      </tr>
+      <tr>
+          <td><code>videos</code></td>
+          <td class="type-label">SitemapVideo[]</td>
+          <td>(Optional) Array of video metadata for Google Videos.</td>
+      </tr>
+      <tr>
+          <td><code>news</code></td>
+          <td class="type-label">SitemapNews</td>
+          <td>(Optional) Metadata for Google News indexing.</td>
+      </tr>
+      <tr>
+          <td><code>alternates</code></td>
+          <td class="type-label">SitemapAlternate[]</td>
+          <td>(Optional) Regional alternate URLs (Hreflang).</td>
+      </tr>
+  </tbody>
 </table>
 
 ## Technical Implementation
 
-This library uses a stream-aligned string builder approach to ensure minimal memory footprint during XML generation. It automatically handles XML entity escaping for special characters (e.g., `&`, `<`, `>`) to prevent sitemap corruption.
+### Validation & Safety
+
+Starting from version 1.0.1, the library performs strict validation on all link-related fields. If a URL does not include a valid protocol (http/https), the generator will throw a descriptive error to prevent deploying malformed sitemaps.
+
+### Performance
+
+This library uses an efficient string-building approach to ensure a minimal memory footprint. It automatically handles XML entity escaping for special characters (e.g., `&`, `<`, `>`) to maintain document integrity.
 
 ## License
 
-Distributed under the MIT License. See <a href="LICENSE">LICENSE</a> for more information.
+This project is licensed under the [FomaDev Public License (FPL)](LICENSE).
 
-## Author
+* **Free Use**: Authorized for personal and commercial projects as a dependency.
 
-Created by <a href="https://github.com/fomadev">fomadev</a>.
+* **[Contributions](CONTRIBUTING.md)**: Authorized via Pull Requests to the official repository only.
+
+* **Restrictions**: Independent forks, redistribution of source code, or building competing products based on this engine require a paid commercial license.
+
+See the [LICENSE](LICENSE) file for the full legal text.

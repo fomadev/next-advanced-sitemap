@@ -2,6 +2,17 @@ import { SitemapEntry } from '../types/sitemap.js';
 import { escapeXml } from '../utils/xml-escape.js';
 
 /**
+ * Valide que l'URL commence par un protocole autorisé.
+ */
+function validateUrl(url: string, context: string): void {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    throw new Error(
+      `[next-advanced-sitemap] Invalid URL in ${context}: "${url}". URLs must start with http:// or https://`
+    );
+  }
+}
+
+/**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
  */
 export function generateXml(entries: SitemapEntry[]): string {
@@ -13,12 +24,16 @@ export function generateXml(entries: SitemapEntry[]): string {
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
   for (const entry of entries) {
+    // Validation URL principale
+    validateUrl(entry.url, 'main entry');
+
     xml += `  <url>\n`;
     xml += `    <loc>${escapeXml(entry.url)}</loc>\n`;
 
     // Support Hreflang (Internationalisation)
     if (entry.alternates?.length) {
       for (const alt of entry.alternates) {
+        validateUrl(alt.href, 'alternate link');
         xml += `    <xhtml:link rel="alternate" hreflang="${escapeXml(alt.hreflang)}" href="${escapeXml(alt.href)}" />\n`;
       }
     }
@@ -40,6 +55,7 @@ export function generateXml(entries: SitemapEntry[]): string {
     // Extension Images
     if (entry.images?.length) {
       for (const img of entry.images) {
+        validateUrl(img.loc, 'image location');
         xml += `    <image:image>\n`;
         xml += `      <image:loc>${escapeXml(img.loc)}</image:loc>\n`;
         if (img.title) xml += `      <image:title>${escapeXml(img.title)}</image:title>\n`;
@@ -51,15 +67,21 @@ export function generateXml(entries: SitemapEntry[]): string {
     // Extension Vidéos
     if (entry.videos?.length) {
       for (const vid of entry.videos) {
+        validateUrl(vid.thumbnail_loc, 'video thumbnail');
+        if (vid.content_loc) validateUrl(vid.content_loc, 'video content location');
+        if (vid.player_loc) validateUrl(vid.player_loc, 'video player location');
+
         xml += `    <video:video>\n`;
         xml += `      <video:thumbnail_loc>${escapeXml(vid.thumbnail_loc)}</video:thumbnail_loc>\n`;
         xml += `      <video:title>${escapeXml(vid.title)}</video:title>\n`;
         xml += `      <video:description>${escapeXml(vid.description)}</video:description>\n`;
+        
         if (vid.content_loc) xml += `      <video:content_loc>${escapeXml(vid.content_loc)}</video:content_loc>\n`;
         if (vid.player_loc) xml += `      <video:player_loc>${escapeXml(vid.player_loc)}</video:player_loc>\n`;
+        
         if (vid.publication_date) {
-           const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;
-           xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
+          const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;
+          xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
         }
         xml += `    </video:video>\n`;
       }

@@ -1,6 +1,6 @@
 # Contributing to next-advanced-sitemap
 
-First off, thank you for considering contributing to next-advanced-sitemap. It is people like you who make the open-source community such an amazing place to learn, inspire, and create.
+First off, thank you for considering contributing to next-advanced-sitemap. It is contributors like you who help strengthen the FomaDev technical ecosystem.
 
 ## Code of Conduct
 
@@ -31,11 +31,12 @@ To contribute code:
 4. Add or update tests for your changes.
 5. Run `npm test` to ensure all tests pass.
 6. Commit your changes using clear and descriptive commit messages.
-7. Push to your fork and submit a pull request.
+7. Push to your fork and submit a pull request to the **official FomaDev repository**.
 
 ## Development Setup
 
 1. Clone your fork locally.
+
 2. Install dependencies:
    ```bash
    npm install
@@ -48,17 +49,19 @@ To contribute code:
 
 4. Run tests:
     ```bash
-    npm test
+    Run tests
     ```
 
 ## Design Principles
 
-* **Zero Dependencies** : We aim to keep the library lightweight. Avoid adding external packages unless absolutely necessary.
+* **Zero Dependencies**: We aim to keep the library lightweight. Avoid adding external packages.
 
 * **Type Safety**: All public APIs must be strictly typed.
 
-* **Next.js Alignment**: Features should prioritize compatibility with the Next.js App Router and Route Handlers.
+* **Next.js Alignment: Features must prioritize compatibility with the Next.js App Router and Route Handlers.
+
+* **Validation (v1.0.1+)**: Any new feature involving URLs must implement the internal validation logic to ensure sitemap integrity.
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under its MIT License.
+By contributing to this project, you agree that your contributions will be licensed under the [FomaDev Public License (FPL)](LICENSE). Maintaining independent forks to bypass FomaDev's authority is strictly prohibited.

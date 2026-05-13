@@ -3,7 +3,13 @@
  * See LICENSE file in the project root for full license information.
  */
 
-export function escapeXml(unsafe: string): string {
+/**
+ * Convertit les caractères spéciaux en entités XML pour éviter la corruption du fichier.
+ * Gère : <, >, &, ", '
+ */
+export function escapeXml(unsafe: string | undefined | null): string {
+  if (!unsafe) return '';
+  
   return unsafe.replace(/[<>&"']/g, (c) => {
     switch (c) {
       case '<': return '&lt;';

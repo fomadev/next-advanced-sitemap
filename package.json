@@ -1,6 +1,6 @@
 {
   "name": "next-advanced-sitemap",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "Advanced sitemap generator for Next.js. Powerful support for Google Images, Video, News, and Hreflang (multilingual). Type-safe, zero-dependency, and built for App Router.",
   "main": "./dist/index.cjs",
@@ -35,7 +35,7 @@
     "app-router"
   ],
   "author": "fomadev",
-  "license": "MIT",
+  "license": "FomaDev Public License",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fomadev/next-advanced-sitemap.git"

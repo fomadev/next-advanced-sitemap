@@ -13,6 +13,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
 - **Strict Validation (v1.0.1)**: Built-in safety checks to ensure all URLs follow absolute protocols (http/https), preventing search engine rejection.
+- **Advanced XML Escaping (v1.0.2)**: Enhanced processor to handle complex special characters (`&`, `"`, `'`, `<`, `>`) in SEO metadata, ensuring XML integrity.
 - **Developer Experience**: Fully typed with TypeScript, zero external dependencies, and optimized for Next.js Route Handlers.
 
 ## Installation
@@ -41,7 +42,7 @@ export async function GET() {
       ]
     },
     {
-      url: 'https://fomadev.com/dashboard',
+      url: 'https://fomadev.com/dashboard,
       images: [
         {
           loc: 'https://fomadev.com/charts/analytics.png',
@@ -54,7 +55,7 @@ export async function GET() {
       url: 'https://fomadev.com/video-tutorial',
       videos: [
         {
-          thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg)',
+          thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg',
           title: 'Next.js Advanced SEO Tutorial',
           description: 'Learn how to implement advanced sitemaps in Next.js.',
           publication_date: new Date('2026-04-22')
@@ -133,9 +134,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 Starting from version 1.0.1, the library performs strict validation on all link-related fields. If a URL does not include a valid protocol (http/https), the generator will throw a descriptive error to prevent deploying malformed sitemaps.
 
+### Advanced XML Security
+
+Since version 1.0.2, the library includes an enhanced encoding processor. It automatically detects and escapes special characters within titles, descriptions, and captions to prevent XML corruption. For example, a title like "Tuto & News" is automatically converted to "Tuto &amp; News", ensuring the sitemap remains readable by search engine crawlers.
+
 ### Performance
 
-This library uses an efficient string-building approach to ensure a minimal memory footprint. It automatically handles XML entity escaping for special characters (e.g., `&`, `<`, `>`) to maintain document integrity.
+This library uses an efficient string-building approach to ensure a minimal memory footprint during XML generation, even with thousands of entries.
 
 ## License
 

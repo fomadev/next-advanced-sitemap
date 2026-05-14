@@ -64,3 +64,14 @@ export interface SitemapEntry {
   news?: SitemapNews;
   alternates?: SitemapAlternate[];
 }
+
+/**
+ * Options de configuration pour la génération du sitemap
+ */
+export interface SitemapOptions {
+  /**
+   * Si true, injecte la date système actuelle (ISO) pour toutes les entrées 
+   * qui n'ont pas de champ 'lastmod' défini.
+   */
+  autoLastmod?: boolean;
+}

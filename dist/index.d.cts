@@ -1,8 +1,3 @@
-/* * Copyright (c) 2026 Fordi / FomaDev. 
- * Licensed under FomaDev Public License.
- * See LICENSE file in the project root for full license information.
- */
-
 /**
  * Interface pour les liens alternatifs (Hreflang / Multilingue)
  * @see https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap

@@ -12,9 +12,9 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Strict Structural Validation (v1.0.4)**: Advanced URL parsing using the platform-native engine to intercept syntax errors and unencoded whitespaces before deployment.
 - **Auto-lastmod (v1.0.3)**: Optional automatic injection of the current system date for entries missing a `lastmod` value.
 - **Advanced XML Escaping (v1.0.2)**: Enhanced processor to handle complex special characters (`&`, `"`, `'`, `<`, `>`) in SEO metadata, ensuring XML integrity.
-- **Strict Validation (v1.0.1)**: Built-in safety checks to ensure all URLs follow absolute protocols (http/https).
 - **Developer Experience**: Fully typed with TypeScript, zero external dependencies, and optimized for Next.js Route Handlers.
 
 ## Installation
@@ -72,7 +72,7 @@ export async function GET() {
 
 ## API Reference
 
-### getServerSitemapResponse(entries: SitemapEntry[])
+### getServerSitemapResponse(entries: SitemapEntry[], options?: SitemapOptions)
 
 Generates a standard Next.js `Response` object with the correct `application/xml` content-type and optimized cache headers.
 
@@ -136,17 +136,25 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Validation & Safety
+### Validation & Safety (v1.0.4 Update)
 
-The library performs strict validation. If a URL does not include a valid protocol (http/https), the generator throws a descriptive error to prevent deploying malformed sitemaps.
+The library executes two layers of deterministic checks on all URL inputs (including primary entries, alternative links, image locations, and video paths):
+
+1. **Protocol Match**: Enforces that all strings begin strictly with an absolute `http://` or `https://` prefix.
+
+2. **Whitespace Interception**: Instantly isolates and rejects strings containing unencoded internal spaces, preventing indexing failures in search consoles.
+
+3. **Structural Compliance**: Leverages the native `URL.canParse`() API (with a clean fallback mechanism to the `new URL()` constructor for older environments) to validate structural layout health.
+
+If any path breaks standard RFC specifications, the generator throws an explicit runtime exception to prevent the application from deploying a malformed payload.
 
 ### Advanced XML Security
 
-The library includes an enhanced encoding processor. It automatically detects and escapes special characters within titles, descriptions, and captions to prevent XML corruption (e.g., `&` becomes `&amp;`).
+The engine includes an enhanced encoding processor. It automatically detects and escapes special characters within titles, descriptions, and captions to prevent XML layout corruption (e.g., `&` becomes `&amp;`, `<` becomes `&lt;`).
 
 ### Performance
 
-This library uses an efficient string-building approach to ensure a minimal memory footprint during XML generation, even with thousands of entries.
+This library relies on an optimized string-building pattern to ensure minimal execution memory footprints, even when parsing deep multi-resource structures with thousands of entries.
 
 ## License
 

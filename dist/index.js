@@ -26,6 +26,27 @@ function validateUrl(url, context) {
       `[next-advanced-sitemap] Invalid URL in ${context}: "${url}". URLs must start with http:// or https://`
     );
   }
+  if (url.includes(" ")) {
+    throw new Error(
+      `[next-advanced-sitemap] Malformed URL structure detected in ${context}: "${url}". Please verify spaces or special characters.`
+    );
+  }
+  let isValid = false;
+  if (typeof URL.canParse === "function") {
+    isValid = URL.canParse(url);
+  } else {
+    try {
+      new URL(url);
+      isValid = true;
+    } catch {
+      isValid = false;
+    }
+  }
+  if (!isValid) {
+    throw new Error(
+      `[next-advanced-sitemap] Malformed URL structure detected in ${context}: "${url}". Please verify spaces or special characters.`
+    );
+  }
 }
 function generateXml(entries, options = {}) {
   const now = (/* @__PURE__ */ new Date()).toISOString();

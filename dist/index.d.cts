@@ -1,4 +1,14 @@
 /**
+ * Fréquences de changement autorisées dans la spécification des sitemaps
+ */
+type SitemapChangeFreq = 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
+/**
+ * Priorités recommandées (de 0.0 à 1.0)
+ * L'intersection (number & {}) permet de conserver l'autocomplétion des paliers
+ * tout en acceptant n'importe quel autre nombre flottant.
+ */
+type SitemapPriority = 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 | (number & {});
+/**
  * Interface pour les liens alternatifs (Hreflang / Multilingue)
  * @see https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap
  */
@@ -48,8 +58,8 @@ interface SitemapNews {
 interface SitemapEntry {
     url: string;
     lastmod?: string | Date;
-    changefreq?: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
-    priority?: number;
+    changefreq?: SitemapChangeFreq;
+    priority?: SitemapPriority;
     images?: SitemapImage[];
     videos?: SitemapVideo[];
     news?: SitemapNews;
@@ -74,4 +84,4 @@ interface SitemapOptions {
  */
 declare function getServerSitemapResponse(entries: SitemapEntry[], options?: SitemapOptions): Response;
 
-export { type SitemapAlternate, type SitemapEntry, type SitemapImage, type SitemapNews, type SitemapOptions, type SitemapVideo, getServerSitemapResponse };
+export { type SitemapAlternate, type SitemapChangeFreq, type SitemapEntry, type SitemapImage, type SitemapNews, type SitemapOptions, type SitemapPriority, type SitemapVideo, getServerSitemapResponse };

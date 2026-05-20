@@ -17,13 +17,19 @@ function validateUrl(url: string, context: string): void {
     );
   }
 
-  // 2. Validation fine de la structure (v1.0.4)
+  // 2. Sécurité v1.0.4 : Interdire strictement les espaces blancs non encodés
+  if (url.includes(' ')) {
+    throw new Error(
+      `[next-advanced-sitemap] Malformed URL structure detected in ${context}: "${url}". Please verify spaces or special characters.`
+    );
+  }
+
+  // 3. Validation fine de la structure globale via le moteur natif
   let isValid = false;
   
   if (typeof URL.canParse === 'function') {
     isValid = URL.canParse(url);
   } else {
-    // Repli sécurisé pour les environnements Node.js plus anciens
     try {
       new URL(url);
       isValid = true;

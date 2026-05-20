@@ -12,6 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Native Date Polymorphism (v1.0.6)**: Full support for native JavaScript `Date` objects inside Google News and Video extensions—no manual conversion required.
 - **Strict SEO Enum Typing (v1.0.5)**: Compile-time validation and IDE autocompletion for `changefreq` and `priority` values to prevent typos.
 - **Strict Structural Validation (v1.0.4)**: Advanced URL parsing using the platform-native engine to intercept syntax errors and unencoded whitespaces before deployment.
 - **Auto-lastmod (v1.0.3)**: Optional automatic injection of the current system date for entries missing a `lastmod` value.
@@ -60,7 +61,7 @@ export async function GET() {
           thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg',
           title: 'Next.js Advanced SEO Tutorial',
           description: 'Learn how to implement advanced sitemaps in Next.js & React.',
-          publication_date: new Date('2026-04-22')
+          publication_date: new Date('2026-04-22') // Accepts raw Date objects smoothly
         }
       ]
     }
@@ -137,7 +138,11 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Compile-Time Parameter Guarding (v1.0.5 Update)
+### Native Date Polymorphism (v1.0.6 Update)
+
+To simplify integrations with database mappers and modern ORMs (like Prisma, Supabase, or Mongoose) that output raw timestamps, the compiler implements native date polymorphism. Media structures (`SitemapNews` and `SitemapVideo`) accept both standard string layouts and full JavaScript `Date` instances. The internal pipeline evaluates instances using the `instanceof Date` boundary condition and automatically fires the `.toISOString()` handler when a native object is discovered, removing boilerplate conversion overhead.
+
+### Compile-Time Parameter Guarding
 
 To avoid syntax typos breaking standard crawler schemas (e.g. accidentally writing `"dayly"` instead of `"daily"`), the library replaces generic primitive types with rigid evaluation layers:
 

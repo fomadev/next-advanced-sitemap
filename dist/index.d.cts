@@ -39,7 +39,7 @@ interface SitemapVideo {
     player_loc?: string;
     duration?: number;
     view_count?: number;
-    publication_date?: string | Date;
+    publication_date?: Date | string;
     family_friendly?: 'yes' | 'no';
 }
 /**
@@ -49,7 +49,7 @@ interface SitemapVideo {
 interface SitemapNews {
     name: string;
     language: string;
-    publication_date: string | Date;
+    publication_date: Date | string;
     title: string;
 }
 /**

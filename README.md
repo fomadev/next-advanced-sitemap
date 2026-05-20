@@ -12,6 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Strict SEO Enum Typing (v1.0.5)**: Compile-time validation and IDE autocompletion for `changefreq` and `priority` values to prevent typos.
 - **Strict Structural Validation (v1.0.4)**: Advanced URL parsing using the platform-native engine to intercept syntax errors and unencoded whitespaces before deployment.
 - **Auto-lastmod (v1.0.3)**: Optional automatic injection of the current system date for entries missing a `lastmod` value.
 - **Advanced XML Escaping (v1.0.2)**: Enhanced processor to handle complex special characters (`&`, `"`, `'`, `<`, `>`) in SEO metadata, ensuring XML integrity.
@@ -35,8 +36,8 @@ export async function GET() {
     {
       url: 'https://fomadev.com',
       lastmod: new Date(),
-      changefreq: 'daily',
-      priority: 1.0,
+      changefreq: 'daily', // Strictly typed
+      priority: 1.0,      // Auto-completed and strictly typed
       alternates: [
         { hreflang: 'fr', href: 'https://fomadev.com/fr' },
         { hreflang: 'en', href: 'https://fomadev.com/en' }
@@ -103,13 +104,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
       </tr>
       <tr>
           <td><code>changefreq</code></td>
-          <td class="type-label">string</td>
-          <td>(Optional) Search engine hint (always, hourly, daily, etc.).</td>
+          <td class="type-label">SitemapChangeFreq</td>
+          <td>(Optional) Bounded search engine hint ('always', 'daily', etc.).</td>
       </tr>
       <tr>
           <td><code>priority</code></td>
-          <td class="type-label">number</td>
-          <td>(Optional) Priority of the URL (0.0 to 1.0).</td>
+          <td class="type-label">SitemapPriority</td>
+          <td>(Optional) Bounded priority float value (0.0 to 1.0).</td>
       </tr>
       <tr>
           <td><code>images</code></td>
@@ -136,17 +137,24 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Validation & Safety (v1.0.4 Update)
+### Compile-Time Parameter Guarding (v1.0.5 Update)
 
-The library executes two layers of deterministic checks on all URL inputs (including primary entries, alternative links, image locations, and video paths):
+To avoid syntax typos breaking standard crawler schemas (e.g. accidentally writing `"dayly"` instead of `"daily"`), the library replaces generic primitive types with rigid evaluation layers:
+
+* **SitemapChangeFreq**: A literal string union restricting data ingestion exclusively to authorized keywords (`'always'` | `'hourly'` | `'daily'` | `'weekly'` | `'monthly'` | `'yearly'` | `'never'`).
+
+* **SitemapPriority**: A custom intersection schema offering direct autocomplete properties across decimal steps from `0.0` to `1.0` within modern code editors while retaining flexibility for precise custom float variables.
+
+### Validation & Safety
+
+The library executes deterministic validation layers on all URL inputs:
 
 1. **Protocol Match**: Enforces that all strings begin strictly with an absolute `http://` or `https://` prefix.
 
-2. **Whitespace Interception**: Instantly isolates and rejects strings containing unencoded internal spaces, preventing indexing failures in search consoles.
+2. **Whitespace Interception**: Instantly isolates and rejects strings containing unencoded internal spaces.
 
-3. **Structural Compliance**: Leverages the native `URL.canParse`() API (with a clean fallback mechanism to the `new URL()` constructor for older environments) to validate structural layout health.
+3. **Structural Compliance**: Leverages the native `URL.canParse`() API (with a clean fallback mechanism to the `new URL()` constructor) to validate layout health.
 
-If any path breaks standard RFC specifications, the generator throws an explicit runtime exception to prevent the application from deploying a malformed payload.
 
 ### Advanced XML Security
 

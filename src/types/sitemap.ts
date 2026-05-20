@@ -57,7 +57,7 @@ export interface SitemapVideo {
   player_loc?: string;
   duration?: number;
   view_count?: number;
-  publication_date?: string | Date;
+  publication_date?: Date | string; // Polymorphisme exposé
   family_friendly?: 'yes' | 'no';
 }
 
@@ -68,7 +68,7 @@ export interface SitemapVideo {
 export interface SitemapNews {
   name: string;
   language: string;
-  publication_date: string | Date;
+  publication_date: Date | string;
   title: string;
 }
 

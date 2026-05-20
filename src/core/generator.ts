@@ -130,9 +130,12 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
       }
     }
 
-    // Extension News
+    // Extension News (v1.0.6 : Support polymorphe Date | string)
     if (entry.news) {
-      const nDate = entry.news.publication_date instanceof Date ? entry.news.publication_date.toISOString() : entry.news.publication_date;
+      const nDate = entry.news.publication_date instanceof Date 
+        ? entry.news.publication_date.toISOString() 
+        : entry.news.publication_date;
+
       xml += `    <news:news>\n`;
       xml += `      <news:publication>\n`;
       xml += `        <news:name>${escapeXml(entry.news.name)}</news:name>\n`;

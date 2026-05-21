@@ -20,7 +20,8 @@ function escapeXml(unsafe) {
 }
 
 // src/core/generator.ts
-function validateUrl(url, context) {
+function sanitizeAndValidateUrl(rawUrl, context) {
+  const url = rawUrl ? rawUrl.trim() : "";
   if (!url.startsWith("http://") && !url.startsWith("https://")) {
     throw new Error(
       `[next-advanced-sitemap] Invalid URL in ${context}: "${url}". URLs must start with http:// or https://`
@@ -47,6 +48,7 @@ function validateUrl(url, context) {
       `[next-advanced-sitemap] Malformed URL structure detected in ${context}: "${url}". Please verify spaces or special characters.`
     );
   }
+  return url;
 }
 function generateXml(entries, options = {}) {
   const now = (/* @__PURE__ */ new Date()).toISOString();
@@ -63,15 +65,15 @@ function generateXml(entries, options = {}) {
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
   for (const entry of entries) {
-    validateUrl(entry.url, "main entry");
+    const cleanMainUrl = sanitizeAndValidateUrl(entry.url, "main entry");
     xml += `  <url>
 `;
-    xml += `    <loc>${escapeXml(entry.url)}</loc>
+    xml += `    <loc>${escapeXml(cleanMainUrl)}</loc>
 `;
     if (entry.alternates?.length) {
       for (const alt of entry.alternates) {
-        validateUrl(alt.href, "alternate link");
-        xml += `    <xhtml:link rel="alternate" hreflang="${escapeXml(alt.hreflang)}" href="${escapeXml(alt.href)}" />
+        const cleanAltUrl = sanitizeAndValidateUrl(alt.href, "alternate link");
+        xml += `    <xhtml:link rel="alternate" hreflang="${escapeXml(alt.hreflang)}" href="${escapeXml(cleanAltUrl)}" />
 `;
       }
     }
@@ -94,10 +96,10 @@ function generateXml(entries, options = {}) {
     }
     if (entry.images?.length) {
       for (const img of entry.images) {
-        validateUrl(img.loc, "image location");
+        const cleanImgUrl = sanitizeAndValidateUrl(img.loc, "image location");
         xml += `    <image:image>
 `;
-        xml += `      <image:loc>${escapeXml(img.loc)}</image:loc>
+        xml += `      <image:loc>${escapeXml(cleanImgUrl)}</image:loc>
 `;
         if (img.title) xml += `      <image:title>${escapeXml(img.title)}</image:title>
 `;
@@ -109,20 +111,20 @@ function generateXml(entries, options = {}) {
     }
     if (entry.videos?.length) {
       for (const vid of entry.videos) {
-        validateUrl(vid.thumbnail_loc, "video thumbnail");
-        if (vid.content_loc) validateUrl(vid.content_loc, "video content location");
-        if (vid.player_loc) validateUrl(vid.player_loc, "video player location");
+        const cleanThumbLoc = sanitizeAndValidateUrl(vid.thumbnail_loc, "video thumbnail");
+        const cleanContentLoc = vid.content_loc ? sanitizeAndValidateUrl(vid.content_loc, "video content location") : void 0;
+        const cleanPlayerLoc = vid.player_loc ? sanitizeAndValidateUrl(vid.player_loc, "video player location") : void 0;
         xml += `    <video:video>
 `;
-        xml += `      <video:thumbnail_loc>${escapeXml(vid.thumbnail_loc)}</video:thumbnail_loc>
+        xml += `      <video:thumbnail_loc>${escapeXml(cleanThumbLoc)}</video:thumbnail_loc>
 `;
         xml += `      <video:title>${escapeXml(vid.title)}</video:title>
 `;
         xml += `      <video:description>${escapeXml(vid.description)}</video:description>
 `;
-        if (vid.content_loc) xml += `      <video:content_loc>${escapeXml(vid.content_loc)}</video:content_loc>
+        if (cleanContentLoc) xml += `      <video:content_loc>${escapeXml(cleanContentLoc)}</video:content_loc>
 `;
-        if (vid.player_loc) xml += `      <video:player_loc>${escapeXml(vid.player_loc)}</video:player_loc>
+        if (cleanPlayerLoc) xml += `      <video:player_loc>${escapeXml(cleanPlayerLoc)}</video:player_loc>
 `;
         if (vid.publication_date) {
           const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;

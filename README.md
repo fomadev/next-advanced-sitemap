@@ -12,6 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Auto-Trimming Sanitization (v1.0.7)**: Automatic `.trim()` execution on all URL fields to silently correct leading/trailing whitespace errors from CMS or databases.
 - **Native Date Polymorphism (v1.0.6)**: Full support for native JavaScript `Date` objects inside Google News and Video extensions—no manual conversion required.
 - **Strict SEO Enum Typing (v1.0.5)**: Compile-time validation and IDE autocompletion for `changefreq` and `priority` values to prevent typos.
 - **Strict Structural Validation (v1.0.4)**: Advanced URL parsing using the platform-native engine to intercept syntax errors and unencoded whitespaces before deployment.
@@ -138,7 +139,11 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Native Date Polymorphism (v1.0.6 Update)
+### Auto-Trimming & Ingestion Sanitization (v1.0.7 Update)
+
+Distributed content pipelines frequently face issues with accidental leading spaces, trailing newlines, or indentation remnants introduced via headless CMS panels or Markdown document updates. To protect against application deployment errors caused by these invisible characters, the pipeline incorporates an automatic `.trim()` sanitization step. This layer cleans all input strings—including primary entries, alternative nodes, image endpoints, and video references—and passes the cleaned string directly down to the structural validation layer and the output XML stream.
+
+### Native Date Polymorphism
 
 To simplify integrations with database mappers and modern ORMs (like Prisma, Supabase, or Mongoose) that output raw timestamps, the compiler implements native date polymorphism. Media structures (`SitemapNews` and `SitemapVideo`) accept both standard string layouts and full JavaScript `Date` instances. The internal pipeline evaluates instances using the `instanceof Date` boundary condition and automatically fires the `.toISOString()` handler when a native object is discovered, removing boilerplate conversion overhead.
 

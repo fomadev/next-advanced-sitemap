@@ -83,6 +83,14 @@ function sanitizeAndValidateUrl(rawUrl, context) {
 }
 function generateXml(entries, options = {}) {
   const now = (/* @__PURE__ */ new Date()).toISOString();
+  let finalEntries = [...entries];
+  if (options.sortByPriority) {
+    finalEntries.sort((a, b) => {
+      const priorityA = a.priority !== void 0 ? a.priority : 0.5;
+      const priorityB = b.priority !== void 0 ? b.priority : 0.5;
+      return priorityB - priorityA;
+    });
+  }
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 `;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -95,7 +103,7 @@ function generateXml(entries, options = {}) {
 `;
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 `;
-  for (const entry of entries) {
+  for (const entry of finalEntries) {
     const cleanMainUrl = sanitizeAndValidateUrl(entry.url, "main entry");
     xml += `  <url>
 `;

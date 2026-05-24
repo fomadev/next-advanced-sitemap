@@ -12,6 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
+- **Priority Auto-Sorting (v1.0.8)**: Optional deterministic descending sort (`1.0` to `0.0`) based on entry weights to present your most strategic pages to crawlers first.
 - **Auto-Trimming Sanitization (v1.0.7)**: Automatic `.trim()` execution on all URL fields to silently correct leading/trailing whitespace errors from CMS or databases.
 - **Native Date Polymorphism (v1.0.6)**: Full support for native JavaScript `Date` objects inside Google News and Video extensions—no manual conversion required.
 - **Strict SEO Enum Typing (v1.0.5)**: Compile-time validation and IDE autocompletion for `changefreq` and `priority` values to prevent typos.
@@ -36,10 +37,10 @@ import { getServerSitemapResponse, SitemapEntry } from 'next-advanced-sitemap';
 export async function GET() {
   const entries: SitemapEntry[] = [
     {
-      url: 'https://fomadev.com',
+      url: '  https://fomadev.com  ', // Auto-trimmed seamlessly in v1.0.7
       lastmod: new Date(),
       changefreq: 'daily', // Strictly typed
-      priority: 1.0,      // Auto-completed and strictly typed
+      priority: 1.0,       // Auto-completed and strictly typed
       alternates: [
         { hreflang: 'fr', href: 'https://fomadev.com/fr' },
         { hreflang: 'en', href: 'https://fomadev.com/en' }
@@ -47,6 +48,7 @@ export async function GET() {
     },
     {
       url: 'https://fomadev.com/dashboard',
+      priority: 0.8,
       images: [
         {
           loc: 'https://fomadev.com/charts/analytics.png',
@@ -57,19 +59,23 @@ export async function GET() {
     },
     {
       url: 'https://fomadev.com/video-tutorial',
+      priority: 0.6,
       videos: [
         {
           thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg',
           title: 'Next.js Advanced SEO Tutorial',
           description: 'Learn how to implement advanced sitemaps in Next.js & React.',
-          publication_date: new Date('2026-04-22') // Accepts raw Date objects smoothly
+          publication_date: new Date('2026-05-25') // Accepts raw Date objects smoothly
         }
       ]
     }
   ];
 
-  // (Optional) v1.0.3: Enable autoLastmod to fill missing dates automatically
-  return getServerSitemapResponse(entries, { autoLastmod: true });
+  // Enable autoLastmod and sortByPriority (v1.0.8) to optimize crawl efficiency
+  return getServerSitemapResponse(entries, { 
+    autoLastmod: true,
+    sortByPriority: true 
+  });
 }
 ```
 
@@ -82,6 +88,8 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 ### Options:
 
 * `autoLastmod` (boolean): If `true`, injects the current ISO date for any entry missing the `lastmod` property.
+
+* `sortByPriority` (boolean): If `true`, sorts the sitemap records in a descending sequence based on their priority level (`1.0` down to `0.0`) before writing the XML stream. Items without an explicit priority fall back safely to `0.5`.
 
 ### SitemapEntry Object
 
@@ -139,7 +147,10 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Auto-Trimming & Ingestion Sanitization (v1.0.7 Update)
+### Priority Auto-Sorting (v1.0.8 Update)
+Search engine crawlers allocate a finite scanning resource quota (crawl budget) when inspecting domain properties. By default, raw database queries or collection iterations generate un-ordered XML lists, causing indexers to process trivial nodes ahead of strategic content. When `sortByPriority` is enabled, the generation engine executes an immutable descending sorting operation. Unlabeled entries smoothly receive an RFC-compliant fallback baseline score of `0.5`, allowing top-tier entries to line up at the absolute top of the index file.
+
+### Auto-Trimming & Ingestion Sanitization
 
 Distributed content pipelines frequently face issues with accidental leading spaces, trailing newlines, or indentation remnants introduced via headless CMS panels or Markdown document updates. To protect against application deployment errors caused by these invisible characters, the pipeline incorporates an automatic `.trim()` sanitization step. This layer cleans all input strings—including primary entries, alternative nodes, image endpoints, and video references—and passes the cleaned string directly down to the structural validation layer and the output XML stream.
 

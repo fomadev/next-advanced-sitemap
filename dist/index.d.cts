@@ -79,6 +79,12 @@ interface SitemapOptions {
      * qui n'ont pas de champ 'lastmod' défini.
      */
     autoLastmod?: boolean;
+    /**
+     * Si true, trie le tableau des URLs de la priorité la plus haute (1.0)
+     * à la plus basse (0.0) avant de lancer la génération du flux XML.
+     * Les entrées sans priorité héritent d'une valeur par défaut de 0.5.
+     */
+    sortByPriority?: boolean;
 }
 
 /**

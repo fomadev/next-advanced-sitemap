@@ -52,9 +52,22 @@ function sanitizeAndValidateUrl(rawUrl: string, context: string): string {
 
 /**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
+ * v1.0.8 : Intégration du tri automatique optionnel par priorité (Auto-Sorting)
  */
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
+  
+  // Cloner le tableau d'entrées pour éviter de modifier la structure d'origine par effet de bord
+  let finalEntries = [...entries];
+
+  // Exécuter l'Auto-Sorting si l'option sortByPriority est activée
+  if (options.sortByPriority) {
+    finalEntries.sort((a, b) => {
+      const priorityA = a.priority !== undefined ? (a.priority as number) : 0.5;
+      const priorityB = b.priority !== undefined ? (b.priority as number) : 0.5;
+      return priorityB - priorityA; // Ordre décroissant : de 1.0 à 0.0
+    });
+  }
   
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
@@ -63,7 +76,7 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
   xml += `        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9"\n`;
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
-  for (const entry of entries) {
+  for (const entry of finalEntries) {
     // Validation et nettoyage URL principale
     const cleanMainUrl = sanitizeAndValidateUrl(entry.url, 'main entry');
 
@@ -94,7 +107,7 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
     }
 
     if (entry.priority !== undefined) {
-      xml += `    <priority>${entry.priority.toFixed(1)}</priority>\n`;
+      xml += `    <priority>${(entry.priority as number).toFixed(1)}</priority>\n`;
     }
 
     // Extension Images

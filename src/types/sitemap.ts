@@ -101,4 +101,10 @@ export interface SitemapOptions {
    * Les entrées sans priorité héritent d'une valeur par défaut de 0.5.
    */
   sortByPriority?: boolean; // Option ajoutée pour la v1.0.8
+  /**
+   * Durée maximale de mise en cache (TTL) exprimée en secondes.
+   * Si définie, l'en-tête Cache-Control prendra la forme : public, max-age=X, must-revalidate.
+   * Si omise, conserve la stratégie par défaut hautement performante pour CDN.
+   */
+  maxAge?: number; // Option ajoutée pour la v1.0.9
 }

@@ -34,14 +34,16 @@ export interface SitemapAlternate {
 }
 
 /**
- * Interface pour les images dans le sitemap
+ * Interface pour les images dans le sitemap avec support SEO Local et Licences (v1.1.0)
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps
  */
 export interface SitemapImage {
   loc: string;
   caption?: string;
   title?: string;
-  geoLocation?: string;
+  /** (Optional) v1.1.0: Description géographique de l'image (ex: "Kinshasa, DRC"). */
+  geo_location?: string;
+  /** (Optional) v1.1.0: URL pointant vers les conditions d'utilisation ou le contrat de licence de l'image. */
   license?: string;
 }
 

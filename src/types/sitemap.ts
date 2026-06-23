@@ -61,6 +61,8 @@ export interface SitemapVideo {
   view_count?: number;
   publication_date?: Date | string; // Polymorphisme exposé
   family_friendly?: 'yes' | 'no';
+  /** (Optional) v1.1.1: Indique si la vidéo est une diffusion en direct ('yes' ou 'no'). */
+  live?: 'yes' | 'no';
 }
 
 /**

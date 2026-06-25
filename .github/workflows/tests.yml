@@ -4,7 +4,6 @@
 
 name: Code Quality & Automation
 
-# Déclencheurs : Le serveur virtuel se lance à chaque push ou pull request sur main/master
 on:
   push:
     branches: [ main, master ]
@@ -21,18 +20,17 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      # 2. Installe Node.js de manière isolée et configure le cache npm
+      # 2. Installe Node.js 22 (LTS) de manière isolée
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'npm'
+          node-version: 22
 
-      # 3. Installe proprement les dépendances sans modifier le package-lock.json
+      # 3. Installe proprement les dépendances du projet
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      # 4. Exécute la matrice stricte de tes 35+ tests unitaires (Vitest)
+      # 4. Exécute la matrice stricte de tes tests unitaires (Vitest)
       - name: Execute strict test suite
         run: npm run test
 

@@ -20,20 +20,20 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v4
 
-      # 2. Installe Node.js 22 de manière isolée
+      # 2. Installe Node.js 22 (LTS) de manière isolée
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      # 3. Installation brute et complète de toutes les dépendances
+      # 3. Installe proprement et de manière exhaustive toutes les dépendances
       - name: Install dependencies
-        run: npm install --include=dev
+        run: npm install
 
-      # 4. Exécute directement Vitest avec npx (Brise le blocage "not found")
+      # 4. Exécute la suite complète de tes 35 tests avec Vitest
       - name: Execute strict test suite
-        run: npx vitest run
+        run: npm run test
 
-      # 5. Valide que le compilateur (Tsup) génère un build de production valide
+      # 5. Compile le code avec Tsup pour valider le build de production
       - name: Validate production build
-        run: npx tsup
+        run: npm run build

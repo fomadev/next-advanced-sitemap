@@ -10,6 +10,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 - **Google Images Support**: Index visual assets such as dashboard charts, infographics, and banners.
 - **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
+- **Google Video Live Streaming (v1.1.1)**: Native injection of the `<video:live>` parameter to flag real-time broadcasts and instantly trigger red **LIVE** badges on Google SERP matrices.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
 - **Priority Auto-Sorting (v1.0.8)**: Optional deterministic descending sort (`1.0` to `0.0`) based on entry weights to present your most strategic pages to crawlers first.
@@ -49,25 +50,28 @@ export async function GET() {
       ]
     },
     {
+      url: 'https://fomadev.com/live-stream',
+      priority: 0.9,
+      videos: [
+        {
+          thumbnail_loc: 'https://fomadev.com/thumbs/live.jpg',
+          title: 'FomaDev Live Tech Session',
+          description: 'Building production-grade packages with Next.js.',
+          publication_date: new Date(),
+          live: 'yes' // v1.1.1: Triggers the official Google LIVE badge on SERP
+        }
+      ]
+    },
+    {
       url: 'https://fomadev.com/dashboard',
       priority: 0.8,
       images: [
         {
           loc: 'https://fomadev.com/charts/analytics.png',
           title: 'Growth Analytics Chart',
-          caption: 'Visual representation of monthly user growth.'
-        }
-      ]
-    },
-    {
-      url: 'https://fomadev.com/video-tutorial',
-      priority: 0.6,
-      videos: [
-        {
-          thumbnail_loc: 'https://fomadev.com/thumbs/tutorial.jpg',
-          title: 'Next.js Advanced SEO Tutorial',
-          description: 'Learn how to implement advanced sitemaps in Next.js & React.',
-          publication_date: new Date('2026-05-25') // Accepts raw Date objects smoothly
+          caption: 'Visual representation of monthly user growth.',
+          geo_location: 'Kinshasa, Democratic Republic of the Congo', // v1.1.0 Local SEO
+          license: 'https://fomadev.com/terms/licensing' // v1.1.0 Badging
         }
       ]
     }

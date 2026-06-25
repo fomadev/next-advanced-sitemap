@@ -58,7 +58,7 @@ To contribute code:
 
 * **Type Safety**: All public APIs must be strictly typed.
 
-* **Next.js Alignment: Features must prioritize compatibility with the Next.js App Router and Route Handlers.
+* **Next.js Alignment**: Features must prioritize compatibility with the Next.js App Router and Route Handlers.
 
 * **Validation (v1.0.1+)**: Any new feature involving URLs must implement the internal validation logic to ensure sitemap integrity.
 

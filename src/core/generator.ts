@@ -144,6 +144,12 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
           const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;
           xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
         }
+
+        // Support du Live Streaming v1.1.1
+        if (vid.live) {
+          xml += `      <video:live>${vid.live}</video:live>\n`;
+        }
+
         xml += `    </video:video>\n`;
       }
     }

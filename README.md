@@ -1,5 +1,8 @@
 # next-advanced-sitemap
 
+[![License: FPL](https://img.shields.io/badge/License-FPL-orange.svg)](LICENSE)
+![CI Status](https://github.com/fomadev/next-advanced-sitemap/actions/workflows/tests.yml/badge.svg)
+
 A robust and type-safe sitemap generator for Next.js (App Router). This library extends standard sitemap capabilities by providing native support for Google-specific metadata including Images, Videos, News, and Internationalization (Hreflang).
 
 ## Overview

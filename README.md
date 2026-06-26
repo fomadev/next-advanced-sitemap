@@ -12,7 +12,9 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 ## Features
 
 - **Google Images Support**: Index visual assets such as dashboard charts, infographics, and banners.
-- **Google Video Support**: Improve search visibility for video content with thumbnail and description metadata.
+- **Image Accessibility & E-commerce Protection (v1.1.2)**: Advanced protection against empty text strings or white spaces (`.trim()`) in `title` and `caption` fields to prevent malformed XML tags, combined with robust escaping.
+- **Google Video Support**: Improve search visibility for video content with thumbnail, description, and statistical metadata.
+- **Video Engagement Metrics (v1.1.3 Preview)**: Secure structural injection of `<video:duration>` and `<video:view_count>` with automatic decimal truncation (`Math.floor`) to match Google requirements.
 - **Google Video Live Streaming (v1.1.1)**: Native injection of the `<video:live>` parameter to flag real-time broadcasts and instantly trigger red **LIVE** badges on Google SERP matrices.
 - **Google News Support**: Comply with Google News requirements including publication names and dates.
 - **Internationalization**: Seamless integration of `xhtml:link` tags for Hreflang and multi-regional SEO.
@@ -66,13 +68,13 @@ export async function GET() {
       ]
     },
     {
-      url: 'https://fomadev.com/dashboard',
+      url: 'https://fomadev.com/products/tech-item',
       priority: 0.8,
       images: [
         {
-          loc: 'https://fomadev.com/charts/analytics.png',
-          title: 'Growth Analytics Chart',
-          caption: 'Visual representation of monthly user growth.',
+          loc: 'https://fomadev.com/images/product.png',
+          title: '   Premium Wireless Keyboard   ', // v1.1.2: Auto-trimmed preventively
+          caption: 'Close-up shot of our custom mechanical keyboard layout with XML characters like & or <', // v1.1.2: Deep XML Escaping
           geo_location: 'Kinshasa, Democratic Republic of the Congo', // v1.1.0 Local SEO
           license: 'https://fomadev.com/terms/licensing' // v1.1.0 Badging
         }
@@ -167,6 +169,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Image Accessibility & E-commerce Protection
+Large e-commerce platform backends or multi-vendor platforms frequently inject messy string data from user-generated fields—such as alternative text filled with raw spaces (`"   "`) or unescaped description metadata containing special HTML entities (`&`, `<`, `>`). To achieve strict alignment with Googlebot accessibility schemas without risking layout parsing crashes, the engine implements a two-tier architectural protective filter in **v1.1.2**:
+
+1. **White Space Drop**: Every title, caption, and geographical entry is preventively processed using white-space reduction pipelines. Empty strings or lines composed only of white spaces are automatically stripped to avoid rendering dead, invalid `<image:title></image:title>` tokens.
+
+2. **Deep Meta-Escaping**: Extends the core encoding matrix down to visual metadata blocks. This ensures massive production payloads safely render special symbols without altering the global XML stream layout tree.
 
 ### Priority Auto-Sorting
 Search engine crawlers allocate a finite scanning resource quota (crawl budget) when inspecting domain properties. By default, raw database queries or collection iterations generate un-ordered XML lists, causing indexers to process trivial nodes ahead of strategic content. When `sortByPriority` is enabled, the generation engine executes an immutable descending sorting operation. Unlabeled entries smoothly receive an RFC-compliant fallback baseline score of `0.5`, allowing top-tier entries to line up at the absolute top of the index file.

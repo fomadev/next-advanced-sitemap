@@ -45,8 +45,8 @@
   },
   "homepage": "https://github.com/fomadev/next-advanced-sitemap#readme",
   "devDependencies": {
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.7.3",
     "vitest": "^1.4.0"
   },
   "peerDependencies": {

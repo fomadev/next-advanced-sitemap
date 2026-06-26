@@ -48,7 +48,8 @@ function sanitizeAndValidateUrl(rawUrl: string, context: string): string {
 
 /**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
- * v1.1.0 : Prise en charge des attributs étendus <image:geo_location> et <image:license>
+ * v1.1.2 : Métadonnées d'Accessibilité Images (caption & title optionnels, renforcés et nettoyés)
+ * + Support sécurisé des statistiques vidéo (duration & view_count)
  */
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
@@ -100,22 +101,28 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
       xml += `    <priority>${(entry.priority as number).toFixed(1)}</priority>\n`;
     }
 
-    // Extension Images - enrichie en v1.1.0
+    // Extension Images - v1.1.2 renforcée
     if (entry.images?.length) {
       for (const img of entry.images) {
         const cleanImgUrl = sanitizeAndValidateUrl(img.loc, 'image location');
         
         xml += `    <image:image>\n`;
         xml += `      <image:loc>${escapeXml(cleanImgUrl)}</image:loc>\n`;
-        if (img.title) xml += `      <image:title>${escapeXml(img.title)}</image:title>\n`;
-        if (img.caption) xml += `      <image:caption>${escapeXml(img.caption)}</image:caption>\n`;
         
-        // SEO Local v1.1.0
-        if (img.geo_location) {
-          xml += `      <image:geo_location>${escapeXml(img.geo_location)}</image:geo_location>\n`;
+        // ✨ v1.1.2 : .trim() préventif pour s'assurer qu'un texte blanc ne crée pas de balise invalide
+        if (img.title && img.title.trim() !== '') {
+          xml += `      <image:title>${escapeXml(img.title.trim())}</image:title>\n`;
+        }
+        if (img.caption && img.caption.trim() !== '') {
+          xml += `      <image:caption>${escapeXml(img.caption.trim())}</image:caption>\n`;
         }
         
-        // Gestion des Licences Google Images v1.1.0
+        // SEO Local
+        if (img.geo_location && img.geo_location.trim() !== '') {
+          xml += `      <image:geo_location>${escapeXml(img.geo_location.trim())}</image:geo_location>\n`;
+        }
+        
+        // Gestion des Licences Google Images
         if (img.license) {
           const cleanLicenseUrl = sanitizeAndValidateUrl(img.license, 'image license URL');
           xml += `      <image:license>${escapeXml(cleanLicenseUrl)}</image:license>\n`;
@@ -143,6 +150,14 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
         if (vid.publication_date) {
           const vDate = vid.publication_date instanceof Date ? vid.publication_date.toISOString() : vid.publication_date;
           xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
+        }
+
+        // Métadonnées de statistiques (v1.1.3 - Préparé et sécurisé)
+        if (vid.duration !== undefined) {
+          xml += `      <video:duration>${Math.floor(vid.duration)}</video:duration>\n`;
+        }
+        if (vid.view_count !== undefined) {
+          xml += `      <video:view_count>${Math.floor(vid.view_count)}</video:view_count>\n`;
         }
 
         // Support du Live Streaming v1.1.1

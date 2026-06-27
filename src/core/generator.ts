@@ -48,8 +48,7 @@ function sanitizeAndValidateUrl(rawUrl: string, context: string): string {
 
 /**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
- * v1.1.2 : Métadonnées d'Accessibilité Images (caption & title optionnels, renforcés et nettoyés)
- * + Support sécurisé des statistiques vidéo (duration & view_count)
+ * v1.1.3 : Validation stricte des statistiques vidéo (duration entre 0-28800s & view_count >= 0)
  */
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
@@ -101,7 +100,7 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
       xml += `    <priority>${(entry.priority as number).toFixed(1)}</priority>\n`;
     }
 
-    // Extension Images - v1.1.2 renforcée
+    // Extension Images
     if (entry.images?.length) {
       for (const img of entry.images) {
         const cleanImgUrl = sanitizeAndValidateUrl(img.loc, 'image location');
@@ -109,7 +108,6 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
         xml += `    <image:image>\n`;
         xml += `      <image:loc>${escapeXml(cleanImgUrl)}</image:loc>\n`;
         
-        // ✨ v1.1.2 : .trim() préventif pour s'assurer qu'un texte blanc ne crée pas de balise invalide
         if (img.title && img.title.trim() !== '') {
           xml += `      <image:title>${escapeXml(img.title.trim())}</image:title>\n`;
         }
@@ -117,12 +115,10 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
           xml += `      <image:caption>${escapeXml(img.caption.trim())}</image:caption>\n`;
         }
         
-        // SEO Local
         if (img.geo_location && img.geo_location.trim() !== '') {
           xml += `      <image:geo_location>${escapeXml(img.geo_location.trim())}</image:geo_location>\n`;
         }
         
-        // Gestion des Licences Google Images
         if (img.license) {
           const cleanLicenseUrl = sanitizeAndValidateUrl(img.license, 'image license URL');
           xml += `      <image:license>${escapeXml(cleanLicenseUrl)}</image:license>\n`;
@@ -132,7 +128,7 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
       }
     }
 
-    // Extension Vidéos
+    // Extension Vidéos - v1.1.3 sécurisée
     if (entry.videos?.length) {
       for (const vid of entry.videos) {
         const cleanThumbLoc = sanitizeAndValidateUrl(vid.thumbnail_loc, 'video thumbnail');
@@ -152,15 +148,28 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
           xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
         }
 
-        // Métadonnées de statistiques (v1.1.3 - Préparé et sécurisé)
+        // ✨ Validation et Sérialisation de la durée (0 - 28800s)
         if (vid.duration !== undefined) {
-          xml += `      <video:duration>${Math.floor(vid.duration)}</video:duration>\n`;
-        }
-        if (vid.view_count !== undefined) {
-          xml += `      <video:view_count>${Math.floor(vid.view_count)}</video:view_count>\n`;
+          const finalDuration = Math.floor(vid.duration);
+          if (finalDuration < 0 || finalDuration > 28800) {
+            throw new Error(
+              `[next-advanced-sitemap] Invalid video duration: ${finalDuration}. Duration must be an integer between 0 and 28800 seconds (8 hours).`
+            );
+          }
+          xml += `      <video:duration>${finalDuration}</video:duration>\n`;
         }
 
-        // Support du Live Streaming v1.1.1
+        // ✨ Validation et Sérialisation du nombre de vues (>= 0)
+        if (vid.view_count !== undefined) {
+          const finalViewCount = Math.floor(vid.view_count);
+          if (finalViewCount < 0) {
+            throw new Error(
+              `[next-advanced-sitemap] Invalid video view_count: ${finalViewCount}. View count cannot be negative.`
+            );
+          }
+          xml += `      <video:view_count>${finalViewCount}</video:view_count>\n`;
+        }
+
         if (vid.live) {
           xml += `      <video:live>${vid.live}</video:live>\n`;
         }

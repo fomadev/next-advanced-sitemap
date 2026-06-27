@@ -57,12 +57,19 @@ export interface SitemapVideo {
   description: string;
   content_loc?: string;
   player_loc?: string;
-  duration?: number;
-  view_count?: number;
   publication_date?: Date | string; // Polymorphisme exposé
   family_friendly?: 'yes' | 'no';
   /** (Optional) v1.1.1: Indique si la vidéo est une diffusion en direct ('yes' ou 'no'). */
   live?: 'yes' | 'no';
+  /**
+   * (Optional) La durée de la vidéo en secondes. 
+   * Doit être un entier compris entre 0 et 28800 (8 heures).
+   */
+  duration?: number;
+  /**
+   * (Optional) Le nombre de vues de la vidéo.
+   */
+  view_count?: number;
 }
 
 /**

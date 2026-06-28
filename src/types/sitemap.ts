@@ -48,6 +48,24 @@ export interface SitemapImage {
 }
 
 /**
+ * Interface pour les restrictions géographiques des vidéos (v1.1.4)
+ */
+export interface VideoRestriction {
+  relationship: 'allow' | 'deny';
+  /** Tableau de codes pays ISO 3166-1 alpha-2 (ex: ['FR', 'US', 'CA']) */
+  countries: string[];
+}
+
+/**
+ * Interface pour les restrictions de plateformes des vidéos (v1.1.4)
+ */
+export interface VideoPlatform {
+  relationship: 'allow' | 'deny';
+  /** Tableau de plateformes autorisées ou interdites */
+  platforms: ('web' | 'mobile' | 'tv')[];
+}
+
+/**
  * Interface pour les vidéos dans le sitemap
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
  */
@@ -57,19 +75,18 @@ export interface SitemapVideo {
   description: string;
   content_loc?: string;
   player_loc?: string;
-  publication_date?: Date | string; // Polymorphisme exposé
+  publication_date?: Date | string;
   family_friendly?: 'yes' | 'no';
   /** (Optional) v1.1.1: Indique si la vidéo est une diffusion en direct ('yes' ou 'no'). */
   live?: 'yes' | 'no';
-  /**
-   * (Optional) La durée de la vidéo en secondes. 
-   * Doit être un entier compris entre 0 et 28800 (8 heures).
-   */
+  /** (Optional) v1.1.3: La durée de la vidéo en secondes. */
   duration?: number;
-  /**
-   * (Optional) Le nombre de vues de la vidéo.
-   */
+  /** (Optional) v1.1.3: Le nombre de vues de la vidéo. */
   view_count?: number;
+  /** (Optional) v1.1.4: Restriction géographique de diffusion (ISO 3166-1 alpha-2). */
+  restriction?: VideoRestriction;
+  /** (Optional) v1.1.4: Restriction selon le type d'appareil / plateforme. */
+  platform?: VideoPlatform;
 }
 
 /**

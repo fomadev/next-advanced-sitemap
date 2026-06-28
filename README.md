@@ -15,6 +15,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
 - **Google Video Support**: Boost video search layouts and video-carousel presence on Google Search with complete structured data encapsulation.
 - **Video Engagement Metrics & Validation (v1.1.3)**: Native integration of `<video:duration>` and `<video:view_count>` statistical metrics featuring deterministic float truncation (`Math.floor`) and strict bounding boundaries (0 to 28,800 seconds max).
+- **Video Country & Device Restrictions (v1.1.4)**: Advanced access control policy injection via `<video:restriction>` and `<video:platform>` properties to strictly control video delivery layouts across global boundaries and distinct screen classes (`web`, `mobile`, `tv`).
 - **Google Video Live Streaming (v1.1.1)**: Native injection of the `<video:live>` parameter to flag active real-time broadcasts and instantly trigger red **LIVE** badges on Google SERP matrices.
 - **Google News Support**: Instant discovery for news publications with strict support for required news name, language tag, and publication date attributes.
 - **Internationalization (Hreflang)**: Seamless rendering of `xhtml:link` relation tags to govern multi-regional and multilingual indexing across global markets.
@@ -54,17 +55,26 @@ export async function GET() {
       ]
     },
     {
-      url: 'https://fomadev.com/live-stream',
+      url: 'https://fomadev.com/exclusive-movie',
       priority: 0.9,
       videos: [
         {
-          thumbnail_loc: 'https://fomadev.com/thumbs/live.jpg         ',
-          title: 'FomaDev Live Tech Session',
-          description: 'Building production-grade packages with Next.js.',
+          thumbnail_loc: 'https://fomadev.com/thumbs/movie.jpg',
+          title: 'FomaDev Premium Masterclass',
+          description: 'Building global production-grade architectures with Next.js.',
           publication_date: new Date(),
-          duration: 3600, // v1.1.3: Statistical metric (Duration in seconds)
-          view_count: 1420, // v1.1.3: Engagement metric (Views integer)
-          live: 'yes' // v1.1.1: Triggers the official Google LIVE badge on SERP
+          duration: 7200, 
+          view_count: 25000,
+          // v1.1.4: Strict Geographic Filtering & Capitalization Sanitization
+          restriction: {
+            relationship: 'allow',
+            countries: ['cd', 'fr', 'us'] // Automatically sanitized into 'CD FR US'
+          },
+          // v1.1.4: Native Screen-Class Targeting Controls
+          platform: {
+            relationship: 'deny',
+            platforms: ['tv'] // Deny indexing out for Smart TV layouts
+          }
         }
       ]
     },
@@ -268,6 +278,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Video Distribution Rights & Geo-Blocking Safeguards (v1.1.4)
+For streaming platforms, modern SaaS corporations, and decentralized content houses, geoblocking and device-specific index filtering are critical mechanisms needed to comply with broadcasting licenses and localized compliance laws. **v1.1.4** delivers high-performance runtime guardrails enforcing the exact schemas expected by Googlebot:
+
+- **ISO 3166 Sanitation & Normalization**: Raw arrays housing country tokens are fully trimmed and mutated into pure uppercase codes automatically (e.g. `['cd', 'fr']` resolves seamlessly to `CD FR`). Length constraints ensure any invalid string length drops a granular error to block indexing corruption beforehand.
+
+- **Screen Class Verification**: Platform listings undergo structural array verification to filter out illegal user strings. Only official Google target tokens (`web`, `mobile`, `tv`) are compiled into space-separated string structures.
 
 ### Strict Video Statistical Enforcement (v1.1.3)
 Google's ingestion schema specifies rigid rules for video engagement parameters. Providing decimals or numbers outside structural limits can invalidate the entire sitemap file inside the Google Search Console.

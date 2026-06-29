@@ -97,6 +97,22 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       const platformsStr = vid.platform.platforms.join(' ');
       xml += `      <video:platform relationship="${vid.platform.relationship}">${platformsStr}</video:platform>\n`;
     }
+    
+    if (vid.requires_subscription !== undefined) {
+      let subValue: 'yes' | 'no';
+
+      if (typeof vid.requires_subscription === 'boolean') {
+        subValue = vid.requires_subscription ? 'yes' : 'no';
+      } else if (vid.requires_subscription === 'yes' || vid.requires_subscription === 'no') {
+        subValue = vid.requires_subscription;
+      } else {
+        throw new Error(
+          `[next-advanced-sitemap] Invalid value for requires_subscription: "${vid.requires_subscription}". Expected boolean or strict string 'yes' | 'no'.`
+        );
+      }
+
+      xml += `      <video:requires_subscription>${subValue}</video:requires_subscription>\n`;
+    }
 
     xml += `    </video:video>\n`;
   }

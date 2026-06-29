@@ -13,6 +13,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 - **Google Images Support**: Complete indexation of visual assets with support for titles, captions, local SEO positioning, and copyright protections.
 - **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
+- **Video Monetization Models & Prices (v1.1.6)**: Support for `<video:price>` parameters allowing VOD systems, streaming apps, and online academies to append clear monetary tags (`currency`, `value`, `type: rent/own`) directly into Google video indexing carousels.
 - **Google Video Support**: Boost video search layouts and video-carousel presence on Google Search with complete structured data encapsulation.
 - **Video Subscription & Paywall Guardrails (v1.1.5)**: Native integration of the `<video:requires_subscription>` tag to signal premium paywall barriers or free-tier states, preventing user-frustration search algorithmic penalties.
 - **Video Country & Device Restrictions (v1.1.4)**: Advanced access control policy injection via `<video:restriction>` and `<video:platform>` properties to strictly control video delivery layouts across global boundaries and distinct screen classes (`web`, `mobile`, `tv`).
@@ -277,10 +278,22 @@ Generates a standard Next.js `Response` object with the correct `application/xml
           <td>'yes' | 'no'</td>
           <td>Optional switch triggering immediate Google SERP LIVE badges.</td>
       </tr>
+      <tr>
+         <td><code>price</code></td>
+         <td>VideoPrice</td>
+         <td>Optional metadata structure attaching commercial purchase parameters to standard Google video rich cards.</td>
+      </tr>
   </tbody>
 </table>
 
 ## Technical Implementation
+
+### Video Pay-Per-View & VOD Pricing Architecture (v1.1.6)
+For on-demand streaming infrastructures, private bootcamps, and e-learning engines, exposing precise transactional pricing properties to crawlers structures Google's rich metadata carousels. **v1.1.6** implements strict formatting pipelines to meet internal Google Search Console parameters:
+
+- **ISO 4217 Auto-Normalization**: Currency codes are uniformly trimmed and transformed to mandatory uppercase formats (e.g. `currency: 'eur'` standardizes to `currency="EUR"`). Strings mismatching the exact 3-character international standard are rejected instantly.
+- **Float Price Rounding**: Transaction values automatically pass through an integrated decimal standardizer mapping raw database values into clean, 2-digit floating formats (`.toFixed(2)`) to ensure layout parser compliance.
+- **Transactional Intent Filtering**: The structure locks the optional transactional property down to strict literal string unions (`'rent'` | `'own'`) to avoid invalid data entry.
 
 ### Paywall Registration & Subscription Guardrails (v1.1.5)
 For media syndicates, educational organizations, and video streaming architectures utilizing monetization paywalls, misconfiguring premium access markers can lead to harsh ranking reductions due to misleading click funnels (user frustration loops). **v1.1.5** abstracts this integration completely:

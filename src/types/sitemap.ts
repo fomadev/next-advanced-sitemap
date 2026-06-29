@@ -87,6 +87,12 @@ export interface SitemapVideo {
   restriction?: VideoRestriction;
   /** (Optional) v1.1.4: Restriction selon le type d'appareil / plateforme. */
   platform?: VideoPlatform;
+  /**
+   * v1.1.5 : Indique si l'accès à la vidéo nécessite un abonnement payant.
+   * Accepte true/false ou de manière stricte 'yes'/'no'.
+   * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
+   */
+  requires_subscription?: boolean | 'yes' | 'no';
 }
 
 /**

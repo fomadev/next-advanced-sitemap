@@ -114,6 +114,37 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:requires_subscription>${subValue}</video:requires_subscription>\n`;
     }
 
+    // ✨ Validation et Sérialisation des Prix et Achats (v1.1.6)
+    if (vid.price) {
+      const { value, currency, type } = vid.price;
+
+      if (value === undefined || value < 0) {
+        throw new Error(
+          `[next-advanced-sitemap] Invalid video price value: "${value}". Value must be a positive number.`
+        );
+      }
+
+      const cleanCurrency = currency ? currency.trim().toUpperCase() : '';
+      if (cleanCurrency.length !== 3) {
+        throw new Error(
+          `[next-advanced-sitemap] Invalid ISO 4217 currency code: "${currency}". Currency must be exactly a 3-letter code.`
+        );
+      }
+
+      let priceXml = `      <video:price currency="${cleanCurrency}"`;
+      if (type) {
+        if (type !== 'rent' && type !== 'own') {
+          throw new Error(
+            `[next-advanced-sitemap] Invalid price type: "${type}". Allowed values are 'rent' or 'own'.`
+          );
+        }
+        priceXml += ` type="${type}"`;
+      }
+      priceXml += `>${value.toFixed(2)}</video:price>\n`;
+      
+      xml += priceXml;
+    }
+
     xml += `    </video:video>\n`;
   }
   

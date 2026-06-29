@@ -14,8 +14,9 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 - **Google Images Support**: Complete indexation of visual assets with support for titles, captions, local SEO positioning, and copyright protections.
 - **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
 - **Google Video Support**: Boost video search layouts and video-carousel presence on Google Search with complete structured data encapsulation.
-- **Video Engagement Metrics & Validation (v1.1.3)**: Native integration of `<video:duration>` and `<video:view_count>` statistical metrics featuring deterministic float truncation (`Math.floor`) and strict bounding boundaries (0 to 28,800 seconds max).
+- **Video Subscription & Paywall Guardrails (v1.1.5)**: Native integration of the `<video:requires_subscription>` tag to signal premium paywall barriers or free-tier states, preventing user-frustration search algorithmic penalties.
 - **Video Country & Device Restrictions (v1.1.4)**: Advanced access control policy injection via `<video:restriction>` and `<video:platform>` properties to strictly control video delivery layouts across global boundaries and distinct screen classes (`web`, `mobile`, `tv`).
+- **Video Engagement Metrics & Validation (v1.1.3)**: Native integration of `<video:duration>` and `<video:view_count>` statistical metrics featuring deterministic float truncation (`Math.floor`) and strict bounding boundaries (0 to 28,800 seconds max).
 - **Google Video Live Streaming (v1.1.1)**: Native injection of the `<video:live>` parameter to flag active real-time broadcasts and instantly trigger red **LIVE** badges on Google SERP matrices.
 - **Google News Support**: Instant discovery for news publications with strict support for required news name, language tag, and publication date attributes.
 - **Internationalization (Hreflang)**: Seamless rendering of `xhtml:link` relation tags to govern multi-regional and multilingual indexing across global markets.
@@ -65,6 +66,8 @@ export async function GET() {
           publication_date: new Date(),
           duration: 7200, 
           view_count: 25000,
+          // v1.1.5: Flexible Paywall Registration (Accepts boolean or strict 'yes' | 'no')
+          requires_subscription: true,
           // v1.1.4: Strict Geographic Filtering & Capitalization Sanitization
           restriction: {
             relationship: 'allow',
@@ -84,7 +87,7 @@ export async function GET() {
       images: [
         {
           loc: 'https://fomadev.com/images/product.png',
-          title: '   Premium Wireless Keyboard   ', // v1.1.2: Auto-trimmed preventively
+          title: '    Premium Wireless Keyboard    ', // v1.1.2: Auto-trimmed preventively
           caption: 'Close-up shot of our custom mechanical keyboard layout with XML characters like & or <', // v1.1.2: Deep XML Escaping
           geo_location: 'Kinshasa, Democratic Republic of the Congo', // v1.1.0 Local SEO
           license: 'https://fomadev.com/terms/licensing' // v1.1.0 Badging
@@ -278,6 +281,15 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Paywall Registration & Subscription Guardrails (v1.1.5)
+For media syndicates, educational organizations, and video streaming architectures utilizing monetization paywalls, misconfiguring premium access markers can lead to harsh ranking reductions due to misleading click funnels (user frustration loops). **v1.1.5** abstracts this integration completely:
+
+- **Polymorphic Flag Binding**: Developers can feed standard TypeScript boolean primitives (`true`/`false`) smoothly during layout binding, or explicitly pass native schema tokens (`'yes'` / `'no'`).
+
+- **Data Normalization Engine**: The compiler captures boolean states and automatically renders them into standard Googlebot-compliant entity wrappers behind the scenes.
+
+- **Fail-Fast Boundary Validation**: Inputting mixed type variables instantly triggers an architectural parsing error at runtime to halt invalid XML distribution formats before deployment.
 
 ### Video Distribution Rights & Geo-Blocking Safeguards (v1.1.4)
 For streaming platforms, modern SaaS corporations, and decentralized content houses, geoblocking and device-specific index filtering are critical mechanisms needed to comply with broadcasting licenses and localized compliance laws. **v1.1.4** delivers high-performance runtime guardrails enforcing the exact schemas expected by Googlebot:

@@ -107,6 +107,16 @@ export interface SitemapVideo {
    * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
    */
   price?: VideoPrice;
+  /** 
+   * ✨ v1.1.7 : Catégorie thématique générale de la vidéo (ex: 'Éducation', 'Technologie'). 
+   * Chaîne de caractères de 256 caractères maximum.
+   */
+  category?: string;
+  /** 
+   * ✨ v1.1.7 : Mots-clés décrivant la vidéo. 
+   * Tableau de chaînes de caractères, limité à 32 tags maximum par vidéo.
+   */
+  tags?: string[];
 }
 
 /**

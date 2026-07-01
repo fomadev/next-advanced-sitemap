@@ -128,6 +128,12 @@ export interface SitemapNews {
   language: string;
   publication_date: Date | string;
   title: string;
+  /**
+   * ✨ v1.1.8 : Liste des symboles boursiers associés à l'article.
+   * Exemple : ['NASDAQ:AAPL', 'NYSE:GE']
+   * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
+   */
+  stock_tickers?: string[];
 }
 
 /**

@@ -13,6 +13,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 - **Google Images Support**: Complete indexation of visual assets with support for titles, captions, local SEO positioning, and copyright protections.
 - **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
+- **Video Semantic Classification & Long-Tail SEO (v1.1.7)**: Support for `<video:category>` and multiple `<video:tag>` elements to deeply contextualize video content and map assets to highly targeted niche queries.
 - **Video Monetization Models & Prices (v1.1.6)**: Support for `<video:price>` parameters allowing VOD systems, streaming apps, and online academies to append clear monetary tags (`currency`, `value`, `type: rent/own`) directly into Google video indexing carousels.
 - **Google Video Support**: Boost video search layouts and video-carousel presence on Google Search with complete structured data encapsulation.
 - **Video Subscription & Paywall Guardrails (v1.1.5)**: Native integration of the `<video:requires_subscription>` tag to signal premium paywall barriers or free-tier states, preventing user-frustration search algorithmic penalties.
@@ -67,6 +68,11 @@ export async function GET() {
           publication_date: new Date(),
           duration: 7200, 
           view_count: 25000,
+          // v1.1.7: Semantic Topical Classification & Long-Tail Tags
+          category: '  Education & Technology  ', // Auto-trimmed and XML-escaped
+          tags: ['nextjs', 'typescript', ' advanced seo '], // Limited to 32 tags max
+          // v1.1.6: Commercial VOD Pricing Structure (Auto ISO 4217 & decimal formatting)
+          price: { value: 19.99, currency: 'usd', type: 'own' }, 
           // v1.1.5: Flexible Paywall Registration (Accepts boolean or strict 'yes' | 'no')
           requires_subscription: true,
           // v1.1.4: Strict Geographic Filtering & Capitalization Sanitization
@@ -225,68 +231,95 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 ### SitemapVideo
 
 <table>
-  <thead>
-      <tr>
-          <th>Property</th>
-          <th>Type</th>
-          <th>Description</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>thumbnail_loc</code></td>
-          <td>string</td>
-          <td><strong>Required.</strong> The absolute URL targeting the source image asset.</td>
-      </tr>
-      <tr>
-          <td><code>title</code></td>
-          <td>string</td>
-          <td><strong>Required.</strong> The descriptive headline of the video asset. Escaped.</td>
-      </tr>
-      <tr>
-          <td><code>description</code></td>
-          <td>string</td>
-          <td><strong>Required.</strong> Summary text representing the video topic. Max 2048 chars.</td>
-      </tr>
-      <tr>
-          <td><code>publication_date</code></td>
-          <td>Date | string</td>
-          <td><strong>Required.</strong> Publication date object or raw formatted ISO string.</td>
-      </tr>
-      <tr>
-          <td><code>content_loc</code></td>
-          <td>string</td>
-          <td>Optional absolute URL targeting the raw video media stream container.</td>
-      </tr>
-      <tr>
-          <td><code>player_loc</code></td>
-          <td>string</td>
-          <td>Optional absolute URL linking out to an embeddable video player frame.</td>
-      </tr>
-      <tr>
-          <td><code>duration</code></td>
-          <td>number</td>
-          <td>Optional length in seconds. Must be an integer bounded between 0 and 28800.</td>
-      </tr>
-      <tr>
-          <td><code>view_count</code></td>
-          <td>number</td>
-          <td>Optional overall hit counter. Negative values strictly prohibited.</td>
-      </tr>
-      <tr>
-          <td><code>live</code></td>
-          <td>'yes' | 'no'</td>
-          <td>Optional switch triggering immediate Google SERP LIVE badges.</td>
-      </tr>
-      <tr>
-         <td><code>price</code></td>
-         <td>VideoPrice</td>
-         <td>Optional metadata structure attaching commercial purchase parameters to standard Google video rich cards.</td>
-      </tr>
-  </tbody>
+    <thead>
+        <tr>
+            <th>Property</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>thumbnail_loc</code></td>
+            <td>string</td>
+            <td><strong>Required.</strong> The absolute URL targeting the source image asset.</td>
+        </tr>
+        <tr>
+            <td><code>title</code></td>
+            <td>string</td>
+            <td><strong>Required.</strong> The descriptive headline of the video asset. Escaped.</td>
+        </tr>
+        <tr>
+            <td><code>description</code></td>
+            <td>string</td>
+            <td><strong>Required.</strong> Summary text representing the video topic. Max 2048 chars.</td>
+        </tr>
+        <tr>
+            <td><code>publication_date</code></td>
+            <td>Date | string</td>
+            <td><strong>Required.</strong> Publication date object or raw formatted ISO string.</td>
+        </tr>
+        <tr>
+            <td><code>content_loc</code></td>
+            <td>string</td>
+            <td>Optional absolute URL targeting the raw video media stream container.</td>
+        </tr>
+        <tr>
+            <td><code>player_loc</code></td>
+            <td>string</td>
+            <td>Optional absolute URL linking out to an embeddable video player frame.</td>
+        </tr>
+        <tr>
+            <td><code>duration</code></td>
+            <td>number</td>
+            <td>Optional length in seconds. Must be an integer bounded between 0 and 28800.</td>
+        </tr>
+        <tr>
+            <td><code>view_count</code></td>
+            <td>number</td>
+            <td>Optional overall hit counter. Negative values strictly prohibited.</td>
+        </tr>
+        <tr>
+            <td><code>live</code></td>
+            <td>'yes' | 'no'</td>
+            <td>Optional switch triggering immediate Google SERP LIVE badges.</td>
+        </tr>
+        <tr>
+            <td><code>price</code></td>
+            <td>VideoPrice</td>
+            <td>Optional metadata structure attaching commercial purchase parameters to standard Google video rich cards.</td>
+        </tr>
+        <tr>
+    <td><code>category</code></td>
+    <td>string</td>
+    <td>Optional general topical category (e.g., 'Education', 'Technology'). Max 256 characters. Automatically trimmed and XML-escaped.</td>
+    </tr>
+    <tr>
+        <td><code>tags</code></td>
+        <td>string[]</td>
+        <td>Optional array of keywords describing the video. Bound to a strict maximum of 32 tags per video entry. Individual tags are automatically trimmed and XML-escaped.</td>
+    </tr>
+    <tr>
+    <td><code>category</code></td>
+    <td>string</td>
+    <td>Optional general topical category (e.g., 'Education', 'Technology'). Max 256 characters. Automatically trimmed and XML-escaped.</td>
+    </tr>
+    <tr>
+        <td><code>tags</code></td>
+        <td>string[]</td>
+        <td>Optional array of keywords describing the video. Bound to a strict maximum of 32 tags per video entry. Individual tags are automatically trimmed and XML-escaped.</td>
+    </tr>
+    </tbody>
 </table>
 
 ## Technical Implementation
+
+### Video Semantic Classification & Strict Structural Boundaries (v1.1.7)
+To establish high topical authority without triggering algorithmic index drops or schema structure rejections in Google Search Console, **v1.1.7** implements multi-layered structural validation guardrails for categorization metadata:
+
+- **Strict Array Length Checks**: The engine intercepts tag matrices at runtime. If a video block exceeds Google's hard threshold of 32 tags, the pipeline aborts via a descriptive fail-fast exception to prevent writing non-compliant XML structures.
+- **Character Constraint & Trimming Safeties**: Category strings are automatically run through a whitespace-reduction pipeline. The internal engine verifies that the sanitized result complies with the 256-character limitation while throwing an error if the category reduces to an empty token.
+- **Deep Entity Escaping on Metadata**: To fully protect the XML stream tree from layout crashes caused by characters like `&` or `<` inside user-generated or database-stored categories and tags (e.g., `"Next.js & Architecture"`), every text node is safely passed through the core high-performance regex escaping matrix.
 
 ### Video Pay-Per-View & VOD Pricing Architecture (v1.1.6)
 For on-demand streaming infrastructures, private bootcamps, and e-learning engines, exposing precise transactional pricing properties to crawlers structures Google's rich metadata carousels. **v1.1.6** implements strict formatting pipelines to meet internal Google Search Console parameters:

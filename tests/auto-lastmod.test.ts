@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateXml } from '../src/core/generator';
-import { SitemapEntry } from '../src/types/sitemap';
+import { generateXml } from '../src/core/generator.js';
+import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('Auto-lastmod Feature (v1.0.3)', () => {
   

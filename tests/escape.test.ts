@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { escapeXml } from '../src/utils/xml-escape';
+import { escapeXml } from '../src/utils/xml-escape.js';
 
 describe('XML Escape Advanced', () => {
   it('should escape complex strings', () => {

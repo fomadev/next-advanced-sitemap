@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 1. Exécute la suite complète des tests avec Vitest en mode CI strict (single run)
+      # 1. Exécute les tests unitaires ET la suite de sécurité contre les injections XML/XSS
       - name: Execute strict test suite & generate XML fixtures
         run: npm run test
 
@@ -60,8 +60,6 @@ jobs:
       - name: Run Strict Type Integrity Checks (Are the Types Wrong?)
         run: |
           echo "Analyse des fichiers de déclaration de types générés..."
-          # Exécute attw sur le package pour vérifier que les définitions .d.ts 
-          # sont résolues correctement sous toutes les configurations de moduleResolution.
           npx @arethetypeswrong/cli --pack .
           echo "✅ PARFAIT : La matrice de types exportée est 100% valide et interopérable !"
 
@@ -70,6 +68,7 @@ jobs:
         run: |
           mkdir sandbox
           cd sandbox                    
+          
           # Création d'un package.json minimal avec Next.js et React
           cat << 'EOF' > package.json
           {
@@ -79,7 +78,7 @@ jobs:
               "build": "next build"
             }
           }
-          EOF
+          EOF          
           
           # Installation de Next 16 avec ses définitions de types obligatoires
           npm install --no-package-lock next@latest react@latest react-dom@latest @types/react@latest @types/node@latest ../
@@ -149,9 +148,10 @@ jobs:
         run: |
           set -euxo pipefail
           cd sandbox
+          
           echo "=== ENV INFO ==="
           node -v
-          npm -v
+          npm -v          
           
           echo "=== PACKAGES INSTALLED ==="
           npm ls next react react-dom next-advanced-sitemap || true

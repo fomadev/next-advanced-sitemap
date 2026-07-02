@@ -4,8 +4,8 @@
  */
 
 import { describe, test, expect } from 'vitest';
-import { generateXml } from '../src/core/generator';
-import { SitemapEntry } from '../src/types/sitemap';
+import { generateXml } from '../src/core/generator.js';
+import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('v1.1.2 : Métadonnées d\'Accessibilité Images', () => {
   test('devrait générer le XML sans caption ni title s\'ils sont absents', () => {

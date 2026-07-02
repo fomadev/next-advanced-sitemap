@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { generateXml } from '../src/core/generator';
-import { SitemapEntry } from '../src/types/sitemap';
+import { generateXml } from '../src/core/generator.js';
+import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('Native Date Polymorphism (v1.0.6)', () => {
   const MOCK_DATE = new Date('2026-05-20T12:00:00.000Z');

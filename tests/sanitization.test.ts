@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { generateXml } from '../src/core/generator';
-import { SitemapEntry } from '../src/types/sitemap';
+import { generateXml } from '../src/core/generator.js';
+import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('Auto-Trimming URL Sanitization (v1.0.7)', () => {
   it('should automatically trim leading and trailing spaces from the main URL', () => {

@@ -11,14 +11,15 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
-- **Google Images Support**: Complete indexation of visual assets with support for titles, captions, local SEO positioning, and copyright protections.
-- **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
+- **Financial Google News Syndication (v1.1.8)**: Native support for `<news:stock_tickers>` tags, mapping general press articles directly to active global stock market boards.
 - **Video Semantic Classification & Long-Tail SEO (v1.1.7)**: Support for `<video:category>` and multiple `<video:tag>` elements to deeply contextualize video content and map assets to highly targeted niche queries.
 - **Video Monetization Models & Prices (v1.1.6)**: Support for `<video:price>` parameters allowing VOD systems, streaming apps, and online academies to append clear monetary tags (`currency`, `value`, `type: rent/own`) directly into Google video indexing carousels.
 - **Google Video Support**: Boost video search layouts and video-carousel presence on Google Search with complete structured data encapsulation.
 - **Video Subscription & Paywall Guardrails (v1.1.5)**: Native integration of the `<video:requires_subscription>` tag to signal premium paywall barriers or free-tier states, preventing user-frustration search algorithmic penalties.
 - **Video Country & Device Restrictions (v1.1.4)**: Advanced access control policy injection via `<video:restriction>` and `<video:platform>` properties to strictly control video delivery layouts across global boundaries and distinct screen classes (`web`, `mobile`, `tv`).
 - **Video Engagement Metrics & Validation (v1.1.3)**: Native integration of `<video:duration>` and `<video:view_count>` statistical metrics featuring deterministic float truncation (`Math.floor`) and strict bounding boundaries (0 to 28,800 seconds max).
+- **Google Images Support**: Complete indexation of visual assets with support for titles, captions, local SEO positioning, and copyright protections.
+- **Image Accessibility Protection (v1.1.2)**: Advanced preventive protection against empty text strings or spaces (`.trim()`) in `title` and `caption` fields to completely eliminate malformed empty XML tokens.
 - **Google Video Live Streaming (v1.1.1)**: Native injection of the `<video:live>` parameter to flag active real-time broadcasts and instantly trigger red **LIVE** badges on Google SERP matrices.
 - **Google News Support**: Instant discovery for news publications with strict support for required news name, language tag, and publication date attributes.
 - **Internationalization (Hreflang)**: Seamless rendering of `xhtml:link` relation tags to govern multi-regional and multilingual indexing across global markets.
@@ -87,6 +88,18 @@ export async function GET() {
           }
         }
       ]
+    },
+    {
+      url: 'https://fomadev.com/news/fintech-drc-2026',
+      priority: 0.85,
+      // v1.1.8: Google News Syndication Matrix with Market Stock Tickers
+      news: {
+        name: 'FomaDev Insights',
+        language: 'fr',
+        publication_date: new Date(),
+        title: 'The Rise of FinTech Infrastructure in Central Africa',
+        stock_tickers: [' NYSE:BABA ', 'NASDAQ:AAPL'] // Auto-trimmed, validated & comma-separated
+      }
     },
     {
       url: 'https://fomadev.com/products/tech-item',
@@ -313,6 +326,12 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Financial News Indexing & Exchange Layout Guarantees (v1.1.8)
+To prevent ingestion validation errors within Google News Publisher Center dashboards, **v1.1.8** provides structural safety rails over trading taxonomy:
+
+- **Literal Exchange Formatting**: The engine maps entries and asserts that each ticker entry implements an explicit colon separator split (`EXCHANGE:TICKER`). Mismatched patterns drop immediate compile-time or runtime errors.
+- **Compact Delimiter Rendering**: Individual entities are fully sanitized, trimmed of white spaces, and bundled into a native single-line string token separated strictly by commas, adhering cleanly to Google's structural specification.
 
 ### Video Semantic Classification & Strict Structural Boundaries (v1.1.7)
 To establish high topical authority without triggering algorithmic index drops or schema structure rejections in Google Search Console, **v1.1.7** implements multi-layered structural validation guardrails for categorization metadata:

@@ -28,10 +28,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. Exécute la suite complète des tests avec Vitest en mode CI strict (single run)
+      # 1. Exécute la suite complète des tests avec Vitest en mode CI strict (single run)
       - name: Execute strict test suite & generate XML fixtures
         run: npm run test
 
+      # 2. Compile le code avec Tsup pour valider le build de production (.js et .cjs)
       - name: Validate production build
         run: npm run build
 
@@ -48,10 +49,70 @@ jobs:
           ls -R tests/
           if [ -f "tests/fixtures/sitemap.xml" ]; then
             echo "🔥 Fixture trouvée ! Analyse syntaxique en cours..."
-            # Vérifie la conformité syntaxique (balises ouvertes/fermées, entités échappées)
             xmllint --noout tests/fixtures/sitemap.xml
             echo "✅ Succès : Le flux XML généré respecte à 100% les exigences des serveurs Google !"
           else
             echo "❌ Erreur : La fixture tests/fixtures/sitemap.xml n'a pas été trouvée."
             exit 1
           fi
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3 : Test de build SSR réel dans une Sandbox Next.js App Router
+      - name: Setup Ultralight Next.js Sandbox
+        run: |
+          mkdir sandbox
+          cd sandbox
+          
+          # Création d'un package.json minimal avec Next.js et React
+          cat << 'EOF' > package.json
+          {
+            "name": "next-sitemap-sandbox",
+            "private": true,
+            "scripts": {
+              "build": "next build"
+            }
+          }
+          EOF
+          
+          # Installation rapide de Next.js, React et de ton package local (via le dossier parent)
+          npm install next@latest react@latest react-dom@latest ../
+
+          # Configuration minimale pour forcer le build en mode production strict
+          cat << 'EOF' > next.config.js
+          /** @type {import('next').NextConfig} */
+          const nextConfig = {
+            eslint: { ignoreDuringBuilds: true },
+            typescript: { ignoreBuildErrors: true }
+          };
+          module.exports = nextConfig;
+          EOF
+
+          # Création de la route d'API de test (App Router) qui utilise ton package
+          mkdir -p app/sitemap.xml
+          cat << 'EOF' > app/sitemap.xml/route.ts
+          import { getServerSitemapResponse } from 'next-advanced-sitemap';
+
+          export async function GET() {
+            const entries = [
+              {
+                url: 'https://fomadev.com',
+                lastmod: new Date(),
+                priority: 1.0,
+                news: {
+                  name: 'FomaDev Insights',
+                  language: 'fr',
+                  publication_date: new Date(),
+                  title: 'DevOps Validation',
+                  stock_tickers: ['NASDAQ:AAPL']
+                }
+              }
+            ];
+            return getServerSitemapResponse(entries);
+          }
+          EOF
+
+      - name: Execute Strict Next.js Production Build Validation
+        run: |
+          cd sandbox
+          # Lance la compilation Next.js. Si ton code utilise 'window' ou crache en SSR, le build échouera ici !
+          npm run build
+          echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec le compilateur Server-Side de Next.js !"

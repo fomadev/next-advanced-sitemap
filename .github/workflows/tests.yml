@@ -6,9 +6,9 @@ name: Code Quality & Automation
 
 on:
   push:
-    branches: [ main, master, ci/centralize-validation-workflow ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, master, ci/centralize-validation-workflow ]
+    branches: [ main, master ]
 
 jobs:
   verify:
@@ -28,8 +28,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # 4. Exécute la suite complète des tests avec Vitest en mode CI strict (single run)
       - name: Execute strict test suite & generate XML fixtures
-        run: npx vitest run
+        run: npm run test
 
       - name: Validate production build
         run: npm run build
@@ -44,12 +45,13 @@ jobs:
 
       - name: Verify XML Compliance Against Official W3C/Google Patterns
         run: |
+          ls -R tests/
           if [ -f "tests/fixtures/sitemap.xml" ]; then
             echo "🔥 Fixture trouvée ! Analyse syntaxique en cours..."
             # Vérifie la conformité syntaxique (balises ouvertes/fermées, entités échappées)
             xmllint --noout tests/fixtures/sitemap.xml
             echo "✅ Succès : Le flux XML généré respecte à 100% les exigences des serveurs Google !"
           else
-            echo "❌ Erreur : La fixture tests/fixtures/sitemap.xml n'a pas été générée par Vitest."
+            echo "❌ Erreur : La fixture tests/fixtures/sitemap.xml n'a pas été trouvée."
             exit 1
           fi

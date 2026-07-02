@@ -2,7 +2,7 @@
   "name": "next-advanced-sitemap",
   "version": "1.1.8",
   "type": "module",
-  "description": "Advanced sitemap generator for Next.js. Powerful support for Google Images, Video, News, and Hreflang (multilingual). Type-safe, zero-dependency, and built for App Router.",
+  "description": "Advanced sitemap generator for Next.js. Powerful support for Google Images, Video, News, and Hreflang (multilingual). Type-safe and built for App Router.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -73,7 +73,7 @@ jobs:
           }
           EOF
           
-          # 🎯 CORRECTION COMPATIBILITÉ & TYPES : Retour sur Next 16 latest + installation des @types indispensables
+          # Installation de Next 16 latest avec ses définitions de types obligatoires
           npm install --no-package-lock next@latest react@latest react-dom@latest @types/react@latest @types/node@latest ../
 
           # Configuration pour forcer Next.js à ignorer les alertes non critiques
@@ -132,7 +132,7 @@ jobs:
           }
           EOF
 
-      # 🎯 EXPERT DIAGNOSTIC : Environnement hyper-strict de capture des logs en cas de pépin
+      # 🎯 EXPERT DIAGNOSTIC : Environnement de capture robuste et sauvegarde immédiate du code d'erreur
       - name: Execute Strict Next.js Production Build Validation
         env:
           NEXT_TELEMETRY_DISABLED: 1
@@ -151,10 +151,14 @@ jobs:
 
           echo "=== STARTING BUILD ==="
           npx next build 2>&1 | tee build.log
+          
+          # 🎯 SAUVEGARDE IMMÉDIATE : Empêche l'effacement de la valeur par le tableau PIPESTATUS
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
 
-          echo "Exit code: ${PIPESTATUS[0]}"
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+          echo "Exit code: $BUILD_EXIT_CODE"
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
             echo "===== CRITICAL BUILD LOG FAILURE ====="
             cat build.log
             exit 1
           fi
+          echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec le compilateur Server-Side de Next.js !"

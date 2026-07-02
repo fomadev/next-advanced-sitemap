@@ -56,7 +56,7 @@ jobs:
             exit 1
           fi
 
-      # 🛡️ BARRIÈRE DE SÉCURITÉ 3 : Configuration de la Sandbox Next.js App Router
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3 : Test de build SSR réel dans une Sandbox Next.js App Router
       - name: Setup Ultralight Next.js Sandbox
         run: |
           mkdir sandbox
@@ -73,15 +73,14 @@ jobs:
           }
           EOF
           
-          # Installation propre sans génération de lockfile
-          npm install --no-package-lock next@latest react@latest react-dom@latest ../
+          # 🎯 STABILISATION : On cible Next 15 pour isoler les caprices de Turbopack Next 16
+          npm install --no-package-lock next@15 react@19 react-dom@19 ../
 
           # Configuration pour forcer Next.js à ignorer les alertes non critiques
           cat << 'EOF' > next.config.js
           /** @type {import('next').NextConfig} */
           const nextConfig = {
-            typescript: { ignoreBuildErrors: true },
-            eslint: { ignoreDuringBuilds: true }
+            typescript: { ignoreBuildErrors: true }
           };
           module.exports = nextConfig;
           EOF
@@ -133,14 +132,14 @@ jobs:
           }
           EOF
 
-      # 🎯 LA CORRECTION FINALE : Isolation complète de l'exécution du build avec npx en environnement strict
+      # 🎯 INSTRUMENTATION : Tracing complet et mode verbeux activé
       - name: Execute Strict Next.js Production Build Validation
         env:
           NEXT_TELEMETRY_DISABLED: 1
           CI: "true"
           NODE_ENV: production
         run: |
+          set -x
           cd sandbox
-          # Utilisation directe du binaire next local pour éviter les décalages d'exit codes du package.json
+          # Utilisation directe du binaire local avec le flag expérimental/debug si disponible
           npx next build
-          echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec le compilateur Server-Side de Next.js !"

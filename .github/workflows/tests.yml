@@ -73,8 +73,8 @@ jobs:
           }
           EOF
           
-          # Installation rapide de Next.js, React et de ton package local
-          npm install next@latest react@latest react-dom@latest ../
+          # 🎯 LA CORRECTION EST ICI : Ajout du drapeau --no-package-lock
+          npm install --no-package-lock next@latest react@latest react-dom@latest ../
 
           # Configuration propre et valide pour Next.js (sans clés obsolètes)
           cat << 'EOF' > next.config.js
@@ -115,6 +115,6 @@ jobs:
       - name: Execute Strict Next.js Production Build Validation
         run: |
           cd sandbox
-          # Lance la compilation Next.js. Tout est désormais parfaitement d'équerre !
+          # Lance la compilation Next.js sur l'environnement de la CI
           npm run build
           echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec le compilateur Server-Side de Next.js !"

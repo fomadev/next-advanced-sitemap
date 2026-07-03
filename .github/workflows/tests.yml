@@ -66,11 +66,14 @@ jobs:
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js App Router
       - name: Setup Ultralight Next.js Sandbox
         run: |
+          # 🎯 SÉCURITÉ : Interception immédiate des erreurs dans ce bloc
+          set -euxo pipefail
+
           # 1. On génère l'archive tarball à la racine
           NPM_TARBALL=$(npm pack)          
-          mkdir sandbox
+          mkdir sandbox          
           
-          # 🎯 DÉPLACEMENT : On envoie l'archive directement à l'intérieur du dossier isolé
+          # 🎯 DÉPLACEMENT : On isole l'archive dans le dossier fermé
           mv "$NPM_TARBALL" sandbox/package-local.tgz
           cd sandbox                              
           
@@ -85,8 +88,8 @@ jobs:
           }
           EOF          
           
-          # 3. Installation locale isolée (on pointe sur le fichier interne au dossier courant)
-          npm install --no-package-lock next@latest react@latest react-dom@latest @types/react@latest @types/node@latest ./package-local.tgz
+          # 3. Installation locale isolée stricte (sans remonter aux workspaces parents)
+          npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest ./package-local.tgz
 
           # Configuration Turbopack / Next.js
           cat << 'EOF' > next.config.js
@@ -152,19 +155,18 @@ jobs:
           NODE_ENV: production
         run: |
           set -euxo pipefail
-          cd sandbox
-          
+          cd sandbox          
           echo "=== ENV INFO ==="
           node -v
           npm -v          
           
           echo "=== PACKAGES INSTALLED ==="
-          npm ls next react react-dom next-advanced-sitemap || true
+          npm ls next react react-dom next-advanced-sitemap --no-workspaces || true
 
           echo "=== STARTING BUILD ==="
           npx next build 2>&1 | tee build.log
           
-          # 🎯 SAUVEGARDE IMMÉDIATE : Empêche l'effacement de la valeur par le tableau PIPESTATUS
+          # 🎯 SAUVEGARDE IMMÉDIATE
           BUILD_EXIT_CODE=${PIPESTATUS[0]}
 
           echo "Exit code: $BUILD_EXIT_CODE"

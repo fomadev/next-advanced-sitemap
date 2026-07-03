@@ -63,57 +63,58 @@ jobs:
           npx @arethetypeswrong/cli --pack .
           echo "✅ PARFAIT : La matrice de types exportée est 100% valide et interopérable !"
 
-      # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js App Router
-      - name: Setup Ultralight Next.js Sandbox
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 4 & DIAGNOSTIC : Test de build SSR réel dans une Sandbox Next.js unifiée
+      - name: Setup Sandbox & Validate Next.js Production Build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          CI: "true"
+          NODE_ENV: production
         run: |
-          set -euxo pipefail
+          set -euxo pipefail                    
           
-          # 1. Génération ultra-fiable du tarball (extraction du nom exact via la sortie JSON)
+          # 1. Génération propre et ultra-fiable du tarball local (extraction JSON)
           NPM_TARBALL_JSON=$(npm pack --json)
-          
-          # Utilisation de Node.js pour parser le JSON de manière native (évite d'installer jq)
           NPM_TARBALL=$(node -e "console.log(${NPM_TARBALL_JSON}[0].filename)")
           
-          echo "🎯 Tarball détecté : $NPM_TARBALL"
+          echo "🎯 Tarball extrait avec succès : $NPM_TARBALL"
           
           mkdir -p sandbox          
           mv "$NPM_TARBALL" sandbox/package-local.tgz
           cd sandbox                              
           
-          # 2. Création transparente du package.json de la sandbox
+          # 2. Création du package.json de la sandbox en ESM pur
           cat << 'EOF' > package.json
           {
             "name": "next-sitemap-sandbox",
             "private": true,
+            "version": "1.0.0",
+            "type": "module",
             "scripts": {
               "build": "next build"
             }
           }
           EOF          
-          
-          echo "=== INSPECTION : SANDBOX PACKAGE.JSON ==="
-          cat package.json
 
-          echo "=== INSPECTION : TARBALL CONTENTS ==="
-          tar -tf package-local.tgz
-
-          # 3. Isolation des installations pour identifier précisément qui bloque
-          echo "=== INSTALLATION step 1 : Tarball local ==="
+          # 3. Installations segmentées et locales hautement isolées
+          echo "=== INSTALLATION STEP 1 : Paquet local ==="
           npm install --no-package-lock --no-workspaces ./package-local.tgz
 
-          echo "=== INSTALLATION step 2 : Écosystème Next & React ==="
+          echo "=== INSTALLATION STEP 2 : Écosystème Next & React ==="
           npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest
 
-          echo "=== INSPECTION : POST-INSTALLATION VERIFICATION ==="
-          ls -la node_modules/next-advanced-sitemap || echo "⚠️ Alerte : Dossier introuvable !"
+          # 4. Inspections chirurgicales immédiates du système de fichiers local
+          echo "=== INSPECTION SYSTEME DE FICHIERS ==="
+          ls -la
+          ls -la node_modules || true
+          ls -la node_modules/next-advanced-sitemap || true
 
-          # Configuration de l'environnement Next.js / Turbopack
-          cat << 'EOF' > next.config.js
+          # 5. Configuration Next.js en ESM moderne (.mjs) pour éviter les conflits
+          cat << 'EOF' > next.config.mjs
           /** @type {import('next').NextConfig} */
           const nextConfig = {
             typescript: { ignoreBuildErrors: true }
           };
-          module.exports = nextConfig;
+          export default nextConfig;
           EOF
 
           mkdir -p app/sitemap.xml
@@ -159,40 +160,17 @@ jobs:
           }
           EOF
 
-      # 🎯 EXPERT DIAGNOSTIC : Environnement de capture robuste et sauvegarde immédiate du code d'erreur
-      - name: Execute Strict Next.js Production Build Validation
-        env:
-          NEXT_TELEMETRY_DISABLED: 1
-          CI: "true"
-          NODE_ENV: production
-        run: |
-          set -euxo pipefail
-          cd sandbox                    
-          
-          echo "=== ENV INFO ==="
-          node -v
-          npm -v                    
-          
-          # 🎯 REMPLACEMENT DE NPM LS : Évite le bug de parsing de l'arbre npm 10
-          echo "=== NODE_MODULES ==="
-          ls -la node_modules || true
-
-          echo "=== PACKAGE ==="
-          ls -la node_modules/next-advanced-sitemap || true
-
-          echo "=== PACKAGE.JSON INTERNE ==="
-          cat node_modules/next-advanced-sitemap/package.json || true
-
-          echo "=== STARTING BUILD ==="
+          # 6. Lancement du Build de production dans le même contexte de shell fermé
+          echo "=== STARTING NEXT.JS BUILD ==="
           npx next build 2>&1 | tee build.log
           
-          # 🎯 SAUVEGARDE IMMÉDIATE : Empêche l'effacement de la valeur par le tableau PIPESTATUS
+          # Capture du code de retour via le tableau des PIPESTATUS de bash
           BUILD_EXIT_CODE=${PIPESTATUS[0]}
-
-          echo "Exit code: $BUILD_EXIT_CODE"
+          echo "Exit code du compilateur : $BUILD_EXIT_CODE"
+          
           if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "===== CRITICAL BUILD LOG FAILURE ====="
+            echo "===== CRITICAL NEXT.JS BUILD LOG FAILURE ====="
             cat build.log
             exit 1
           fi
-          echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec le compilateur Server-Side de Next.js !"
+          echo "✅ SUCCÈS TOTAL : Le package est 100% compatible avec Next.js Production (SSR & App Router) !"

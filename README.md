@@ -11,6 +11,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
+- **Cross-Field Semantic Validation (v1.1.9)**: Native cross-field validation engine that intercepts logical data contradictions (e.g., Live streams with static durations, subscriptions conflicts, or expired news) before writing the XML stream. Guarantees a flawless 100% compliance score in Google Search Console.
 - **Financial Google News Syndication (v1.1.8)**: Native support for `<news:stock_tickers>` tags, mapping general press articles directly to active global stock market boards.
 - **Video Semantic Classification & Long-Tail SEO (v1.1.7)**: Support for `<video:category>` and multiple `<video:tag>` elements to deeply contextualize video content and map assets to highly targeted niche queries.
 - **Video Monetization Models & Prices (v1.1.6)**: Support for `<video:price>` parameters allowing VOD systems, streaming apps, and online academies to append clear monetary tags (`currency`, `value`, `type: rent/own`) directly into Google video indexing carousels.
@@ -326,6 +327,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Cross-Field Semantic Validation & Search Console Guarantees (v1.1.9)
+To enforce an absolute 100% SEO health score and completely prevent index drops caused by structural logic contradictions, **v1.1.9** introduces an isolated pre-generation validation layer (`validateCrossFields`). The core engine scans entry matrices and enforces strict cross-field business rules:
+
+* **Live Stream vs Static Duration**: Google requires `<video:live>` structures to represent active real-time feeds. If an entry enables `live: 'yes'` while simultaneously specifying a static numerical `duration`, the compiler flags a fail-fast validation error.
+* **Subscription Paywalls vs Ownership**: To protect user experience integrity, the engine blocks logical conflicts where a video simultaneously mandates a global subscription tier (`requires_subscription: 'yes'`) and offers individual permanent transactional ownership (`price.type: 'own'`).
+* **Google News Temporal Strictness**: Google News indexes articles via sitemaps exclusively if they were published within a strict 48-hour window. The cross-validator evaluates the `publication_date` against the real-time system clock and halts the build if an expired article is detected, safeguarding your news syndication authority.
 
 ### Financial News Indexing & Exchange Layout Guarantees (v1.1.8)
 To prevent ingestion validation errors within Google News Publisher Center dashboards, **v1.1.8** provides structural safety rails over trading taxonomy:

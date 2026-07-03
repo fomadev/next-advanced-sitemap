@@ -68,9 +68,15 @@ jobs:
         run: |
           set -euxo pipefail
           
-          # 1. Génération et déplacement du tarball local
-          NPM_TARBALL=$(npm pack)          
-          mkdir sandbox          
+          # 1. Génération ultra-fiable du tarball (extraction du nom exact via la sortie JSON)
+          NPM_TARBALL_JSON=$(npm pack --json)
+          
+          # Utilisation de Node.js pour parser le JSON de manière native (évite d'installer jq)
+          NPM_TARBALL=$(node -e "console.log(${NPM_TARBALL_JSON}[0].filename)")
+          
+          echo "🎯 Tarball détecté : $NPM_TARBALL"
+          
+          mkdir -p sandbox          
           mv "$NPM_TARBALL" sandbox/package-local.tgz
           cd sandbox                              
           
@@ -91,8 +97,12 @@ jobs:
           echo "=== INSPECTION : TARBALL CONTENTS ==="
           tar -tf package-local.tgz
 
-          # 3. Installation ultra-isolée
-          npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest ./package-local.tgz
+          # 3. Isolation des installations pour identifier précisément qui bloque
+          echo "=== INSTALLATION step 1 : Tarball local ==="
+          npm install --no-package-lock --no-workspaces ./package-local.tgz
+
+          echo "=== INSTALLATION step 2 : Écosystème Next & React ==="
+          npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest
 
           echo "=== INSPECTION : POST-INSTALLATION VERIFICATION ==="
           ls -la node_modules/next-advanced-sitemap || echo "⚠️ Alerte : Dossier introuvable !"

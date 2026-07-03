@@ -8,10 +8,11 @@ import { buildUrlBaseXml } from './builders/url-builder.js';
 import { buildImageXml } from './builders/image-builder.js';
 import { buildVideoXml } from './builders/video-builder.js';
 import { buildNewsXml } from './builders/news-builder.js';
+import { validateCrossFields } from './validation/cross-validator.js';
 
 /**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
- * v1.1.4 : Version découplée et hautement modulaire.
+ * v1.1.9 : Intégration de la validation sémantique croisée en amont.
  */
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
@@ -33,6 +34,9 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
   for (const entry of finalEntries) {
+    // 🔥 ÉTAPE CRUCIALE v1.1.9 : Validation croisée pré-génération
+    validateCrossFields(entry);
+
     xml += `  <url>\n`;
     
     // 1. Éléments de base et hreflang alternatifs

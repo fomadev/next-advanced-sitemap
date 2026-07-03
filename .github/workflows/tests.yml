@@ -80,7 +80,7 @@ jobs:
           mv "$NPM_TARBALL" sandbox/package-local.tgz
           cd sandbox                              
           
-          # 2. Génération initiale du système de fichiers (Sauts de lignes stricts insérés)
+          # 2. Génération du package.json de la sandbox
           cat << 'EOF' > package.json
 {
   "name": "next-sitemap-sandbox",
@@ -93,6 +93,7 @@ jobs:
 }
 EOF
 
+          # 3. Génération de la configuration Next.js (ESM pur)
           cat << 'EOF' > next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -103,6 +104,7 @@ EOF
 
           mkdir -p app/sitemap.xml
 
+          # 4. Génération du Layout principal
           cat << 'EOF' > app/layout.tsx
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -113,12 +115,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 EOF
 
+          # 5. Génération de la page d'accueil de la sandbox
           cat << 'EOF' > app/page.tsx
 export default function Page() {
   return <h1>FomaDev Sandbox</h1>;
 }
 EOF
 
+          # 6. Génération de la route API de test pour la validation du sitemap
           cat << 'EOF' > app/sitemap.xml/route.ts
 import { getServerSitemapResponse } from 'next-advanced-sitemap';
 
@@ -130,15 +134,14 @@ export async function GET() {
 }
 EOF
 
-          # 3. Séquence d'installation séquentielle forcée (Purement linéaire)
+          # 7. Séquence d'installation séquentielle forcée (Purement linéaire)
           echo "=== EXECUTION INSTALLATION STEP 1 ==="
           npm install --no-package-lock --no-workspaces file:./package-local.tgz
 
-          # 4. Séquence d'installation de l'écosystème Next.js
           echo "=== EXECUTION INSTALLATION STEP 2 ==="
           npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest
 
-          # 5. Diagnostics et assertions physiques
+          # 8. Diagnostics et assertions physiques
           echo "=== VERIFICATION DU SYSTEME DE FICHIERS ==="
           ls -la
           ls -la node_modules || echo "❌ ERREUR CRITIQUE : node_modules est absent !"
@@ -147,7 +150,7 @@ EOF
           echo "=== CRASH TEST RESOLUTION RESOLVE ==="
           node -e "import('next-advanced-sitemap').then(() => console.log('✅ Module résolu avec succès !')).catch(err => { console.error(err); process.exit(1); })"
 
-          # 6. Build final de production
+          # 9. Build final de production
           echo "=== STARTING NEXT.JS BUILD ==="
           npx next build 2>&1 | tee build.log
           

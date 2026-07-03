@@ -42,14 +42,15 @@ describe('generateXml', () => {
   });
 
   it('must generate Google News tags', () => {
-    const date = new Date('2026-04-22');
+    // 🔥 Correction v1.1.9 : Utilisation d'une date fraîche pour passer la validation croisée des 48h
+    const freshDate = new Date();
     const entries: SitemapEntry[] = [
       {
         url: 'https://fomadev.com/news/atlas',
         news: {
           name: 'FomaDev News',
           language: 'fr',
-          publication_date: date,
+          publication_date: freshDate,
           title: 'Next-advanced-sitemap output'
         }
       }
@@ -58,7 +59,7 @@ describe('generateXml', () => {
 
     expect(result).toContain('<news:news>');
     expect(result).toContain('<news:name>FomaDev News</news:name>');
-    expect(result).toContain(date.toISOString());
+    expect(result).toContain(freshDate.toISOString());
   });
 
   it('must escape special characters to avoid breaking the XML', () => {

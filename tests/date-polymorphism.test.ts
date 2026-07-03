@@ -8,26 +8,29 @@ import { generateXml } from '../src/core/generator.js';
 import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('Native Date Polymorphism (v1.0.6)', () => {
-  const MOCK_DATE = new Date('2026-05-20T12:00:00.000Z');
+  // 🔥 Correction v1.1.9 : Utilisation d'une date dynamique pour éviter l'expiration Google News (48h)
+  const getFreshMockDate = () => new Date();
 
   it('should accept and accurately parse native JavaScript Date objects in Google News extension', () => {
+    const freshDate = getFreshMockDate();
     const entries: SitemapEntry[] = [
       {
         url: 'https://fomadev.com/news/tech',
         news: {
           name: 'FomaDev Insider',
           language: 'fr',
-          publication_date: MOCK_DATE, // Objet Date brut
+          publication_date: freshDate, // Objet Date brut et valide
           title: 'Next-advanced-sitemap v1.0.6 Released'
         }
       }
     ];
 
     const xml = generateXml(entries);
-    expect(xml).toContain(`<news:publication_date>${MOCK_DATE.toISOString()}</news:publication_date>`);
+    expect(xml).toContain(`<news:publication_date>${freshDate.toISOString()}</news:publication_date>`);
   });
 
   it('should accept and accurately parse native JavaScript Date objects in Google Videos extension', () => {
+    const freshDate = getFreshMockDate();
     const entries: SitemapEntry[] = [
       {
         url: 'https://fomadev.com/videos/tutorial',
@@ -36,13 +39,13 @@ describe('Native Date Polymorphism (v1.0.6)', () => {
             thumbnail_loc: 'https://fomadev.com/thumb.jpg',
             title: 'SEO Implementation Guide',
             description: 'Advanced automated sitemaps',
-            publication_date: MOCK_DATE // Objet Date brut
+            publication_date: freshDate // Objet Date brut
           }
         ]
       }
     ];
 
     const xml = generateXml(entries);
-    expect(xml).toContain(`<video:publication_date>${MOCK_DATE.toISOString()}</video:publication_date>`);
+    expect(xml).toContain(`<video:publication_date>${freshDate.toISOString()}</video:publication_date>`);
   });
 });

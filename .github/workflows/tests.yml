@@ -71,20 +71,21 @@ jobs:
           import { getServerSitemapResponse, getServerSitemapIndexResponse } from './dist/index.js';
           
           async function runTests() {
+            // 💡 URLs nettoyées de tout formatage Markdown parasite
             const invalidLivePayload = [{
-              url: '[https://fomadev.com](https://fomadev.com)',
+              url: 'https://fomadev.com',
               video: {
                 title: 'Live Session',
                 description: 'DevOps Training',
-                thumbnail_loc: '[https://fomadev.com](https://fomadev.com)',
+                thumbnail_loc: 'https://fomadev.com',
                 live: 'yes',
                 duration: 3600
               }
             }];
             
             const validIndexPayload = [
-              { url: '[https://fomadev.com/sitemap-products.xml](https://fomadev.com/sitemap-products.xml)', lastmod: new Date() },
-              { url: '[https://fomadev.com/sitemap-articles.xml](https://fomadev.com/sitemap-articles.xml)', lastmod: new Date() }
+              { url: 'https://fomadev.com/sitemap-products.xml', lastmod: new Date() },
+              { url: 'https://fomadev.com/sitemap-articles.xml', lastmod: new Date() }
             ];
 
             let errorInterceptionSuccess = false;
@@ -132,26 +133,22 @@ jobs:
           import { getServerSitemapIndexResponse } from './dist/index.js';
           
           async function runHeapTest() {
-            // 1. Force un nettoyage initial du Garbage Collector pour calibrer la base
             if (global.gc) { global.gc(); }
             const memInitiale = process.memoryUsage().heapUsed;
             console.log(`Poids initial de la mémoire : ${(memInitiale / 1024 / 1024).toFixed(2)} Mo`);
             
-            // 2. Génération d'un payload massif de 50 000 entrées uniques (Correction de l'interpolation ${i})
             const liensMassifs = Array.from({ length: 50000 }, (_, i) => ({
-              url: `[https://fomadev.com/sitemap-$](https://fomadev.com/sitemap-$){i}.xml`,
+              url: `https://fomadev.com/sitemap-${i}.xml`,
               lastmod: new Date()
             }));
             
             console.log("Calcul et consommation du flux XML pour 50 000 sitemaps...");
             
-            // On génère la Response ET on consomme son texte pour matérialiser la charge en mémoire
             const response = getServerSitemapIndexResponse(liensMassifs);
             const fluxXml = await response.text();
             
             console.log(`Taille brute du XML généré : ${(fluxXml.length / 1024 / 1024).toFixed(2)} Mo`);
 
-            // 3. Forcer la libération des références hors de portée
             if (global.gc) { global.gc(); }
             const memFinale = process.memoryUsage().heapUsed;
             console.log(`Poids final de la mémoire après Garbage Collection : ${(memFinale / 1024 / 1024).toFixed(2)} Mo`);
@@ -159,7 +156,6 @@ jobs:
             const deltaMemoire = (memFinale - memInitiale) / 1024 / 1024;
             console.log(`Mémoire accumulée et non libérée : ${deltaMemoire.toFixed(2)} Mo`);
             
-            // Seuil de tolérance augmenté à 45 Mo pour absorber les 50 000 instances d'objets Date() et chaînes uniques du payload initial
             if (deltaMemoire > 45) {
               console.error("❌ FAILLE D'INFRASTRUCTURE : Votre logique v1.2.0 retient trop de variables en mémoire !");
               process.exit(1);
@@ -172,7 +168,6 @@ jobs:
           runHeapTest();
           EOF
           
-          # Exécution avec le drapeau --expose-gc indispensable pour déclencher le Garbage Collector manuellement
           node --expose-gc heap-test.js
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
@@ -213,7 +208,7 @@ jobs:
             import { getServerSitemapResponse } from 'next-advanced-sitemap';
             export const dynamic = 'force-dynamic';
             export async function GET() {
-              const entries = [{ url: '[https://fomadev.com](https://fomadev.com)', lastmod: new Date(), priority: 1.0 }];
+              const entries = [{ url: 'https://fomadev.com', lastmod: new Date(), priority: 1.0 }];
               return getServerSitemapResponse(entries);
             }
         run: |

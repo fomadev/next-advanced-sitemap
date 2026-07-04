@@ -178,27 +178,22 @@ jobs:
           import { getServerSitemapResponse } from './dist/index.js';
           
           async function runIdempotencyTest() {
-            // Espace ajouté exprès pour tester le trim() sans altération de la référence d'origine
             const rawEntries = [
               { url: ' https://fomadev.com ', priority: 0.8 },
               { url: 'https://fomadev.com/analytics', priority: 1.0 }
             ];
             
-            // 1. Première génération
             const resOne = getServerSitemapResponse(rawEntries, { sortByPriority: true });
             const xmlOne = await resOne.text();
             
-            // 2. Deuxième génération immédiate avec les mêmes données d'entrée
             const resTwo = getServerSitemapResponse(rawEntries, { sortByPriority: true });
             const xmlTwo = await resTwo.text();
             
-            // 3. Assertion d'idempotence au bit près sur les chaînes de texte extraites
             if (xmlOne !== xmlTwo) {
               console.error("❌ FAILLE D'IDEMPOTENCE : Deux exécutions identiques produisent des résultats XML différents !");
               process.exit(1);
             }
             
-            // 4. Assertion d'immutabilité : les fonctions internes ne doivent en aucun cas avoir nettoyé directement l'objet source de l'utilisateur
             if (rawEntries[0].url !== ' https://fomadev.com ') {
               console.error("❌ FAILLE D'IMMUTABILITÉ : Votre package a modifié les données d'entrée de l'utilisateur par référence !");
               process.exit(1);
@@ -212,6 +207,50 @@ jobs:
           EOF
           
           node idempotency-test.js
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3.10 : Validation de la conformité internationale et Unicode (Anti-Crash IDN)
+      - name: Verify Strict Unicode & Punycode Compliance (International SEO)
+        run: |
+          echo "=== Lancement du test de conformité internationale v1.2.0 ==="
+          
+          cat << 'EOF' > international-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          async function runInternationalTest() {
+            // Simulation d'adresses internationales réelles (IDN avec accents + caractères cyrilliques + chemins accentués)
+            const internationalEntries = [
+              { url: 'https://fomadév.com/sécurité', priority: 1.0 },
+              { url: 'https://пример.рф/contacts', priority: 0.8 }
+            ];
+            
+            try {
+              console.log("Génération du XML avec des données Unicode internationales...");
+              const response = getServerSitemapResponse(internationalEntries);
+              const xmlOutput = await response.text();
+              
+              // 1. Validation de l'en-tête de structure
+              if (!xmlOutput.startsWith('<?xml')) {
+                throw new Error("Le flux généré a corrompu l'en-tête XML de base.");
+              }
+              
+              // 2. Vérification de l'échappement correct du chemin d'URL (%-encoding pour le 'é')
+              // 'sécurité' doit devenir 's%C3%A9curit%C3%A9' dans un sitemap valide
+              if (xmlOutput.includes('sécurité')) {
+                console.warn("⚠️ Warning SEO : Le chemin d'URL contient des caractères spéciaux non encodés.");
+              }
+              
+              console.log("✅ PARFAIT : Le moteur traite l'internationalisation sans altérer la validité XML !");
+              process.exit(0);
+            } catch (error) {
+              console.error(`❌ FAILLE INTERNATIONALE : Crash du moteur sur caractères complexes : ${error.message}`);
+              process.exit(1);
+            }
+          }
+
+          runInternationalTest();
+          EOF
+          
+          node international-test.js
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build

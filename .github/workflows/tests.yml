@@ -5,9 +5,9 @@
 name: Code Quality & Automation
 on:
   push:
-    branches: [ main, test ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main, test ]
+    branches: [ main, master ]
 
 jobs:
   verify:
@@ -231,10 +231,6 @@ jobs:
                 throw new Error("Le flux généré a corrompu l'en-tête XML de base.");
               }
               
-              if (xmlOutput.includes('sécurité')) {
-                console.warn("⚠️ Warning SEO : Le chemin d'URL contient des caractères spéciaux non encodés.");
-              }
-              
               console.log("✅ PARFAIT : Le moteur traite l'internationalisation sans altérer la validité XML !");
               process.exit(0);
             } catch (error) {
@@ -285,7 +281,7 @@ jobs:
               if (xml.includes('<urlset')) {
                 console.log("✅ COMPATIBILITÉ EDGE VALIDÉE : Le code s'exécute parfaitement avec des primitives Web pures !");
               } else {
-                throw new Error("Le flux XML généré is invalide.");
+                throw new Error("Le flux XML généré est invalide.");
               }
             } catch (error) {
               console.error(error.message);
@@ -321,14 +317,12 @@ jobs:
 
             const baselineEntries = [{ url: 'https://fomadev.com' }];
             
-            // 🏎️ PHASE DE WARMUP : On force Node.js à compiler les fonctions et allouer les Streams
             const warmupRes = getServerSitemapResponse(baselineEntries);
             await warmupRes.text();
             
             console.log("Calcul du temps de traitement sur charge textuelle critique...");
             const startTime = process.hrtime.bigint();
             
-            // Consommation asynchrone complète du flux XML sous attaque réelle
             const response = getServerSitemapResponse(attackEntries);
             await response.text();
             
@@ -337,8 +331,6 @@ jobs:
             
             console.log(`Temps de réponse du processeur de XML/Regex : ${durationMs.toFixed(4)} ms`);
             
-            // Grâce au warmup, l'exécution linéaire de ta fonction d'échappement va prendre moins de 3ms.
-            // Si une regex était défectueuse, le backtracking prendrait plus de 1000ms+.
             if (durationMs > 10.0) {
               console.error("❌ ALERTE FAILLE SÉCURITÉ : Votre Regex d'échappement est vulnérable aux attaques ReDoS !");
               process.exit(1);
@@ -352,6 +344,50 @@ jobs:
           EOF
           
           node redos-test.js
+
+      # 🛡️ BARRIÈRE DE RÉSILIENCE 14 : Protection contre les dérives d'horloges système (Temporal Robustness)
+      - name: Verify Temporal Resilience Against Server Clock Drift
+        run: |
+          echo "=== Lancement du test de robustesse temporelle ==="
+          
+          cat << 'EOF' > time-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          async function runTemporalTest() {
+            try {
+              console.log("Simulation d'une dérive temporelle critique (Date lointaine dans le futur)...");
+              
+              const futureDate = new Date();
+              futureDate.setFullYear(futureDate.getFullYear() + 24); // Projection en 2050
+              
+              const temporalEntries = [
+                {
+                  url: 'https://fomadev.com',
+                  lastmod: futureDate,
+                  priority: 0.5
+                }
+              ];
+              
+              // Consommation asynchrone complète du flux XML généré
+              const response = getServerSitemapResponse(temporalEntries);
+              const xmlOutput = await response.text();
+              
+              if (!xmlOutput.includes('<lastmod>')) {
+                throw new Error("La balise <lastmod> a été omise ou corrompue suite à la dérive temporelle.");
+              }
+              
+              console.log("✅ PARFAIT : Le moteur est temporellement robuste et immunisé contre les dérives d'horloge !");
+              process.exit(0);
+            } catch (error) {
+              console.error(`❌ FAILLE TEMPORELLE : Le moteur a planté face à une anomalie d'horloge : ${error.message}`);
+              process.exit(1);
+            }
+          }
+
+          runTemporalTest();
+          EOF
+          
+          node time-test.js
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build

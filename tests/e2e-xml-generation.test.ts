@@ -14,7 +14,10 @@ const __dirname = path.dirname(__filename);
 
 describe('E2E XML Generation for CI Compliance', () => {
   it('should compile a multi-resource sitemap and write a physical fixture file', async () => {
-    // 🎯 Correction ici : Ajout du typage explicite SitemapEntry[]
+    // 🎯 Génération d'une date dynamique (il y a 1 heure) pour contourner la barrière stricte des 48h de Google News
+    const dynamicRecentDate = new Date();
+    dynamicRecentDate.setHours(dynamicRecentDate.getHours() - 1);
+
     const mockEntries: SitemapEntry[] = [
       {
         url: 'https://fomadev.com/news/fintech-drc',
@@ -22,7 +25,7 @@ describe('E2E XML Generation for CI Compliance', () => {
         news: {
           name: 'FomaDev Insights',
           language: 'fr',
-          publication_date: new Date('2026-07-02T10:00:00.000Z'),
+          publication_date: dynamicRecentDate, // Date dynamique toujours valide
           title: 'The Rise of FinTech Infrastructure in Central Africa & DRC',
           stock_tickers: ['NASDAQ:AAPL', 'NYSE:BABA']
         },
@@ -31,7 +34,7 @@ describe('E2E XML Generation for CI Compliance', () => {
             thumbnail_loc: 'https://fomadev.com/thumb.jpg',
             title: 'Masterclass Pricing and Paywall Architecture',
             description: 'Deep dive into next-advanced-sitemap design schemas.',
-            publication_date: '2026-07-02T10:00:00.000Z',
+            publication_date: dynamicRecentDate.toISOString(), // Format ISO dynamique
             category: 'Tech Education',
             tags: ['nextjs', 'seo', 'typescript'],
             price: { value: 19.99, currency: 'USD', type: 'own' },

@@ -285,7 +285,7 @@ jobs:
               if (xml.includes('<urlset')) {
                 console.log("✅ COMPATIBILITÉ EDGE VALIDÉE : Le code s'exécute parfaitement avec des primitives Web pures !");
               } else {
-                throw new Error("Le flux XML généré est invalide.");
+                throw new Error("Le flux XML généré is invalide.");
               }
             } catch (error) {
               console.error(error.message);
@@ -308,7 +308,6 @@ jobs:
           import { getServerSitemapResponse } from './dist/index.js';
           
           async function runReDosTest() {
-            // Construction d'une chaîne d'attaque conçue pour déclencher du backtracking catastrophique
             const maliciousPayload = "a" + " ".repeat(5000) + "a" + "   " + "❌";
             
             const attackEntries = [{
@@ -319,11 +318,17 @@ jobs:
                 caption: maliciousPayload
               }]
             }];
+
+            const baselineEntries = [{ url: 'https://fomadev.com' }];
+            
+            // 🏎️ PHASE DE WARMUP : On force Node.js à compiler les fonctions et allouer les Streams
+            const warmupRes = getServerSitemapResponse(baselineEntries);
+            await warmupRes.text();
             
             console.log("Calcul du temps de traitement sur charge textuelle critique...");
             const startTime = process.hrtime.bigint();
             
-            // Consommation asynchrone complète du flux XML pour forcer le nettoyage par regex
+            // Consommation asynchrone complète du flux XML sous attaque réelle
             const response = getServerSitemapResponse(attackEntries);
             await response.text();
             
@@ -332,7 +337,9 @@ jobs:
             
             console.log(`Temps de réponse du processeur de XML/Regex : ${durationMs.toFixed(4)} ms`);
             
-            if (durationMs > 15.0) {
+            // Grâce au warmup, l'exécution linéaire de ta fonction d'échappement va prendre moins de 3ms.
+            // Si une regex était défectueuse, le backtracking prendrait plus de 1000ms+.
+            if (durationMs > 10.0) {
               console.error("❌ ALERTE FAILLE SÉCURITÉ : Votre Regex d'échappement est vulnérable aux attaques ReDoS !");
               process.exit(1);
             }

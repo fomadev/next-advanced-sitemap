@@ -12,7 +12,7 @@ import { validateCrossFields } from './validation/cross-validator.js';
 
 /**
  * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
- * v1.1.9 : Intégration de la validation sémantique croisée en amont.
+ * v1.2.1 : Normalisation de l'arborescence d'entrée (video/videos) pour la validation croisée négative.
  */
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
@@ -34,22 +34,30 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
   for (const entry of finalEntries) {
-    // 🔥 ÉTAPE CRUCIALE v1.1.9 : Validation croisée pré-génération
-    validateCrossFields(entry);
+    // 💡 Normalisation préventive : Si l'utilisateur fournit "video" au lieu de "videos",
+    // on s'assure que le tableau "videos" est peuplé pour l'analyse et la génération.
+    const normalizedEntry = { ...entry };
+    
+    if ((entry as any).video && !normalizedEntry.videos) {
+      normalizedEntry.videos = [((entry as any).video)];
+    }
+
+    // 🔥 ÉTAPE CRUCIALE v1.1.9 / v1.2.1 : Validation croisée pré-génération sur l'entrée normalisée
+    validateCrossFields(normalizedEntry);
 
     xml += `  <url>\n`;
     
     // 1. Éléments de base et hreflang alternatifs
-    xml += buildUrlBaseXml(entry, options, now);
+    xml += buildUrlBaseXml(normalizedEntry, options, now);
 
     // 2. Extension Images Google
-    xml += buildImageXml(entry.images);
+    xml += buildImageXml(normalizedEntry.images);
 
     // 3. Extension Vidéos Google (Validations v1.1.3 & v1.1.4 intégrées)
-    xml += buildVideoXml(entry.videos);
+    xml += buildVideoXml(normalizedEntry.videos);
 
     // 4. Extension News Google
-    xml += buildNewsXml(entry.news);
+    xml += buildNewsXml(normalizedEntry.news);
 
     xml += `  </url>\n`;
   }

@@ -9,13 +9,17 @@ import { sanitizeAndValidateUrl } from './url-builder.js';
 
 /**
  * Génère la structure brute XML pour un fichier d'indexation de sitemaps.
+ * v1.2.1 : Normalisation de l'arborescence (loc/url) pour garantir la tolérance du payload de l'index.
  */
 export function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
   for (const entry of entries) {
-    const cleanLoc = sanitizeAndValidateUrl(entry.loc, 'sitemap index location');
+    // 💡 Normalisation préventive : Récupère la localisation depuis "loc" ou bascule sur "url" si nécessaire
+    const targetLoc = entry.loc || (entry as any).url || '';
+    
+    const cleanLoc = sanitizeAndValidateUrl(targetLoc, 'sitemap index location');
     
     xml += `  <sitemap>\n`;
     xml += `    <loc>${escapeXml(cleanLoc)}</loc>\n`;

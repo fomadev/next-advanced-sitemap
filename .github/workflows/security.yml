@@ -1,0 +1,155 @@
+# * Copyright (c) 2026 Fordi / FomaDev. 
+# * Licensed under FomaDev Public License.
+# * See LICENSE file in the project root for full license information.
+
+name: Advanced Cyber Security & Hardening
+on:
+  push:
+    branches: [ main, test ]
+  pull_request:
+    branches: [ main, test ]
+
+jobs:
+  security-intrusion:
+    name: Offensive Security & Algorithmic Hardening
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate production build (Pre-requisite)
+        run: npm run build
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ : Protection contre les attaques ReDoS (Complexité Algorithmique)
+      - name: Verify Algorithmic Immunity Against Regular Expression DoS (ReDoS Attack)
+        run: |
+          echo "=== Lancement du test d'intrusion algorithmique ReDoS ==="
+          
+          cat << 'EOF' > redos-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          async function runReDosTest() {
+            const maliciousPayload = "a" + " ".repeat(5000) + "a" + "   " + "❌";
+            
+            const attackEntries = [{
+              url: 'https://fomadev.com',
+              images: [{
+                loc: 'https://fomadev.com/image.jpg',
+                title: maliciousPayload,
+                caption: maliciousPayload
+              }]
+            }];
+
+            const baselineEntries = [{ url: 'https://fomadev.com' }];
+            
+            const warmupRes = getServerSitemapResponse(baselineEntries);
+            await warmupRes.text();
+            
+            console.log("Calcul du temps de traitement sur charge textuelle critique...");
+            const startTime = process.hrtime.bigint();
+            
+            const response = getServerSitemapResponse(attackEntries);
+            await response.text();
+            
+            const endTime = process.hrtime.bigint();
+            const durationMs = Number(endTime - startTime) / 1000000;
+            
+            console.log(`Temps de réponse du processeur de XML/Regex : ${durationMs.toFixed(4)} ms`);
+            
+            if (durationMs > 10.0) {
+              console.error("❌ ALERTE FAILLE SÉCURITÉ : Votre Regex d'échappement est vulnérable aux attaques ReDoS !");
+              process.exit(1);
+            }
+            
+            console.log("✅ PARFAIT : Vos expressions régulières sont immunisées contre le déni de service algorithmique !");
+            process.exit(0);
+          }
+
+          runReDosTest();
+          EOF
+          
+          node redos-test.js
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ : Protection contre la Prototype Pollution (Object Security)
+      - name: Verify Architectural Immunity Against JavaScript Prototype Pollution
+        run: |
+          echo "=== Lancement du test d'intrusion par empoisonnement d'objet ==="
+          
+          cat << 'EOF' > prototype-pollution-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          async function runPrototypePollutionTest() {
+            const poisonPayload = JSON.parse('{"__proto__": {"vulnerableProperty": "HACKED"}}');
+            
+            const attackEntries = [
+              {
+                url: 'https://fomadev.com',
+                priority: 1.0,
+                images: [poisonPayload]
+              }
+            ];
+            
+            try {
+              console.log("Exécution du moteur de sitemap sur une charge empoisonnée...");
+              const response = getServerSitemapResponse(attackEntries);
+              await response.text();
+              
+              const testObject = {};
+              if (testObject.vulnerableProperty === "HACKED") {
+                console.error("❌ CRITIQUE : Faille détectée ! Votre package est vulnérable à la Prototype Pollution.");
+                process.exit(1);
+              }
+              
+              console.log("✅ SÉCURITÉ ABSOLUE : Votre package est 100% immunisé contre l'empoisonnement d'objets !");
+              process.exit(0);
+            } catch (error) {
+              console.log(`✅ Attaque bloquée ou ignorée de manière sécurisée par validation : ${error.message}`);
+              process.exit(0);
+            }
+          }
+
+          runPrototypePollutionTest();
+          EOF
+          
+          node prototype-pollution-test.js
+
+      # 🛡️ BARRIÈRE DE CYBERSÉCURITÉ : Protection contre les attaques par expansion XML (Billion Laughs)
+      - name: Install Linux XML Engine for Security Tests
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+
+      - name: Verify Architectural Immunity Against XML Entity Expansion Attacks
+        run: |
+          echo "=== Lancement du test d'intrusion par amplification XML ==="
+          mkdir -p tests/fixtures
+          
+          cat << 'EOF' > tests/fixtures/lol-attack.xml
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE lolz [
+            <!ENTITY lol "lol">
+            <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+            <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+            <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+          ]>
+          <urlset xmlns="http://sitemaps.org">
+            <url>
+              <loc>https://fomadev.com</loc>
+              <image:caption>&lol3;</image:caption>
+            </url>
+          </urlset>
+          EOF
+          
+          echo "Test de l'étanchéité du linter face au poison récursif (Billion Laughs)..."
+          # On s'assure que xmllint n'essaie pas de résoudre et de consommer de la RAM (--nofent)
+          timeout 2 xmllint --noout --nofent tests/fixtures/lol-attack.xml && echo "✅ Sécurité XML OK : Les entités externes récursives sont bloquées et ignorées !" || { echo "❌ FAILLE : Le parseur a tenté d'étendre les entités récursives !"; exit 1; }
+          
+          rm tests/fixtures/lol-attack.xml

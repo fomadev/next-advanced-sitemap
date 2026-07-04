@@ -281,7 +281,7 @@ jobs:
               if (xml.includes('<urlset')) {
                 console.log("✅ COMPATIBILITÉ EDGE VALIDÉE : Le code s'exécute parfaitement avec des primitives Web pures !");
               } else {
-                throw new Error("Le flux XML généré est invalide.");
+                throw new Error("Le flux XML généré is invalide.");
               }
             } catch (error) {
               console.error(error.message);
@@ -294,56 +294,6 @@ jobs:
           
           node edge-runtime-test.js
           echo "✅ EXCELLENT : Votre package est certifié 100% compatible multi-runtime (Edge/Serverless) !"
-
-      # 🛡️ BARRIÈRE DE SÉCURITÉ 3.13 : Protection contre les attaques ReDoS (Complexité Algorithmique)
-      - name: Verify Algorithmic Immunity Against Regular Expression DoS (ReDoS Attack)
-        run: |
-          echo "=== Lancement du test d'intrusion algorithmique ReDoS ==="
-          
-          cat << 'EOF' > redos-test.js
-          import { getServerSitemapResponse } from './dist/index.js';
-          
-          async function runReDosTest() {
-            const maliciousPayload = "a" + " ".repeat(5000) + "a" + "   " + "❌";
-            
-            const attackEntries = [{
-              url: 'https://fomadev.com',
-              images: [{
-                loc: 'https://fomadev.com/image.jpg',
-                title: maliciousPayload,
-                caption: maliciousPayload
-              }]
-            }];
-
-            const baselineEntries = [{ url: 'https://fomadev.com' }];
-            
-            const warmupRes = getServerSitemapResponse(baselineEntries);
-            await warmupRes.text();
-            
-            console.log("Calcul du temps de traitement sur charge textuelle critique...");
-            const startTime = process.hrtime.bigint();
-            
-            const response = getServerSitemapResponse(attackEntries);
-            await response.text();
-            
-            const endTime = process.hrtime.bigint();
-            const durationMs = Number(endTime - startTime) / 1000000;
-            
-            console.log(`Temps de réponse du processeur de XML/Regex : ${durationMs.toFixed(4)} ms`);
-            
-            if (durationMs > 10.0) {
-              console.error("❌ ALERTE FAILLE SÉCURITÉ : Votre Regex d'échappement est vulnérable aux attaques ReDoS !");
-              process.exit(1);
-            }
-            
-            console.log("✅ PARFAIT : Vos expressions régulières sont immunisées contre le déni de service algorithmique !");
-            process.exit(0);
-          }
-
-          runReDosTest();
-          EOF
-          
-          node redos-test.js
 
       # 🛡️ BARRIÈRE DE RÉSILIENCE 14 : Protection contre les dérives d'horloges système (Temporal Robustness)
       - name: Verify Temporal Resilience Against Server Clock Drift
@@ -387,49 +337,6 @@ jobs:
           EOF
           
           node time-test.js
-
-      # 🛡️ BARRIÈRE DE SÉCURITÉ MAXIMUM 15 : Protection contre la Prototype Pollution (Object Security)
-      - name: Verify Architectural Immunity Against JavaScript Prototype Pollution
-        run: |
-          echo "=== Lancement du test d'intrusion par empoisonnement d'objet ==="
-          
-          cat << 'EOF' > prototype-pollution-test.js
-          import { getServerSitemapResponse } from './dist/index.js';
-          
-          async function runPrototypePollutionTest() {
-            const poisonPayload = JSON.parse('{"__proto__": {"vulnerableProperty": "HACKED"}}');
-            
-            const attackEntries = [
-              {
-                url: 'https://fomadev.com',
-                priority: 1.0,
-                images: [poisonPayload]
-              }
-            ];
-            
-            try {
-              console.log("Exécution du moteur de sitemap sur une charge empoisonnée...");
-              const response = getServerSitemapResponse(attackEntries);
-              await response.text();
-              
-              const testObject = {};
-              if (testObject.vulnerableProperty === "HACKED") {
-                console.error("❌ CRITIQUE : Faille détectée ! Votre package est vulnérable à la Prototype Pollution.");
-                process.exit(1);
-              }
-              
-              console.log("✅ SÉCURITÉ ABSOLUE : Votre package est 100% immunisé contre l'empoisonnement d'objets !");
-              process.exit(0);
-            } catch (error) {
-              console.log(`✅ Attaque bloquée ou ignorée de manière sécurisée par validation : ${error.message}`);
-              process.exit(0);
-            }
-          }
-
-          runPrototypePollutionTest();
-          EOF
-          
-          node prototype-pollution-test.js
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build

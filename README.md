@@ -337,6 +337,13 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
+### Native Sitemap Indexing Architecture & Edge Cache Alignment (v1.2.0)
+To comfortably scale applications past search engine structural thresholds (max 50,000 URLs or 50MB per single uncompressed file), **v1.2.0** introduces a high-performance orchestration layer dedicated to nested sitemap index tree structures (`<sitemapindex>`):
+
+* **Isolated Composition Engine**: The index builder avoids loading heavy polymorphic page matrices into memory. Instead, it relies on an ultra-lightweight serialization pipeline (`buildSitemapIndexXml`) dedicated exclusively to mapping nested `.xml` target links.
+* **Shared Platform-Level Security**: Rather than implementing loose string references, the location processor (`loc`) is strictly routed through the core platform URL verification matrix. This intercepts structural mistakes, protocol anomalies (e.g. `ftp://`), and unencoded spaces before emitting a broken index payload.
+* **Unified CDN Distribution Controls**: Both standard sitemaps and index structures share identical cache configuration capabilities. By default, index handlers emit immutable Edge CDN optimization directives (`public, s-maxage=86400, stale-while-revalidate`), while seamlessly unlocking manual invalidation windows via selective type extraction (`Pick<SitemapOptions, 'maxAge'>`).
+
 ### Cross-Field Semantic Validation & Search Console Guarantees (v1.1.9)
 To enforce an absolute 100% SEO health score and completely prevent index drops caused by structural logic contradictions, **v1.1.9** introduces an isolated pre-generation validation layer (`validateCrossFields`). The core engine scans entry matrices and enforces strict cross-field business rules:
 

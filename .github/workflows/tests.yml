@@ -5,9 +5,9 @@
 name: Code Quality & Automation
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, test ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, test ]
 
 jobs:
   verify:
@@ -62,13 +62,70 @@ jobs:
           npx @arethetypeswrong/cli --pack .
           echo "✅ PARFAIT : La matrice de types exportée est 100% valide et interopérable !"
 
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3.5 : Validation sémantique croisée négative (Anti-Contradiction de Données v1.1.9 & v1.2.0)
+      - name: Verify Cross-Field Semantic Matrix Violations
+        run: |
+          echo "=== Lancement du test d'intrusion sémantique ==="
+          
+          cat << 'EOF' > semantic-test.js
+          import { getServerSitemapResponse, getServerSitemapIndexResponse } from './dist/index.js';
+          
+          // SCÉNARIO 1 : Conflit de flux Live (v1.1.9)
+          const invalidLivePayload = [{
+            url: 'https://fomadev.com',
+            video: {
+              title: 'Live Session',
+              description: 'DevOps Training',
+              thumbnail_loc: 'https://fomadev.com',
+              live: 'yes',
+              duration: 3600 // ❌ CONTRADICTION : Un live n'a pas de durée fixe !
+            }
+          }];
+          
+          // SCÉNARIO 2 : Validation de l'Index de Sitemaps (v1.2.0)
+          const validIndexPayload = [
+            { url: 'https://fomadev.com/sitemap-products.xml', lastmod: new Date() },
+            { url: 'https://fomadev.com/sitemap-articles.xml', lastmod: new Date() }
+          ];
+
+          let errorInterceptionSuccess = false;
+          
+          try {
+            console.log("Tentative de génération d'un sitemap sémantiquement invalide...");
+            getServerSitemapResponse(invalidLivePayload);
+          } catch (error) {
+            console.log(`✅ Validation croisée réussie ! Erreur interceptée attendue : ${error.message}`);
+            errorInterceptionSuccess = true;
+          }
+
+          if (!errorInterceptionSuccess) {
+            console.error("❌ FAILLE LOGIQUE : Le package a généré un XML contenant des données contradictoires (Live avec durée) !");
+            process.exit(1);
+          }
+
+          try {
+            console.log("Validation de l'architecture d'indexation de sitemaps (v1.2.0)...");
+            const indexXml = getServerSitemapIndexResponse(validIndexPayload);
+            if (!indexXml.includes('<sitemapindex') || !indexXml.includes('<sitemap>')) {
+              throw new Error("Structure de sitemapindex malformée.");
+            }
+            console.log("✅ Architecture d'indexation v1.2.0 validée avec succès !");
+          } catch (error) {
+            console.error(`❌ ERREUR STRUCTURELLE v1.2.0 : ${error.message}`);
+            process.exit(1);
+          }
+
+          process.exit(0);
+          EOF
+          
+          node semantic-test.js
+
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 & DIAGNOSTIC : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           CI: "true"
           NODE_ENV: production
-          # Utilisation des variables d'environnement YAML pour isoler proprement le contenu des fichiers
           SANDBOX_PACKAGE_JSON: |
             {
               "name": "next-sitemap-sandbox",
@@ -114,7 +171,7 @@ jobs:
           echo "🎯 Tarball extrait : $NPM_TARBALL"
           mkdir -p sandbox          
           mv "$NPM_TARBALL" sandbox/package-local.tgz
-          cd sandbox                              
+          cd sandbox                                                             
           
           # 2. Écriture sécurisée des fichiers via les variables d'environnement (Indentation préservée)
           echo "$SANDBOX_PACKAGE_JSON" > package.json

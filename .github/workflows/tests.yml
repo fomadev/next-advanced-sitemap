@@ -257,10 +257,8 @@ jobs:
           import { createRequire } from 'module';
           const require = createRequire(import.meta.url);
 
-          // Sauvegarde sécurisée de la vraie méthode de sortie brute de Node avant le sabotage du Proxy
           const nativeExit = process.exit;
 
-          // Simulation d'une isolation stricte de l'Edge Runtime : sabotage des APIs Node.js globales/locales
           const forbiddenModules = ['fs', 'path', 'child_process', 'os', 'crypto', 'http', 'https'];
           forbiddenModules.forEach(mod => {
             require.cache[mod] = { exports: new Proxy({}, {
@@ -268,7 +266,6 @@ jobs:
             })};
           });
           
-          // Sabotage de la variable globale 'process' (interdite sur l'Edge sauf process.env)
           const originalEnv = process.env;
           global.process = new Proxy({}, {
             get(_, prop) {
@@ -277,7 +274,6 @@ jobs:
             }
           });
 
-          // Import dynamique du package pour s'assurer qu'aucune dépendance système n'est appelée lors du parsing initial
           const { getServerSitemapResponse } = await import('./dist/index.js');
           
           async function testInEdge() {
@@ -288,13 +284,12 @@ jobs:
               
               if (xml.includes('<urlset')) {
                 console.log("✅ COMPATIBILITÉ EDGE VALIDÉE : Le code s'exécute parfaitement avec des primitives Web pures !");
-                // Plus besoin d'appeler process.exit(0), Node se ferme naturellement au repos de la boucle d'événements.
               } else {
                 throw new Error("Le flux XML généré est invalide.");
               }
             } catch (error) {
               console.error(error.message);
-              nativeExit(1); // Échec contrôlé si une exception est levée
+              nativeExit(1);
             }
           }
           
@@ -303,6 +298,53 @@ jobs:
           
           node edge-runtime-test.js
           echo "✅ EXCELLENT : Votre package est certifié 100% compatible multi-runtime (Edge/Serverless) !"
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3.13 : Protection contre les attaques ReDoS (Complexité Algorithmique)
+      - name: Verify Algorithmic Immunity Against Regular Expression DoS (ReDoS Attack)
+        run: |
+          echo "=== Lancement du test d'intrusion algorithmique ReDoS ==="
+          
+          cat << 'EOF' > redos-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          async function runReDosTest() {
+            // Construction d'une chaîne d'attaque conçue pour déclencher du backtracking catastrophique
+            const maliciousPayload = "a" + " ".repeat(5000) + "a" + "   " + "❌";
+            
+            const attackEntries = [{
+              url: 'https://fomadev.com',
+              images: [{
+                loc: 'https://fomadev.com/image.jpg',
+                title: maliciousPayload,
+                caption: maliciousPayload
+              }]
+            }];
+            
+            console.log("Calcul du temps de traitement sur charge textuelle critique...");
+            const startTime = process.hrtime.bigint();
+            
+            // Consommation asynchrone complète du flux XML pour forcer le nettoyage par regex
+            const response = getServerSitemapResponse(attackEntries);
+            await response.text();
+            
+            const endTime = process.hrtime.bigint();
+            const durationMs = Number(endTime - startTime) / 1000000;
+            
+            console.log(`Temps de réponse du processeur de XML/Regex : ${durationMs.toFixed(4)} ms`);
+            
+            if (durationMs > 15.0) {
+              console.error("❌ ALERTE FAILLE SÉCURITÉ : Votre Regex d'échappement est vulnérable aux attaques ReDoS !");
+              process.exit(1);
+            }
+            
+            console.log("✅ PARFAIT : Vos expressions régulières sont immunisées contre le déni de service algorithmique !");
+            process.exit(0);
+          }
+
+          runReDosTest();
+          EOF
+          
+          node redos-test.js
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build

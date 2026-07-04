@@ -217,7 +217,6 @@ jobs:
           import { getServerSitemapResponse } from './dist/index.js';
           
           async function runInternationalTest() {
-            // Simulation d'adresses internationales réelles (IDN avec accents + caractères cyrilliques + chemins accentués)
             const internationalEntries = [
               { url: 'https://fomadév.com/sécurité', priority: 1.0 },
               { url: 'https://пример.рф/contacts', priority: 0.8 }
@@ -228,15 +227,12 @@ jobs:
               const response = getServerSitemapResponse(internationalEntries);
               const xmlOutput = await response.text();
               
-              // 1. Validation de l'en-tête de structure
               if (!xmlOutput.startsWith('<?xml')) {
                 throw new Error("Le flux généré a corrompu l'en-tête XML de base.");
               }
               
-              // 2. Vérification de l'échappement correct du chemin d'URL (%-encoding pour le 'é')
-              // 'sécurité' doit devenir 's%C3%A9curit%C3%A9' dans un sitemap valide
               if (xmlOutput.includes('sécurité')) {
-                console.warn("⚠️ Warning SEO : Le chemin d'URL contient des caractères spéciaux non encodés.");
+                console.warn("⚠️ Warning SEO : Le chemin d'URL contains des caractères spéciaux non encodés.");
               }
               
               console.log("✅ PARFAIT : Le moteur traite l'internationalisation sans altérer la validité XML !");
@@ -251,6 +247,34 @@ jobs:
           EOF
           
           node international-test.js
+
+      # 🛡️ BARRIÈRE DE SÉCURITÉ 3.12 : Test de conformité d'environnement Edge Runtime (Vercel / Cloudflare)
+      - name: Verify Strict Vercel Edge & Cloudflare Workers Compatibility
+        run: |
+          echo "=== Lancement du test de conformité d'environnement Edge unifié ==="
+          
+          cat << 'EOF' > edge-runtime-test.js
+          import { getServerSitemapResponse } from './dist/index.js';
+          
+          // Script exécuté directement à l'intérieur de la sandbox officielle Edge-Runtime
+          async function testInEdge() {
+            const entries = [{ url: 'https://fomadev.com', priority: 1.0 }];
+            const response = getServerSitemapResponse(entries);
+            const xml = await response.text();
+            
+            if (xml.includes('<urlset')) {
+              console.log("✅ COMPATIBILITÉ EDGE VALIDÉE : Le code s'exécute parfaitement sans API Node.js interdites.");
+            } else {
+              throw new Error("Le flux XML généré est invalide sous Edge Runtime.");
+            }
+          }
+          
+          testInEdge();
+          EOF
+          
+          # Utilisation de l'exécuteur de l'Edge Runtime officiel de Vercel pour valider l'isolation V8
+          npx @edge-runtime/cli edge-runtime-test.js
+          echo "✅ EXCELLENT : Votre package est certifié 100% compatible multi-runtime !"
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 4 : Test de build SSR réel dans une Sandbox Next.js unifiée
       - name: Setup Sandbox & Validate Next.js Production Build

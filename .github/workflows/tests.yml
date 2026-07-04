@@ -5,9 +5,9 @@
 name: Code Quality & Automation
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, test ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, test ]
 
 jobs:
   verify:

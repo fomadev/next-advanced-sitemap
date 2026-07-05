@@ -11,6 +11,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
+- **Index Date Polymorphism & Hybrid Typing (v1.2.3)**: Aligns sitemap index developer experience with core architecture rules. The `<lastmod>` parameter for child sitemaps fully accepts both raw JavaScript `Date` instances and structured ISO timestamp strings interchangeably.
 - **Universal XML Namespace Injection & Strict Index Guardrails (v1.2.2)**: Automated compliance matching that embeds standard canonical namespaces (`xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`) inside root index configurations. Prevents parsing errors or validation dropouts across alternative search crawlers like Bing, Yandex, or DuckDuckGo while routing individual child locations through strict syntax URL engines.
 - **Native Sitemap Indexing Architecture (v1.2.0)**: Advanced support for sitemap index grouping (`getServerSitemapIndexResponse`). Allows seamless scaling by linking multiple sub-sitemaps (e.g., `sitemap-0.xml`, `sitemap-products.xml`) under a centralized endpoint to bypass Google's 50,000 URLs strict limitation.
 - **Cross-Field Semantic Validation (v1.1.9)**: Native cross-field validation engine that intercepts logical data contradictions (e.g., Live streams with static durations, subscriptions conflicts, or expired news) before writing the XML stream. Guarantees a flawless 100% compliance score in Google Search Console.
@@ -55,9 +56,9 @@ export async function GET() {
   const entries: SitemapEntry[] = [
     {
       url: '  https://fomadev.com  ', // Auto-trimmed seamlessly in v1.0.7
-      lastmod: new Date(),
-      changefreq: 'daily', // Strictly typed
-      priority: 1.0,       // Auto-completed and strictly typed
+      lastmod: new Date(),          // Full native JavaScript Date polymorphism
+      changefreq: 'daily',          // Strictly typed SEO enum
+      priority: 1.0,                // Auto-completed and strictly typed
       alternates: [
         { hreflang: 'fr', href: 'https://fomadev.com/fr' },
         { hreflang: 'en', href: 'https://fomadev.com/en' }
@@ -66,6 +67,7 @@ export async function GET() {
     {
       url: 'https://fomadev.com/exclusive-movie',
       priority: 0.9,
+      // 💡 DX Resiliency (v1.2.1): Supports fallback mapping if you pass a single 'video' object instead of an array!
       videos: [
         {
           thumbnail_loc: 'https://fomadev.com/thumbs/movie.jpg',
@@ -91,7 +93,7 @@ export async function GET() {
       news: {
         name: 'FomaDev Insights',
         language: 'fr',
-        publication_date: new Date(), // Always dynamic to meet the strict 48h rule (v1.1.9)
+        publication_date: new Date(), // Dynamically evaluated to honor the strict 48h news rule (v1.1.9)
         title: 'The Rise of FinTech Infrastructure in Central Africa',
         stock_tickers: ['NYSE:BABA', 'NASDAQ:AAPL']
       }
@@ -105,9 +107,9 @@ export async function GET() {
 }
 ```
 
-### 2. Generating a Master Sitemap Index (v1.2.0)
+### 2. Generating a Master Sitemap Index (v1.2.2 / v1.2.3)
 
-When scaling up your application, group multiple sub-sitemaps dynamically. Create a Route Handler at `app/sitemap.xml/route.ts`.
+When scaling up your platform past Google or Bing structural thresholds, seamlessly group multiple sub-sitemaps together under a standard compliant master index. Create a Route Handler at `app/sitemap.xml/route.ts`.
 
 ```typescript
 import { getServerSitemapIndexResponse, SitemapIndexEntry } from 'next-advanced-sitemap';
@@ -116,17 +118,20 @@ export async function GET() {
   const subSitemaps: SitemapIndexEntry[] = [
     {
       loc: 'https://fomadev.com/sitemap-records.xml',
-      lastmod: new Date() // Supports native JavaScript Date polymorphism
+      lastmod: new Date() // Hybrid Date Polymorphism (v1.2.3): Native Date object support
     },
     {
-      loc: 'https://fomadev.com/sitemap-products.xml',
-      lastmod: '2026-07-04T12:00:00.000Z'
+      // DX Resiliency & Normalization (v1.2.1): If a developer types 'url' instead of 'loc', 
+      // the index engine catches it automatically, normalizes it, and applies syntax checks!
+      url: 'https://fomadev.com/sitemap-products.xml', 
+      lastmod: '2026-07-05T12:00:00.000Z' // Hybrid Date Polymorphism (v1.2.3): Plain ISO string support
     }
   ];
 
-  // Serves a structural <sitemapindex> with optimal CDN caching headers
+  // Enforces authoritative xmlns namespace schemas (v1.2.2) 
+  // while checking individual child locations through strict syntax engine guardrails.
   return getServerSitemapIndexResponse(subSitemaps, {
-    maxAge: 3600 // Custom cache eviction lifespan (optional)
+    maxAge: 3600 // Custom CDN edge caching eviction lifespan in seconds (optional)
   });
 }
 ```
@@ -337,6 +342,10 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Hybrid Temporal Typings within Sub-Sitemaps Indexes (v1.2.3)
+To guarantee consistency across internal modules, **v1.2.3** extends native date polymorphism to the sitemap index tree compilation pipeline:
+* **Polymorphic Time Evaluation**: The serialization processor checks metadata keys at runtime using `instanceof Date` logic. Raw JavaScript objects are converted instantly to strict ISO-8601 strings, while pre-formatted database text tokens are preserved without extra computation overhead.
 
 ### Explicit Index Namespace Ingestion & Cross-Engine Interoperability (v1.2.2)
 To secure discovery velocity across alternative crawlers (e.g., Bingbot) that reject unmapped root metadata structures, **v1.2.2** enforces strict compliance standards onto index generation trees:

@@ -5,9 +5,9 @@
 name: Advanced Cyber Security & Hardening
 on:
   push:
-    branches: [ main, test ]
+    branches: [ main, security ]
   pull_request:
-    branches: [ main, test ]
+    branches: [ main, security ]
 
 jobs:
   security-intrusion:
@@ -149,7 +149,7 @@ jobs:
           EOF
           
           echo "Test de l'étanchéité du linter face au poison récursif (Billion Laughs)..."
-          # On s'assure que xmllint n'essaie pas de résoudre et de consommer de la RAM (--nofent)
-          timeout 2 xmllint --noout --nofent tests/fixtures/lol-attack.xml && echo "✅ Sécurité XML OK : Les entités externes récursives sont bloquées et ignorées !" || { echo "❌ FAILLE : Le parseur a tenté d'étendre les entités récursives !"; exit 1; }
+          # L'absence de --noent et l'ajout de --nonet garantissent le blocage total de l'expansion réseau et DTD.
+          timeout 2 xmllint --noout --nonet tests/fixtures/lol-attack.xml && echo "✅ Sécurité XML OK : Les entités externes récursives sont bloquées et ignorées !" || { echo "❌ FAILLE : Le parseur a tenté d'étendre les entités récursives !"; exit 1; }
           
           rm tests/fixtures/lol-attack.xml

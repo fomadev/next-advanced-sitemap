@@ -11,6 +11,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
+- **Large-Scale Data Chunking Helper (v1.2.4)**: Ships a pure, high-performance utility function `chunkSitemapEntries(entries, size)` designed to slice massive records arrays into smaller sub-arrays (e.g., batches of 10,000 or 40,000 links). Seamlessly orchestrates dataset splitting before routing content blocks into distinct multi-sitemap router nodes.
 - **Index Date Polymorphism & Hybrid Typing (v1.2.3)**: Aligns sitemap index developer experience with core architecture rules. The `<lastmod>` parameter for child sitemaps fully accepts both raw JavaScript `Date` instances and structured ISO timestamp strings interchangeably.
 - **Universal XML Namespace Injection & Strict Index Guardrails (v1.2.2)**: Automated compliance matching that embeds standard canonical namespaces (`xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`) inside root index configurations. Prevents parsing errors or validation dropouts across alternative search crawlers like Bing, Yandex, or DuckDuckGo while routing individual child locations through strict syntax URL engines.
 - **Native Sitemap Indexing Architecture (v1.2.0)**: Advanced support for sitemap index grouping (`getServerSitemapIndexResponse`). Allows seamless scaling by linking multiple sub-sitemaps (e.g., `sitemap-0.xml`, `sitemap-products.xml`) under a centralized endpoint to bypass Google's 50,000 URLs strict limitation.
@@ -130,6 +131,20 @@ export async function GET() {
     maxAge: 3600
   });
 }
+```
+
+### 3. Splitting Massive Datasets with the Chunking Utility (v1.2.4)
+If you have over 50,000 items, slice your collection dynamically before distributing them to your sub-sitemap handlers:
+
+```typescript
+import { chunkSitemapEntries, SitemapEntry } from 'next-advanced-sitemap';
+
+const massiveDatabaseRows: SitemapEntry[] = [ /* 120,000 items from an ORM */ ];
+
+// Automatically segments your data into groups of 40,000 items max
+const partitionedSitemaps = chunkSitemapEntries(massiveDatabaseRows, 40000);
+
+console.log(partitionedSitemaps.length); // Output: 3 distinct arrays
 ```
 
 ## API Reference
@@ -338,6 +353,11 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 </table>
 
 ## Technical Implementation
+
+### Large-Scale Dataset Segmentation & Memory Optimization (v1.2.4)
+To comfortably address high-density web platforms where database extraction bounds exceed corporate index constraints, **v1.2.4** integrates a localized array segmentation helper:
+* **Linear Time Complexity**: The `chunkSitemapEntries` algorithm implements a native slice stride pattern executing in $O(N)$ operational cycles, avoiding slow pointer shifts or excessive garbage collection overhead.
+* **Deterministic Allocation**: Helps prevent memory overflow during XML node mapping inside standard Route Handlers by slicing the primary resource arrays cleanly into predictable partitions before any template generation loop begins.
 
 ### Hybrid Temporal Typings within Sub-Sitemaps Indexes (v1.2.3)
 To guarantee consistency across internal modules, **v1.2.3** extends native date polymorphism to the sitemap index tree compilation pipeline:

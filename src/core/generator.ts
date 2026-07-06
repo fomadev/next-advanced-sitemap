@@ -10,10 +10,7 @@ import { buildVideoXml } from './builders/video-builder.js';
 import { buildNewsXml } from './builders/news-builder.js';
 import { validateCrossFields } from './validation/cross-validator.js';
 
-/**
- * Génère le flux XML complet du sitemap incluant les extensions Images, Vidéos, News et Hreflang.
- * v1.2.1 : Normalisation de l'arborescence d'entrée (video/videos) pour la validation croisée négative.
- */
+
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
   const now = new Date().toISOString();
   let finalEntries = [...entries];
@@ -42,7 +39,6 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
       normalizedEntry.videos = [((entry as any).video)];
     }
 
-    // 🔥 ÉTAPE CRUCIALE v1.1.9 / v1.2.1 : Validation croisée pré-génération sur l'entrée normalisée
     validateCrossFields(normalizedEntry);
 
     xml += `  <url>\n`;

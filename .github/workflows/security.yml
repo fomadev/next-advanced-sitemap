@@ -166,16 +166,13 @@ jobs:
           try {
             console.log("Validation de l'immunité de l'option maxAge (v1.0.9 / v1.2.2)...");
             
-            // 1. Simulation d'attaques d'injection par valeurs aberrantes ou malveillantes dans les options de cache
             const configurationsAttaque = [
-              { maxAge: -3600 },           // Durée négative (Paradoxe)
-              { maxAge: "10; injection" }, // Tentative d'injection d'en-tête HTTP (HTTP Response Splitting)
-              { maxAge: NaN }              // Valeur mathématique corrompue
+              { maxAge: -3600 },
+              { maxAge: "10; injection" },
+              { maxAge: NaN }
             ];
 
             configurationsAttaque.forEach((config, index) => {
-              // Votre package doit soit lever une erreur, soit forcer une valeur de sécurité par défaut (ex: maxAge = 0)
-              // pour empêcher la génération d'un en-tête invalide qui détruirait le cache du CDN.
               try {
                 const res = getServerSitemapIndexResponse([], config);
                 console.log(`Scénario d'attaque ${index + 1} traité de manière sécurisée.`);
@@ -194,3 +191,57 @@ jobs:
           
           node cache-security-test.js
           rm cache-security-test.js
+
+      # 🛡️ BARRIÈRE D'INGÉNIERIE 19 : Validation mathématique de l'intégrité du chunking (v1.2.4)
+      - name: Verify Chunking Precision & Anti-Data Loss Integrity
+        run: |
+          echo "=== Lancement du test de découpage de données v1.2.4 ==="
+          
+          cat << 'EOF' > chunk-test.js
+          import { chunkSitemapEntries } from './dist/index.js';
+          
+          // 1. Configuration d'une taille de tableau impaire pour tester les limites strictes
+          const totalEntriesCount = 50003; 
+          const chunkSize = 10000;
+          
+          const mockEntries = Array.from({ length: totalEntriesCount }, (_, i) => ({
+            url: `https://fomadev.com/${i}`
+          }));
+          
+          console.log(`Découpage de ${totalEntriesCount} éléments par blocs de ${chunkSize}...`);
+          const chunks = chunkSitemapEntries(mockEntries, chunkSize);
+          
+          // 2. Vérification mathématique du nombre de blocs attendus
+          const expectedChunksCount = Math.ceil(totalEntriesCount / chunkSize);
+          if (chunks.length !== expectedChunksCount) {
+            console.error(`❌ ERREUR DE STRUCTURE : Attendu ${expectedChunksCount} blocs, mais obtenu ${chunks.length}`);
+            process.exit(1);
+          }
+          
+          // 3. Vérification de la taille exacte du dernier bloc résiduel
+          const lastChunk = chunks[chunks.length - 1];
+          if (lastChunk.length !== 3) {
+            console.error(`❌ ERREUR DE FRONTIÈRE : Le dernier bloc devrait contenir 3 éléments, obtenu ${lastChunk.length}`);
+            process.exit(1);
+          }
+          
+          // 4. Test d'anti-perte : On réassemble tout pour vérifier qu'aucune URL ne manque
+          const flattenedEntries = chunks.flat();
+          if (flattenedEntries.length !== totalEntriesCount) {
+            console.error(`❌ PERTE DE DONNÉES : Le tableau réassemblé contient ${flattenedEntries.length} éléments au lieu de ${totalEntriesCount}`);
+            process.exit(1);
+          }
+          
+          // 5. Test de robustesse aux cas extrêmes (Tableau vide)
+          const emptyResult = chunkSitemapEntries([], chunkSize);
+          if (!Array.isArray(emptyResult) || emptyResult.length !== 0) {
+            console.error("❌ ERREUR DE CAS EXTRÊME : Le découpage d'un tableau vide doit retourner un tableau vide.");
+            process.exit(1);
+          }
+          
+          console.log("✅ EXCELLENCE : L'algorithme chunkSitemapEntries est mathématiquement parfait et ultra-sûr !");
+          process.exit(0);
+          EOF
+          
+          node chunk-test.js
+          rm chunk-test.js

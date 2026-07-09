@@ -108,7 +108,7 @@ export async function GET() {
 }
 ```
 
-### 2. Generating a Master Sitemap Index (v1.2.2 / v1.2.3 / v1.2.x)
+### 2. Generating a Master Sitemap Index (v1.2.2 / v1.2.3 / v1.2.5)
 
 When scaling up your platform past Google or Bing structural thresholds, seamlessly group multiple sub-sitemaps together under a standard compliant master index. Create a Route Handler at `app/sitemap.xml/route.ts`.
 
@@ -128,15 +128,15 @@ export async function GET() {
   ];
 
   // Enforces authoritative xmlns namespace schemas (v1.2.2)
-  // 🛡️ Index Payload Guard (v1.2.x): Throws a fail-fast runtime exception if subSitemaps exceeds 50,000 items.
+  // 🛡️ Index Payload Guard (v1.2.5): Throws a fail-fast runtime exception if subSitemaps exceeds 50,000 items.
   return getServerSitemapIndexResponse(subSitemaps, {
     maxAge: 3600
   });
 }
 ```
 
-### 3. Splitting Massive Datasets with the Chunking Utility (v1.2.4 / v1.2.x)
-If you extract deep data clusters exceeding search engine single-file limits, use the segmentation helper to seamlessly prevent volume threshold errors and comply with the **v1.2.x** core guardrails:
+### 3. Splitting Massive Datasets with the Chunking Utility (v1.2.4 / v1.2.5)
+If you extract deep data clusters exceeding search engine single-file limits, use the segmentation helper to seamlessly prevent volume threshold errors and comply with the **v1.2.5** core guardrails:
 
 ```typescript
 import { chunkSitemapEntries, SitemapEntry } from 'next-advanced-sitemap';
@@ -215,7 +215,7 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 ## Technical Implementation
 
 ### Index Payload Scale Boundaries & Fail-Fast Guardrails (vx.x.x)
-To completely secure systems against deployment rejections within corporate crawling suites, **v1.2.x** establishes a rigid length validator at the entry-gate of the sitemap index builder pipeline:
+To completely secure systems against deployment rejections within corporate crawling suites, **v1.2.5** establishes a rigid length validator at the entry-gate of the sitemap index builder pipeline:
 * **Fail-Fast Boundary Control**: Before initializing any state buffers or resource string allocations, the engine checks array dimensions. If length variables surpass the 50,000 units parameter, it drops execution instantly with a descriptive troubleshooting message pointing directly to `chunkSitemapEntries()`.
 
 ### Large-Scale Dataset Segmentation & Memory Optimization (v1.2.4)

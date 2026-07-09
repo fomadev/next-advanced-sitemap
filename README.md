@@ -12,7 +12,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 ## Features
 
 
-- **Isolated Index Cache-Control Customization (v1.2.x)**: Aligns the `getServerSitemapIndexResponse` communication matrix with the custom `maxAge` timeline schema. Grants independent cache lifecycle management to master index endpoints, shielding backend engines from unnecessary regeneration steps while letting corporate CDNs serve root index files efficiently.
+- **Isolated Index Cache-Control Customization (v1.2.6)**: Aligns the `getServerSitemapIndexResponse` communication matrix with the custom `maxAge` timeline schema. Grants independent cache lifecycle management to master index endpoints, shielding backend engines from unnecessary regeneration steps while letting corporate CDNs serve root index files efficiently.
 - **Index Volume Payload Guard (v1.2.5)**: Implements an immutable fail-fast structural guardrail. Automatically intercepts and aborts execution by throwing a clear runtime exception if an index registration payload exceeds Google's absolute industrial threshold of 50,000 sub-sitemaps.
 - **Large-Scale Data Chunking Helper (v1.2.4)**: Ships a pure, high-performance utility function `chunkSitemapEntries(entries, size)` designed to slice massive records arrays into smaller sub-arrays (e.g., batches of 10,000 or 40,000 links). Seamlessly orchestrates dataset splitting before routing content blocks into distinct multi-sitemap router nodes.
 - **Index Date Polymorphism & Hybrid Typing (v1.2.3)**: Aligns sitemap index developer experience with core architecture rules. The `<lastmod>` parameter for child sitemaps fully accepts both raw JavaScript `Date` instances and structured ISO timestamp strings interchangeably.

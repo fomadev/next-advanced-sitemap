@@ -39,7 +39,7 @@ export function getServerSitemapResponse(
 }
 
 /**
- * ✨ v1.2.x : Génère une instance de Response Next.js pour l'index de sitemaps avec en-têtes optimisés.
+ * ✨ v1.2.6 : Génère une instance de Response Next.js pour l'index de sitemaps avec en-têtes optimisés.
  * Compression/Ajustement des en-têtes HTTP de l'Index (Index Cache-Control) et alignement CDN.
  * * @param entries - Liste des sous-sitemaps composant l'index
  * @param options - Options de configuration (ex: maxAge pour le cache)
@@ -56,7 +56,7 @@ export function getServerSitemapIndexResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // ⚡ Alignement v1.2.x : Gestion dynamique du cache Edge/CDN pour la structure d'index
+  // ⚡ Alignement v1.2.6 : Gestion dynamique du cache Edge/CDN pour la structure d'index
   if (options.maxAge !== undefined && options.maxAge >= 0) {
     headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
   } else {

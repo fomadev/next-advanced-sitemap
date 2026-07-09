@@ -8,7 +8,7 @@ import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { getServerSitemapIndexResponse } from '../src/index.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.x Sitemap Index Complete Validation Suite', () => {
+describe('v1.2.6 Sitemap Index Complete Validation Suite', () => {
 
   describe('Core XML Generation & Volume Guardrails', () => {
     it('should accept and accurately parse a plain ISO string for lastmod', () => {
@@ -61,7 +61,7 @@ describe('v1.2.x Sitemap Index Complete Validation Suite', () => {
     });
   });
 
-  describe('HTTP Headers & CDN Cache-Control Integrity (v1.2.x)', () => {
+  describe('HTTP Headers & CDN Cache-Control Integrity (v1.2.6)', () => {
     it('should apply custom max-age directive into sitemap index response headers', () => {
       const entries: SitemapIndexEntry[] = [{ loc: 'https://fomadev.com/sub-sitemap.xml' }];
       

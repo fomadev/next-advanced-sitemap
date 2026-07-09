@@ -11,7 +11,9 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
-- **Index Volume Payload Guard (vx.x.x)**: Implements an immutable fail-fast structural guardrail. Automatically intercepts and aborts execution by throwing a clear runtime exception if an index registration payload exceeds Google's absolute industrial threshold of 50,000 sub-sitemaps.
+
+- **Isolated Index Cache-Control Customization (v1.2.x)**: Aligns the `getServerSitemapIndexResponse` communication matrix with the custom `maxAge` timeline schema. Grants independent cache lifecycle management to master index endpoints, shielding backend engines from unnecessary regeneration steps while letting corporate CDNs serve root index files efficiently.
+- **Index Volume Payload Guard (v1.2.5)**: Implements an immutable fail-fast structural guardrail. Automatically intercepts and aborts execution by throwing a clear runtime exception if an index registration payload exceeds Google's absolute industrial threshold of 50,000 sub-sitemaps.
 - **Large-Scale Data Chunking Helper (v1.2.4)**: Ships a pure, high-performance utility function `chunkSitemapEntries(entries, size)` designed to slice massive records arrays into smaller sub-arrays (e.g., batches of 10,000 or 40,000 links). Seamlessly orchestrates dataset splitting before routing content blocks into distinct multi-sitemap router nodes.
 - **Index Date Polymorphism & Hybrid Typing (v1.2.3)**: Aligns sitemap index developer experience with core architecture rules. The `<lastmod>` parameter for child sitemaps fully accepts both raw JavaScript `Date` instances and structured ISO timestamp strings interchangeably.
 - **Universal XML Namespace Injection & Strict Index Guardrails (v1.2.2)**: Automated compliance matching that embeds standard canonical namespaces (`xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`) inside root index configurations. Prevents parsing errors or validation dropouts across alternative search crawlers like Bing, Yandex, or DuckDuckGo while routing individual child locations through strict syntax URL engines.
@@ -214,7 +216,7 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ## Technical Implementation
 
-### Index Payload Scale Boundaries & Fail-Fast Guardrails (vx.x.x)
+### Index Payload Scale Boundaries & Fail-Fast Guardrails (v1.2.5)
 To completely secure systems against deployment rejections within corporate crawling suites, **v1.2.5** establishes a rigid length validator at the entry-gate of the sitemap index builder pipeline:
 * **Fail-Fast Boundary Control**: Before initializing any state buffers or resource string allocations, the engine checks array dimensions. If length variables surpass the 50,000 units parameter, it drops execution instantly with a descriptive troubleshooting message pointing directly to `chunkSitemapEntries()`.
 

@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import { getServerSitemapResponse } from '../src/index.js';
 import { SitemapEntry } from '../src/types/sitemap.js';
 
-describe('Custom Cache-Control Configuration (v1.0.9)', () => {
+describe('Custom Cache-Control Configuration (v1.0.9 / v1.2.x Aligned)', () => {
   const mockEntries: SitemapEntry[] = [{ url: 'https://fomadev.com' }];
 
   it('should inject custom max-age header when maxAge option is specified', () => {
@@ -28,6 +28,7 @@ describe('Custom Cache-Control Configuration (v1.0.9)', () => {
     const response = getServerSitemapResponse(mockEntries, { autoLastmod: true });
     const cacheHeader = response.headers.get('Cache-Control');
 
-    expect(cacheHeader).toBe('public, s-maxage=86400, stale-while-revalidate');
+    // 🚀 Mis à jour pour correspondre à la stratégie d'infrastructure unifiée de la v1.2.x
+    expect(cacheHeader).toBe('public, max-age=86400, stale-while-revalidate=3600');
   });
 });

@@ -13,8 +13,7 @@ export * from './types/sitemap.js';
 /**
  * Génère une réponse HTTP compatible Next.js (App Router) avec options de configuration.
  * v1.0.9 : Injection dynamique et personnalisable de l'en-tête Cache-Control via l'option maxAge.
- * 
- * @param entries - Liste des entrées du sitemap
+ * * @param entries - Liste des entrées du sitemap
  * @param options - Options de génération et de mise en cache (ex: autoLastmod, maxAge)
  * @returns Une instance de Response contenant le flux XML configuré
  */
@@ -24,24 +23,25 @@ export function getServerSitemapResponse(
 ): Response {
   const xml = generateXml(entries, options);
 
-  // Détermination de la stratégie de mise en cache (v1.0.9)
-  const cacheControlHeader = options.maxAge !== undefined
-    ? `public, max-age=${options.maxAge}, must-revalidate`
-    : 'public, s-maxage=86400, stale-while-revalidate';
-
-  return new Response(xml, {
-    headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': cacheControlHeader,
-    },
+  const headers = new Headers({
+    'Content-Type': 'application/xml; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
   });
+
+  // Détermination de la stratégie de mise en cache
+  if (options.maxAge !== undefined && options.maxAge >= 0) {
+    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
+  } else {
+    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
+  }
+
+  return new Response(xml, { status: 200, headers });
 }
 
 /**
- * ✨ v1.2.0 : Génère une réponse HTTP Next.js (App Router) pour un Index de Sitemaps.
- * Permet de lister et de regrouper plusieurs sous-fichiers XML sitemaps.
- * 
- * @param entries - Liste des sous-sitemaps composant l'index
+ * ✨ v1.2.x : Génère une instance de Response Next.js pour l'index de sitemaps avec en-têtes optimisés.
+ * Compression/Ajustement des en-têtes HTTP de l'Index (Index Cache-Control) et alignement CDN.
+ * * @param entries - Liste des sous-sitemaps composant l'index
  * @param options - Options de configuration (ex: maxAge pour le cache)
  * @returns Une instance de Response contenant le flux XML de l'index
  */
@@ -51,15 +51,18 @@ export function getServerSitemapIndexResponse(
 ): Response {
   const xml = buildSitemapIndexXml(entries);
 
-  // Détermination de la stratégie de mise en cache (v1.2.0)
-  const cacheControlHeader = options.maxAge !== undefined
-    ? `public, max-age=${options.maxAge}, must-revalidate`
-    : 'public, s-maxage=86400, stale-while-revalidate';
-
-  return new Response(xml, {
-    headers: {
-      'Content-Type': 'application/xml',
-      'Cache-Control': cacheControlHeader,
-    },
+  const headers = new Headers({
+    'Content-Type': 'application/xml; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
   });
+
+  // ⚡ Alignement v1.2.x : Gestion dynamique du cache Edge/CDN pour la structure d'index
+  if (options.maxAge !== undefined && options.maxAge >= 0) {
+    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
+  } else {
+    // Stratégie CDN par défaut haute performance
+    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
+  }
+
+  return new Response(xml, { status: 200, headers });
 }

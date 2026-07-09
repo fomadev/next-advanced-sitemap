@@ -11,6 +11,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
+- **Index Volume Payload Guard (vx.x.x)**: Implements an immutable fail-fast structural guardrail. Automatically intercepts and aborts execution by throwing a clear runtime exception if an index registration payload exceeds Google's absolute industrial threshold of 50,000 sub-sitemaps.
 - **Large-Scale Data Chunking Helper (v1.2.4)**: Ships a pure, high-performance utility function `chunkSitemapEntries(entries, size)` designed to slice massive records arrays into smaller sub-arrays (e.g., batches of 10,000 or 40,000 links). Seamlessly orchestrates dataset splitting before routing content blocks into distinct multi-sitemap router nodes.
 - **Index Date Polymorphism & Hybrid Typing (v1.2.3)**: Aligns sitemap index developer experience with core architecture rules. The `<lastmod>` parameter for child sitemaps fully accepts both raw JavaScript `Date` instances and structured ISO timestamp strings interchangeably.
 - **Universal XML Namespace Injection & Strict Index Guardrails (v1.2.2)**: Automated compliance matching that embeds standard canonical namespaces (`xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`) inside root index configurations. Prevents parsing errors or validation dropouts across alternative search crawlers like Bing, Yandex, or DuckDuckGo while routing individual child locations through strict syntax URL engines.
@@ -107,7 +108,7 @@ export async function GET() {
 }
 ```
 
-### 2. Generating a Master Sitemap Index (v1.2.2 / v1.2.3)
+### 2. Generating a Master Sitemap Index (v1.2.2 / v1.2.3 / v1.2.x)
 
 When scaling up your platform past Google or Bing structural thresholds, seamlessly group multiple sub-sitemaps together under a standard compliant master index. Create a Route Handler at `app/sitemap.xml/route.ts`.
 
@@ -127,24 +128,28 @@ export async function GET() {
   ];
 
   // Enforces authoritative xmlns namespace schemas (v1.2.2)
+  // 🛡️ Index Payload Guard (v1.2.x): Throws a fail-fast runtime exception if subSitemaps exceeds 50,000 items.
   return getServerSitemapIndexResponse(subSitemaps, {
     maxAge: 3600
   });
 }
 ```
 
-### 3. Splitting Massive Datasets with the Chunking Utility (v1.2.4)
-If you have over 50,000 items, slice your collection dynamically before distributing them to your sub-sitemap handlers:
+### 3. Splitting Massive Datasets with the Chunking Utility (v1.2.4 / v1.2.x)
+If you extract deep data clusters exceeding search engine single-file limits, use the segmentation helper to seamlessly prevent volume threshold errors and comply with the **v1.2.x** core guardrails:
 
 ```typescript
 import { chunkSitemapEntries, SitemapEntry } from 'next-advanced-sitemap';
 
 const massiveDatabaseRows: SitemapEntry[] = [ /* 120,000 items from an ORM */ ];
 
-// Automatically segments your data into groups of 40,000 items max
+// Safe Segmentation (v1.2.4): Automatically slices rows into compliant batches
 const partitionedSitemaps = chunkSitemapEntries(massiveDatabaseRows, 40000);
 
 console.log(partitionedSitemaps.length); // Output: 3 distinct arrays
+
+// Best Practice: Register these 3 arrays dynamically into your sitemap index 
+// without triggering the 50,000 Index Payload Guard exception!
 ```
 
 ## API Reference
@@ -167,192 +172,51 @@ Generates a standard Next.js `Response` object with the correct `application/xml
 
 ### SitemapEntry Object
 
-<table>
-  <thead>
-      <tr>
-          <th>Property</th>
-          <th>Type</th>
-          <th>Description</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>url</code></td>
-          <td>string</td>
-          <td><strong>Required.</strong> Absolute target link (must begin with http:// or https://).</td>
-      </tr>
-      <tr>
-          <td><code>lastmod</code></td>
-          <td>Date | string</td>
-          <td>Optional tracking timestamp reflecting last structural update.</td>
-      </tr>
-      <tr>
-          <td><code>changefreq</code></td>
-          <td>SitemapChangeFreq</td>
-          <td>Optional hint keyword mapped to engine crawling loops</td>
-      </tr>
-      <tr>
-          <td><code>priority</code></td>
-          <td>SitemapPriority</td>
-          <td>Optional weight coefficient bounding page value from 0.0 to 1.0.</td>
-      </tr>
-      <tr>
-          <td><code>images</code></td>
-          <td>SitemapImage[]</td>
-          <td>Optional array containing structural metadata assets for Google Images.</td>
-      </tr>
-      <tr>
-          <td><code>videos</code></td>
-          <td>SitemapVideo[]</td>
-          <td>Optional array conveying detailed schemas for rich video indexation.</td>
-      </tr>
-      <tr>
-          <td><code>news</code></td>
-          <td>SitemapNews</td>
-          <td>Optional integration configuration complying with Google News indexing rules.</td>
-      </tr>
-      <tr>
-          <td><code>alternates</code></td>
-          <td>SitemapAlternate[]</td>
-          <td>Optional translation links array serving Hreflang indexing loops.</td>
-      </tr>
-      <tr>
-          <td><code>geo_location</code></td>
-          <td>string</td>
-          <td>(Optional) Geographic location string of the image (e.g., "Kinshasa, DRC").</td>
-      </tr>
-      <tr>
-          <td><code>license</code></td>
-          <td>string</td>
-          <td>(Optional) Valid HTTP/HTTPS URL addressing the licensing rights or usage terms of the image asset.</td>
-      </tr>
-  </tbody>
-</table>
+| Property | Type | Description |
+|----------|------|-------------|
+| `url` | string | **Required.** Absolute target link (must begin with http:// or https://). |
+| `lastmod` | Date \| string | Optional tracking timestamp reflecting last structural update. |
+| `changefreq` | SitemapChangeFreq | Optional hint keyword mapped to engine crawling loops |
+| `priority` | SitemapPriority | Optional weight coefficient bounding page value from 0.0 to 1.0. |
+| `images` | SitemapImage[] | Optional array containing structural metadata assets for Google Images. |
+| `videos` | SitemapVideo[] | Optional array conveying detailed schemas for rich video indexation. |
+| `news` | SitemapNews | Optional integration configuration complying with Google News indexing rules. |
+| `alternates` | SitemapAlternate[] | Optional translation links array serving Hreflang indexing loops. |
+| `geo_location` | string | (Optional) Geographic location string of the image (e.g., "Kinshasa, DRC"). |
+| `license` | string | (Optional) Valid HTTP/HTTPS URL addressing the licensing rights or usage terms of the image asset. |
 
 ### SitemapImage
 
-<table>
-  <thead>
-      <tr>
-          <th>Property</th>
-          <th>Type</th>
-          <th>Description</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td><code>loc</code></td>
-          <td>string</td>
-          <td><strong>Required.</strong> The absolute URL targeting the source image asset.</td>
-      </tr>
-      <tr>
-          <td><code>title</code></td>
-          <td>string</td>
-          <td>Optional text representation describing the visual asset. Auto-trimmed.</td>
-      </tr>
-      <tr>
-          <td><code>caption</code></td>
-          <td>string</td>
-          <td>Optional descriptive context surrounding the element. Deep XML Escaped.</td>
-      </tr>
-      <tr>
-          <td><code>geo_location</code></td>
-          <td>string</td>
-          <td>Optional location reference (e.g., "Kinshasa, Democratic Republic of the Congo").</td>
-      </tr>
-      <tr>
-          <td><code>license</code></td>
-          <td>string</td>
-          <td>Optional absolute URL containing intellectual copyright terms or usage badges.</td>
-      </tr>
-  </tbody>
-</table>
+| Property | Type | Description |
+|----------|------|-------------|
+| `loc` | string | **Required.** The absolute URL targeting the source image asset. |
+| `title` | string | Optional text representation describing the visual asset. Auto-trimmed. |
+| `caption` | string | Optional descriptive context surrounding the element. Deep XML Escaped. |
+| `geo_location` | string | Optional location reference (e.g., "Kinshasa, Democratic Republic of the Congo"). |
+| `license` | string | Optional absolute URL containing intellectual copyright terms or usage badges. |
 
 ### SitemapVideo
 
-<table>
-    <thead>
-        <tr>
-            <th>Property</th>
-            <th>Type</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><code>thumbnail_loc</code></td>
-            <td>string</td>
-            <td><strong>Required.</strong> The absolute URL targeting the source image asset.</td>
-        </tr>
-        <tr>
-            <td><code>title</code></td>
-            <td>string</td>
-            <td><strong>Required.</strong> The descriptive headline of the video asset. Escaped.</td>
-        </tr>
-        <tr>
-            <td><code>description</code></td>
-            <td>string</td>
-            <td><strong>Required.</strong> Summary text representing the video topic. Max 2048 chars.</td>
-        </tr>
-        <tr>
-            <td><code>publication_date</code></td>
-            <td>Date | string</td>
-            <td><strong>Required.</strong> Publication date object or raw formatted ISO string.</td>
-        </tr>
-        <tr>
-            <td><code>content_loc</code></td>
-            <td>string</td>
-            <td>Optional absolute URL targeting the raw video media stream container.</td>
-        </tr>
-        <tr>
-            <td><code>player_loc</code></td>
-            <td>string</td>
-            <td>Optional absolute URL linking out to an embeddable video player frame.</td>
-        </tr>
-        <tr>
-            <td><code>duration</code></td>
-            <td>number</td>
-            <td>Optional length in seconds. Must be an integer bounded between 0 and 28800.</td>
-        </tr>
-        <tr>
-            <td><code>view_count</code></td>
-            <td>number</td>
-            <td>Optional overall hit counter. Negative values strictly prohibited.</td>
-        </tr>
-        <tr>
-            <td><code>live</code></td>
-            <td>'yes' | 'no'</td>
-            <td>Optional switch triggering immediate Google SERP LIVE badges.</td>
-        </tr>
-        <tr>
-            <td><code>price</code></td>
-            <td>VideoPrice</td>
-            <td>Optional metadata structure attaching commercial purchase parameters to standard Google video rich cards.</td>
-        </tr>
-        <tr>
-    <td><code>category</code></td>
-    <td>string</td>
-    <td>Optional general topical category (e.g., 'Education', 'Technology'). Max 256 characters. Automatically trimmed and XML-escaped.</td>
-    </tr>
-    <tr>
-        <td><code>tags</code></td>
-        <td>string[]</td>
-        <td>Optional array of keywords describing the video. Bound to a strict maximum of 32 tags per video entry. Individual tags are automatically trimmed and XML-escaped.</td>
-    </tr>
-    <tr>
-    <td><code>category</code></td>
-    <td>string</td>
-    <td>Optional general topical category (e.g., 'Education', 'Technology'). Max 256 characters. Automatically trimmed and XML-escaped.</td>
-    </tr>
-    <tr>
-        <td><code>tags</code></td>
-        <td>string[]</td>
-        <td>Optional array of keywords describing the video. Bound to a strict maximum of 32 tags per video entry. Individual tags are automatically trimmed and XML-escaped.</td>
-    </tr>
-    </tbody>
-</table>
+| Property | Type | Description |
+|----------|------|-------------|
+| `thumbnail_loc` | string | **Required.** The absolute URL targeting the source image asset. |
+| `title` | string | **Required.** The descriptive headline of the video asset. Escaped. |
+| `description` | string | **Required.** Summary text representing the video topic. Max 2048 chars. |
+| `publication_date` | Date \| string | **Required.** Publication date object or raw formatted ISO string. |
+| `content_loc` | string | Optional absolute URL targeting the raw video media stream container. |
+| `player_loc` | string | Optional absolute URL linking out to an embeddable video player frame. |
+| `duration` | number | Optional length in seconds. Must be an integer bounded between 0 and 28800. |
+| `view_count` | number | Optional overall hit counter. Negative values strictly prohibited. |
+| `live` | 'yes' \| 'no' | Optional switch triggering immediate Google SERP LIVE badges. |
+| `price` | VideoPrice | Optional metadata structure attaching commercial purchase parameters to standard Google video rich cards. |
+| `category` | string | Optional general topical category (e.g., 'Education', 'Technology'). Max 256 characters. Automatically trimmed and XML-escaped. |
+| `tags` | string[] | Optional array of keywords describing the video. Bound to a strict maximum of 32 tags per video entry. Individual tags are automatically trimmed and XML-escaped. |
 
 ## Technical Implementation
+
+### Index Payload Scale Boundaries & Fail-Fast Guardrails (vx.x.x)
+To completely secure systems against deployment rejections within corporate crawling suites, **v1.2.x** establishes a rigid length validator at the entry-gate of the sitemap index builder pipeline:
+* **Fail-Fast Boundary Control**: Before initializing any state buffers or resource string allocations, the engine checks array dimensions. If length variables surpass the 50,000 units parameter, it drops execution instantly with a descriptive troubleshooting message pointing directly to `chunkSitemapEntries()`.
 
 ### Large-Scale Dataset Segmentation & Memory Optimization (v1.2.4)
 To comfortably address high-density web platforms where database extraction bounds exceed corporate index constraints, **v1.2.4** integrates a localized array segmentation helper:

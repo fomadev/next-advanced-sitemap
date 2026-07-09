@@ -9,9 +9,16 @@ import { sanitizeAndValidateUrl } from './url-builder.js';
 
 /**
  * Génère la structure brute XML pour un fichier d'indexation de sitemaps.
- * v1.2.3 : Support officiel du typage hybride/polymorphique (Date native ou chaîne ISO) pour la balise lastmod.
+ * v1.2.5 : Guardrail de volume (Index Payload Guard) - Limite stricte à 50 000 sous-sitemaps.
  */
 export function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
+  // 🔥 Guardrail de volume v1.2.5 : Interception des anomalies d'échelle (limite technique Google)
+  if (entries.length > 50000) {
+    throw new Error(
+      `[next-advanced-sitemap] Index volume threshold breach: A single sitemap index cannot contain more than 50,000 sub-sitemaps. Detected: ${entries.length}. Please leverage chunkSitemapEntries() to segment your dataset.`
+    );
+  }
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 

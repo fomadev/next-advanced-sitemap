@@ -7,7 +7,7 @@ import { describe, it, expect } from 'vitest';
 import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.3 Sitemap Index Hybrid Date & Validation Suite', () => {
+describe('v1.2.5 Sitemap Index Hybrid Date & Volume Guardrail Suite', () => {
 
   it('should accept and accurately parse a plain ISO string for lastmod', () => {
     const entries: SitemapIndexEntry[] = [
@@ -44,6 +44,17 @@ describe('v1.2.3 Sitemap Index Hybrid Date & Validation Suite', () => {
 
     expect(() => buildSitemapIndexXml(badEntries)).toThrowError(
       '[next-advanced-sitemap] Malformed URL structure detected in sitemap index location'
+    );
+  });
+
+  it('should throw a strict volume guardrail exception if entries exceed 50,000 (v1.2.5)', () => {
+    // Création d'un tableau virtuel de 50 001 entrées sans saturer la mémoire réelle
+    const massiveEntries: SitemapIndexEntry[] = Array.from({ length: 50001 }, () => ({
+      loc: 'https://fomadev.com/sitemap-mock.xml'
+    }));
+
+    expect(() => buildSitemapIndexXml(massiveEntries)).toThrowError(
+      '[next-advanced-sitemap] Index volume threshold breach'
     );
   });
 });

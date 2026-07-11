@@ -8,9 +8,9 @@ import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { getServerSitemapIndexResponse } from '../src/index.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.6 Sitemap Index Complete Validation Suite', () => {
+describe('v1.2.x Sitemap Index Comprehensive Suite', () => {
 
-  describe('Core XML Generation & Volume Guardrails', () => {
+  describe('Core XML Generation & Volume Guardrails (v1.2.5)', () => {
     it('should accept and accurately parse a plain ISO string for lastmod', () => {
       const entries: SitemapIndexEntry[] = [
         { loc: 'https://fomadev.com/sitemap-articles.xml', lastmod: '2026-11-29T12:00:00.000Z' }
@@ -82,6 +82,31 @@ describe('v1.2.6 Sitemap Index Complete Validation Suite', () => {
       const cacheControl = response.headers.get('Cache-Control');
 
       expect(cacheControl).toContain('public, max-age=86400, stale-while-revalidate=3600');
+    });
+  });
+
+  describe('Index Auto-Lastmod Feature (v1.2.x)', () => {
+    it('should inject current system date when autoLastmod is true and lastmod is missing', () => {
+      const entries: SitemapIndexEntry[] = [
+        { loc: 'https://fomadev.com/sitemap-dynamic.xml' }
+      ];
+
+      const xml = buildSitemapIndexXml(entries, { autoLastmod: true });
+      
+      // On vérifie la présence d'une balise lastmod bien formée avec l'année en cours (2026)
+      expect(xml).toContain('<lastmod>2026-');
+      expect(xml).toContain('Z</lastmod>');
+    });
+
+    it('should respect explicit lastmod date even if autoLastmod is enabled', () => {
+      const entries: SitemapIndexEntry[] = [
+        { loc: 'https://fomadev.com/sitemap-static.xml', lastmod: '2025-01-01T00:00:00.000Z' }
+      ];
+
+      const xml = buildSitemapIndexXml(entries, { autoLastmod: true });
+      
+      expect(xml).toContain('<lastmod>2025-01-01T00:00:00.000Z</lastmod>');
+      expect(xml).not.toContain('2026-');
     });
   });
 });

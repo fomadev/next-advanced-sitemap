@@ -3,16 +3,19 @@
  * See LICENSE file in the project root for full license information.
  */
 
-import { SitemapIndexEntry } from '../../types/sitemap.js';
+import { SitemapIndexEntry, SitemapOptions } from '../../types/sitemap.js';
 import { escapeXml } from '../../utils/xml-escape.js';
 import { sanitizeAndValidateUrl } from './url-builder.js';
 
 /**
  * Génère la structure brute XML pour un fichier d'indexation de sitemaps.
- * v1.2.5 : Guardrail de volume (Index Payload Guard) - Limite stricte à 50 000 sous-sitemaps.
+ * v1.2.x : Support de l'auto-remplissage de date (Index Auto-Lastmod).
  */
-export function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
-  // 🔥 Guardrail de volume v1.2.5 : Interception des anomalies d'échelle (limite technique Google)
+export function buildSitemapIndexXml(
+  entries: SitemapIndexEntry[],
+  options: Pick<SitemapOptions, 'autoLastmod'> = {}
+): string {
+  // 🔥 Guardrail de volume v1.2.5
   if (entries.length > 50000) {
     throw new Error(
       `[next-advanced-sitemap] Index volume threshold breach: A single sitemap index cannot contain more than 50,000 sub-sitemaps. Detected: ${entries.length}. Please leverage chunkSitemapEntries() to segment your dataset.`
@@ -29,9 +32,11 @@ export function buildSitemapIndexXml(entries: SitemapIndexEntry[]): string {
     xml += `  <sitemap>\n`;
     xml += `    <loc>${escapeXml(cleanLoc)}</loc>\n`;
     
-    if (entry.lastmod) {
-      // Polymorphisme v1.2.3 : Conversion automatique des instances Date ou inclusion de la chaîne brute
-      const date = entry.lastmod instanceof Date ? entry.lastmod.toISOString() : entry.lastmod;
+    // 🕒 v1.2.x : Détermination de la date (Priorité à la date explicite, fallback sur le système si autoLastmod est actif)
+    const rawDate = entry.lastmod || (options.autoLastmod ? new Date() : undefined);
+    
+    if (rawDate) {
+      const date = rawDate instanceof Date ? rawDate.toISOString() : rawDate;
       xml += `    <lastmod>${date}</lastmod>\n`;
     }
     

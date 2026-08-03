@@ -131,8 +131,10 @@ export async function GET() {
 
   // Enforces authoritative xmlns namespace schemas (v1.2.2)
   // 🛡️ Index Payload Guard (v1.2.5): Throws a fail-fast runtime exception if subSitemaps exceeds 50,000 items.
+  // 🕒 Auto-Lastmod (v1.2.7): Missing dates fallback to current system time seamlessly!
   return getServerSitemapIndexResponse(subSitemaps, {
-    maxAge: 3600
+    maxAge: 3600,
+    autoLastmod: true
   });
 }
 ```

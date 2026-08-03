@@ -8,7 +8,7 @@ import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { getServerSitemapIndexResponse } from '../src/index.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.x Sitemap Index Comprehensive Suite', () => {
+describe('v1.2.7 Sitemap Index Comprehensive Suite', () => {
 
   describe('Core XML Generation & Volume Guardrails (v1.2.5)', () => {
     it('should accept and accurately parse a plain ISO string for lastmod', () => {
@@ -85,7 +85,7 @@ describe('v1.2.x Sitemap Index Comprehensive Suite', () => {
     });
   });
 
-  describe('Index Auto-Lastmod Feature (v1.2.x)', () => {
+  describe('Index Auto-Lastmod Feature (v1.2.7)', () => {
     it('should inject current system date when autoLastmod is true and lastmod is missing', () => {
       const entries: SitemapIndexEntry[] = [
         { loc: 'https://fomadev.com/sitemap-dynamic.xml' }

@@ -9,7 +9,7 @@ import { sanitizeAndValidateUrl } from './url-builder.js';
 
 /**
  * Génère la structure brute XML pour un fichier d'indexation de sitemaps.
- * v1.2.x : Support de l'auto-remplissage de date (Index Auto-Lastmod).
+ * v1.2.7 : Support de l'auto-remplissage de date (Index Auto-Lastmod).
  */
 export function buildSitemapIndexXml(
   entries: SitemapIndexEntry[],
@@ -32,7 +32,7 @@ export function buildSitemapIndexXml(
     xml += `  <sitemap>\n`;
     xml += `    <loc>${escapeXml(cleanLoc)}</loc>\n`;
     
-    // 🕒 v1.2.x : Détermination de la date (Priorité à la date explicite, fallback sur le système si autoLastmod est actif)
+    // 🕒 v1.2.7 : Détermination de la date (Priorité à la date explicite, fallback sur le système si autoLastmod est actif)
     const rawDate = entry.lastmod || (options.autoLastmod ? new Date() : undefined);
     
     if (rawDate) {

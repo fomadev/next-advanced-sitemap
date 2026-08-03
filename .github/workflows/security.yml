@@ -5,9 +5,9 @@
 name: Advanced Cyber Security & Hardening
 on:
   push:
-    branches: [ main, security ]
+    branches: [ main, security, test ]
   pull_request:
-    branches: [ main, security ]
+    branches: [ main, security, test ]
 
 jobs:
   security-intrusion:

@@ -11,7 +11,7 @@ While Next.js provides a built-in `MetadataRoute.Sitemap` utility, it currently 
 
 ## Features
 
-
+- **Index Auto-Lastmod Fallback (v1.2.7)**: Extends the `{ autoLastmod: true }` parameter architecture to master index engines. Automatically maps missing timestamp footprints to the current system date at execution runtime, avoiding structural drops on search engine crawls.
 - **Isolated Index Cache-Control Customization (v1.2.6)**: Aligns the `getServerSitemapIndexResponse` communication matrix with the custom `maxAge` timeline schema. Grants independent cache lifecycle management to master index endpoints, shielding backend engines from unnecessary regeneration steps while letting corporate CDNs serve root index files efficiently.
 - **Index Volume Payload Guard (v1.2.5)**: Implements an immutable fail-fast structural guardrail. Automatically intercepts and aborts execution by throwing a clear runtime exception if an index registration payload exceeds Google's absolute industrial threshold of 50,000 sub-sitemaps.
 - **Large-Scale Data Chunking Helper (v1.2.4)**: Ships a pure, high-performance utility function `chunkSitemapEntries(entries, size)` designed to slice massive records arrays into smaller sub-arrays (e.g., batches of 10,000 or 40,000 links). Seamlessly orchestrates dataset splitting before routing content blocks into distinct multi-sitemap router nodes.
@@ -131,8 +131,10 @@ export async function GET() {
 
   // Enforces authoritative xmlns namespace schemas (v1.2.2)
   // 🛡️ Index Payload Guard (v1.2.5): Throws a fail-fast runtime exception if subSitemaps exceeds 50,000 items.
+  // 🕒 Auto-Lastmod (v1.2.7): Missing dates fallback to current system time seamlessly!
   return getServerSitemapIndexResponse(subSitemaps, {
-    maxAge: 3600
+    maxAge: 3600,
+    autoLastmod: true
   });
 }
 ```

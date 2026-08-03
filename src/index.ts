@@ -13,7 +13,8 @@ export * from './types/sitemap.js';
 /**
  * Génère une réponse HTTP compatible Next.js (App Router) avec options de configuration.
  * v1.0.9 : Injection dynamique et personnalisable de l'en-tête Cache-Control via l'option maxAge.
- * * @param entries - Liste des entrées du sitemap
+ * 
+ * @param entries - Liste des entrées du sitemap
  * @param options - Options de génération et de mise en cache (ex: autoLastmod, maxAge)
  * @returns Une instance de Response contenant le flux XML configuré
  */
@@ -39,9 +40,10 @@ export function getServerSitemapResponse(
 }
 
 /**
- * ✨ v1.2.x : Génère une instance de Response Next.js pour l'index de sitemaps.
- * Support complet de maxAge (v1.2.6) et propagation de la politique autoLastmod (v1.2.x).
- * * @param entries - Liste des sous-sitemaps composant l'index
+ * ✨ v1.2.7 : Génère une instance de Response Next.js pour l'index de sitemaps.
+ * Support complet de maxAge (v1.2.6) et autoLastmod (v1.2.7).
+ * 
+ * @param entries - Liste des sous-sitemaps composant l'index
  * @param options - Options de configuration (maxAge pour le cache, autoLastmod pour les dates dynamiques)
  * @returns Une instance de Response contenant le flux XML de l'index
  */
@@ -49,7 +51,7 @@ export function getServerSitemapIndexResponse(
   entries: SitemapIndexEntry[],
   options: Pick<SitemapOptions, 'maxAge' | 'autoLastmod'> = {}
 ): Response {
-  // Passation de l'option autoLastmod au builder d'index (v1.2.x)
+  // Passation de l'option autoLastmod au builder d'index
   const xml = buildSitemapIndexXml(entries, { autoLastmod: options.autoLastmod });
 
   const headers = new Headers({

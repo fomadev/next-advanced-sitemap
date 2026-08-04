@@ -14,6 +14,7 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 ## Key Features
 
 - **Master Sitemap Indexing (`getServerSitemapIndexResponse`)**: Seamlessly link multiple child sitemaps to bypass search engine structural limits (50,000 URLs / 50MB per file).
+- **Index URL Escaping & Query Parameters Safety (v1.2.8)**: Rigorous URL sanitization and XML entity escaping (`&` to `&amp;`, `<`, `>`, `"`, `'`) for `<sitemapindex>` child `<loc>` URLs, guaranteeing RFC 3986 and XML 1.0 compliance when index locations contain query parameters (`?`, `&`, `=`) or reserved characters.
 - **Google Images Extensions**: Full support for titles, captions, local SEO positioning (`geo_location`), and copyright licensing (`license`).
 - **Google Video Extensions**: Support for live stream markers (`live`), monetization models (`price`), paywall signals (`requires_subscription`), restrictions (`restriction`, `platform`), categories, and tags.
 - **Google News Extensions**: Support for required metadata, 48-hour freshness rules, and stock market tickers (`stock_tickers`).
@@ -94,7 +95,7 @@ export async function GET() {
       lastmod: new Date()
     },
     {
-      loc: 'https://fomadev.com/sitemap-products.xml',
+      loc: 'https://fomadev.com/api/sitemap?page=1&category=tech', // Query parameters are safely escaped into &amp;
       lastmod: '2026-08-01T00:00:00.000Z'
     }
   ];

@@ -40,8 +40,8 @@ export function getServerSitemapResponse(
 }
 
 /**
- * ✨ v1.2.7 : Génère une instance de Response Next.js pour l'index de sitemaps.
- * Support complet de maxAge (v1.2.6) et autoLastmod (v1.2.7).
+ * ✨ v1.2.8 : Génère une instance de Response Next.js pour l'index de sitemaps.
+ * Support complet de maxAge (v1.2.6), autoLastmod (v1.2.7) et échappement strict des URLs d'index (v1.2.8).
  * 
  * @param entries - Liste des sous-sitemaps composant l'index
  * @param options - Options de configuration (maxAge pour le cache, autoLastmod pour les dates dynamiques)

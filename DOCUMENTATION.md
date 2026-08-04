@@ -1,4 +1,4 @@
-# next-advanced-sitemap (v1.2.7) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.2.8) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
@@ -10,7 +10,7 @@ While Next.js offers basic out-of-the-box sitemap support via `MetadataRoute.Sit
 - Google Video Schema (including live stream markers, restrictions, monetization models, duration bounds, categories, and tags)
 - Google News Schema (including strict 48-hour freshness validation and stock tickers)
 - Hreflang / Internationalization (`xhtml:link` multi-region alternate links)
-- Master Sitemap Indexes (`<sitemapindex>`) for massive data structures
+- Master Sitemap Indexes (`<sitemapindex>`) for massive data structures with strict URL escaping & query parameters safety
 - Data Chunking Utilities for segmenting collections exceeding search engine single-file boundaries
 - Cross-Field Semantic Validation to prevent indexing drops caused by logical contradictions
 
@@ -285,13 +285,14 @@ When `autoLastmod: true` is set in options, any standard entry or sitemap index 
 
 Setting `sortByPriority: true` sorts entries in strict descending order based on their numerical `priority` value (from `1.0` down to `0.0`). Entries lacking a defined priority inherit a baseline default value of `0.5`.
 
-### 6.6 URL Sanitization and Auto-Trimming
+### 6.6 URL Sanitization, Auto-Trimming, and Index Location Escaping (v1.2.8)
 
-All input URLs undergo strict sanitization:
-- Whitespace Trimming: Leading and trailing spaces are automatically removed (`.trim()`).
-- Protocol Verification: URLs must begin with `http://` or `https://`.
-- Internal Space Interception: URLs containing internal spaces are rejected.
-- Parsing Check: Validated via native `URL.canParse()` or `new URL()`.
+All input URLs undergo strict sanitization and XML entity escaping:
+- **Whitespace Trimming**: Leading and trailing spaces are automatically removed (`.trim()`).
+- **Protocol Verification**: URLs must begin strictly with `http://` or `https://`.
+- **Internal Space Interception**: URLs containing internal spaces are rejected with a strict validation exception.
+- **Parsing Check**: Validated via native `URL.canParse()` or `new URL()`.
+- **Sitemap Index Escaping & Query Parameters Safety (v1.2.8)**: In `buildSitemapIndexXml()`, child sitemap location URLs (`loc`) are sanitized with `sanitizeAndValidateUrl()` and XML entity-escaped using `escapeXml()`. This guarantees strict RFC 3986 and XML 1.0 compliance when index locations contain query parameters (e.g. `?page=1&category=tech` becomes `?page=1&amp;category=tech`) or XML reserved characters (`<`, `>`, `"`, `'`).
 
 ---
 
@@ -390,8 +391,9 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ---
 
-## 8. Version Changelog Highlights (v1.0.0 - v1.2.7)
+## 8. Version Changelog Highlights (v1.0.0 - v1.2.8)
 
+- **v1.2.8**: Introduced Index Escaping & Query Parameters Safety for `<sitemapindex>` (`<loc>`), enforcing strict RFC 3986 and XML 1.0 entity escaping (`&` to `&amp;`, `?`, `=`, `<`, `>`) on child sitemap URLs.
 - **v1.2.7**: Introduced automatic lastmod fallback support for Sitemap Index files via `autoLastmod`.
 - **v1.2.6**: Added custom `maxAge` cache-control configuration for `getServerSitemapIndexResponse`.
 - **v1.2.5**: Implemented Index Volume Payload Scale Guard throwing exceptions above 50,000 sub-sitemaps.

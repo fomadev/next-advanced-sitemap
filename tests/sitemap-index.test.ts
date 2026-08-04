@@ -8,7 +8,7 @@ import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { getServerSitemapIndexResponse } from '../src/index.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.7 Sitemap Index Comprehensive Suite', () => {
+describe('v1.2.8 Sitemap Index Comprehensive Suite', () => {
 
   describe('Core XML Generation & Volume Guardrails (v1.2.5)', () => {
     it('should accept and accurately parse a plain ISO string for lastmod', () => {
@@ -50,7 +50,6 @@ describe('v1.2.7 Sitemap Index Comprehensive Suite', () => {
     });
 
     it('should throw a strict volume guardrail exception if entries exceed 50,000 (v1.2.5)', () => {
-      // Création d'un tableau virtuel de 50 001 entrées sans saturer la mémoire réelle
       const massiveEntries: SitemapIndexEntry[] = Array.from({ length: 50001 }, () => ({
         loc: 'https://fomadev.com/sitemap-mock.xml'
       }));
@@ -93,7 +92,6 @@ describe('v1.2.7 Sitemap Index Comprehensive Suite', () => {
 
       const xml = buildSitemapIndexXml(entries, { autoLastmod: true });
       
-      // On vérifie la présence d'une balise lastmod bien formée avec l'année en cours (2026)
       expect(xml).toContain('<lastmod>2026-');
       expect(xml).toContain('Z</lastmod>');
     });
@@ -107,6 +105,31 @@ describe('v1.2.7 Sitemap Index Comprehensive Suite', () => {
       
       expect(xml).toContain('<lastmod>2025-01-01T00:00:00.000Z</lastmod>');
       expect(xml).not.toContain('2026-');
+    });
+  });
+
+  describe('Index Escaping & Query Params Safety (v1.2.8)', () => {
+    it('should safely escape complex URL query parameters (&, ?, =) in index locations', () => {
+      const entries: SitemapIndexEntry[] = [
+        { loc: 'https://fomadev.com/api/sitemap?page=1&category=tech&region=cd' }
+      ];
+
+      const xml = buildSitemapIndexXml(entries);
+
+      // Le caractère & doit impérativement être transformé en &amp; pour la validité XML
+      expect(xml).toContain('<loc>https://fomadev.com/api/sitemap?page=1&amp;category=tech&amp;region=cd</loc>');
+      expect(xml).not.toContain('&category=');
+    });
+
+    it('should handle reserved XML entities in dynamic route parameters cleanly', () => {
+      const entries: SitemapIndexEntry[] = [
+        { loc: 'https://fomadev.com/sitemap?filter=<active>&lang=fr' }
+      ];
+
+      const xml = buildSitemapIndexXml(entries);
+
+      expect(xml).toContain('&lt;active&gt;');
+      expect(xml).toContain('&amp;lang=fr');
     });
   });
 });

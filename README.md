@@ -3,9 +3,9 @@
 [![License: FPL](https://img.shields.io/badge/License-FPL-orange.svg)](LICENSE)
 ![CI Status](https://github.com/fomadev/next-advanced-sitemap/actions/workflows/tests.yml/badge.svg)
 
-A robust, type-safe XML sitemap and sitemap index generator for Next.js App Router applications (`>= 13.0.0`). 
+A robust, type-safe XML sitemap, sitemap index, and robots.txt generator for Next.js App Router applications (`>= 13.0.0`). 
 
-It provides native support for Google Images, Google Video, Google News, Hreflang (multilingual), Master Sitemap Indexes (`<sitemapindex>`), Large-Scale Dataset Chunking, and Cross-Field Semantic Validation.
+It provides native support for Google Images, Google Video, Google News, Hreflang (multilingual), Master Sitemap Indexes (`<sitemapindex>`), Robots.txt Builder (`buildRobotsText`), Large-Scale Dataset Chunking, and Cross-Field Semantic Validation.
 
 > **Full Documentation & API Reference**: For complete technical specifications, in-depth extension guides, and validation rules, see [DOCUMENTATION.md](DOCUMENTATION.md).
 
@@ -13,6 +13,7 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 
 ## Key Features
 
+- **Native Robots.txt Generator (`buildRobotsText`) (v1.3.0)**: Instantly generate standardized, clean `robots.txt` text content with full support for user-agents, allow/disallow paths, crawl-delay directives, custom host rules, and sitemap/sitemap index links.
 - **Master Sitemap Indexing (`getServerSitemapIndexResponse`)**: Seamlessly link multiple child sitemaps to bypass search engine structural limits (50,000 URLs / 50MB per file).
 - **Index URL Escaping & Query Parameters Safety (v1.2.8)**: Rigorous URL sanitization and XML entity escaping (`&` to `&amp;`, `<`, `>`, `"`, `'`) for `<sitemapindex>` child `<loc>` URLs, guaranteeing RFC 3986 and XML 1.0 compliance when index locations contain query parameters (`?`, `&`, `=`) or reserved characters.
 - **Google Images Extensions**: Full support for titles, captions, local SEO positioning (`geo_location`), and copyright licensing (`license`).
@@ -107,7 +108,42 @@ export async function GET() {
 }
 ```
 
-### 3. Large Dataset Chunking (`chunkSitemapEntries`)
+### 3. Native Robots.txt Route (`app/robots.txt/route.ts`)
+
+```typescript
+import { buildRobotsText } from 'next-advanced-sitemap';
+
+export async function GET() {
+  const robots = buildRobotsText({
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/private/'],
+        crawlDelay: 2
+      },
+      {
+        userAgent: 'GPTBot',
+        disallow: '/'
+      }
+    ],
+    sitemap: [
+      'https://fomadev.com/sitemap.xml',
+      'https://fomadev.com/sitemap-news.xml'
+    ],
+    host: 'https://fomadev.com'
+  });
+
+  return new Response(robots, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=3600'
+    }
+  });
+}
+```
+
+### 4. Large Dataset Chunking (`chunkSitemapEntries`)
 
 ```typescript
 import { chunkSitemapEntries, SitemapEntry } from 'next-advanced-sitemap';
@@ -136,4 +172,4 @@ This project is licensed under the [FomaDev Public License (FPL)](LICENSE).
 - **Contributions**: Authorized via Pull Requests to the official repository.
 - **Restrictions**: Independent forks, source code redistribution, or building competing products based on this engine require a paid commercial license.
 
-Copyright (c) 2026 Fordi / FomaDev.
+Copyright (c) 2026 Fordi / FomaDev.

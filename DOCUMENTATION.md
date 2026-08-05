@@ -1,24 +1,25 @@
-# next-advanced-sitemap (v1.2.8) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.3.0) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
-`next-advanced-sitemap` is a high-performance, strictly typed XML sitemap and sitemap index generator specifically engineered for Next.js App Router applications (`>= 13.0.0`). 
+`next-advanced-sitemap` is a high-performance, strictly typed XML sitemap, sitemap index, and `robots.txt` generator specifically engineered for Next.js App Router applications (`>= 13.0.0`). 
 
-While Next.js offers basic out-of-the-box sitemap support via `MetadataRoute.Sitemap`, enterprise web platforms require rich metadata extensions to maximize discovery across search engine crawler matrices. `next-advanced-sitemap` fills this architectural gap by supplying full native support for:
+While Next.js offers basic out-of-the-box metadata support via `MetadataRoute.Sitemap` and `MetadataRoute.Robots`, enterprise web platforms require rich metadata extensions, dynamic index generation, multi-sitemap orchestration, and unified `robots.txt` synchronization to maximize discovery across search engine crawler matrices. `next-advanced-sitemap` fills this architectural gap by supplying full native support for:
 
-- Google Images Schema (including captions, titles, local SEO positioning, and copyright licensing)
-- Google Video Schema (including live stream markers, restrictions, monetization models, duration bounds, categories, and tags)
-- Google News Schema (including strict 48-hour freshness validation and stock tickers)
-- Hreflang / Internationalization (`xhtml:link` multi-region alternate links)
-- Master Sitemap Indexes (`<sitemapindex>`) for massive data structures with strict URL escaping & query parameters safety
-- Data Chunking Utilities for segmenting collections exceeding search engine single-file boundaries
-- Cross-Field Semantic Validation to prevent indexing drops caused by logical contradictions
+- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.0)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules and link them directly to standard sitemaps or sitemap index endpoints.
+- **Google Images Schema**: Captions, titles, local SEO positioning (`geo_location`), and copyright licensing (`license`).
+- **Google Video Schema**: Live stream markers (`live`), restrictions (`restriction`, `platform`), monetization models (`price`), paywall markers (`requires_subscription`), duration bounds, categories, and tags.
+- **Google News Schema**: Strict 48-hour freshness validation and stock tickers (`stock_tickers`).
+- **Hreflang / Internationalization**: `xhtml:link` multi-region alternate links.
+- **Master Sitemap Indexes (`<sitemapindex>`)**: Scalable data structures with strict URL escaping & query parameters safety for routing thousands of URLs across child sitemaps.
+- **Data Chunking Utilities (`chunkSitemapEntries`)**: High-performance O(N) segmentation for datasets exceeding search engine single-file limits (50,000 URLs / 50MB).
+- **Cross-Field Semantic Validation Engine**: Pre-generation validation that catches logical data contradictions before XML or text emission.
 
 ---
 
 ## 2. Core Architecture and Concepts
 
-The library operates on a zero-dependency runtime strategy (outside Next.js and React peer definitions), delivering ultra-fast XML serialization without heavy DOM manipulation libraries.
+The library operates on a zero-dependency runtime strategy (outside Next.js and React peer definitions), delivering ultra-fast string serialization without heavy DOM manipulation or external formatting overhead.
 
 ### 2.1 Standard Sitemaps vs. Sitemap Indexes
 
@@ -33,10 +34,19 @@ To support large web applications, `next-advanced-sitemap` provides two distinct
 
 ### 2.2 Edge Caching and Header Customization
 
-Sitemaps are frequently fetched by search engine crawlers. Generating complex XML payloads on every crawler request can strain database engines. `next-advanced-sitemap` provides built-in Cache-Control header customization:
+Sitemaps and `robots.txt` files are frequently fetched by search engine crawlers. Generating complex XML or text payloads on every crawler request can strain database engines. `next-advanced-sitemap` provides built-in Cache-Control header customization:
 
 - Default Header: `public, max-age=86400, stale-while-revalidate=3600` (optimized for Edge CDNs).
 - Custom Header (`maxAge: N`): `public, max-age=N, must-revalidate`.
+
+### 2.3 Robots.txt Builder & App Router Integration (v1.3.0)
+
+Version 1.3.0 introduces a dedicated helper (`buildRobotsText`) allowing Next.js developers to generate plain text `robots.txt` output dynamically. 
+
+By unifying `robots.txt` generation with sitemap management:
+- You ensure your `Sitemap:` directive in `robots.txt` always points to your primary sitemap or master `<sitemapindex>`.
+- You can specify single or multiple `userAgent` groups, fine-grained `allow` and `disallow` path rules, `crawlDelay` restrictions, and explicit `host` directives.
+- You can return the result seamlessly from a Next.js App Router Route Handler (`app/robots.txt/route.ts`).
 
 ---
 
@@ -119,7 +129,7 @@ export async function GET() {
       lastmod: new Date()
     },
     {
-      loc: 'https://example.com/sitemap-products.xml',
+      loc: 'https://example.com/api/sitemap?page=1&category=tech', // Query parameters are safely escaped into &amp;
       lastmod: '2026-08-01T00:00:00.000Z'
     }
   ];
@@ -127,6 +137,43 @@ export async function GET() {
   return getServerSitemapIndexResponse(subSitemaps, {
     autoLastmod: true,
     maxAge: 86400
+  });
+}
+```
+
+### 4.3 Creating a Native Robots.txt Route (v1.3.0)
+
+Create a Route Handler at `app/robots.txt/route.ts`:
+
+```typescript
+import { buildRobotsText } from 'next-advanced-sitemap';
+
+export async function GET() {
+  const robotsText = buildRobotsText({
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/admin/', '/private/', '/api/'],
+        crawlDelay: 2
+      },
+      {
+        userAgent: ['GPTBot', 'ChatGPT-User'],
+        disallow: '/'
+      }
+    ],
+    sitemap: [
+      'https://example.com/sitemap.xml',
+      'https://example.com/sitemap-news.xml'
+    ],
+    host: 'https://example.com'
+  });
+
+  return new Response(robotsText, {
+    headers: {
+      'Content-Type': 'text/plain; charset=utf-8',
+      'Cache-Control': 'public, max-age=86400, stale-while-revalidate=3600'
+    }
   });
 }
 ```
@@ -242,6 +289,60 @@ const entry: SitemapEntry = {
 };
 ```
 
+### 5.5 Robots.txt Configuration & Formatting (v1.3.0)
+
+Build standard RFC 9309 `robots.txt` files directly using `buildRobotsText(options)`.
+
+```typescript
+import { buildRobotsText, RobotsOptions } from 'next-advanced-sitemap';
+
+const config: RobotsOptions = {
+  rules: [
+    {
+      userAgent: '*',
+      allow: '/',
+      disallow: ['/admin/', '/private/'],
+      crawlDelay: 2
+    },
+    {
+      userAgent: ['Googlebot', 'Bingbot'],
+      allow: ['/', '/public/']
+    }
+  ],
+  sitemap: [
+    'https://example.com/sitemap.xml',
+    'https://example.com/sitemap-news.xml'
+  ],
+  host: 'https://example.com'
+};
+
+const output = buildRobotsText(config);
+```
+
+Generated Output:
+```txt
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /private/
+Crawl-delay: 2
+
+User-agent: Googlebot
+User-agent: Bingbot
+Allow: /
+Allow: /public/
+
+Host: https://example.com
+Sitemap: https://example.com/sitemap.xml
+Sitemap: https://example.com/sitemap-news.xml
+```
+
+Features and Formatting Rules:
+- Polymorphic Acceptor: `userAgent`, `allow`, `disallow`, and `sitemap` accept either a single string or an array of strings.
+- Array Serialization: Arrays are flattened into repetitive directive lines (e.g. multiple `Disallow:` or `User-agent:` lines).
+- Crawl-Delay Formatting: Formatted as `Crawl-delay: <number>`.
+- Host & Sitemap Appending: `Host:` and `Sitemap:` directives are placed cleanly at the end of the file buffer.
+
 ---
 
 ## 6. Advanced Features and Safety Guardrails
@@ -302,7 +403,7 @@ All input URLs undergo strict sanitization and XML entity escaping:
 
 #### `getServerSitemapResponse(entries, options)`
 
-Generates a HTTP `Response` object containing the standard sitemap XML structure.
+Generates an HTTP `Response` object containing the standard sitemap XML structure.
 
 - Parameters:
   - `entries` (`SitemapEntry[]`): Array of sitemap entries.
@@ -311,12 +412,20 @@ Generates a HTTP `Response` object containing the standard sitemap XML structure
 
 #### `getServerSitemapIndexResponse(entries, options)`
 
-Generates a HTTP `Response` object containing a sitemap index XML structure.
+Generates an HTTP `Response` object containing a sitemap index XML structure.
 
 - Parameters:
   - `entries` (`SitemapIndexEntry[]`): Array of child sitemap index references.
   - `options` (`Pick<SitemapOptions, 'maxAge' | 'autoLastmod'>`, optional): Configuration options.
 - Returns: `Response` with `Content-Type: application/xml; charset=utf-8`.
+
+#### `buildRobotsText(options)` (v1.3.0)
+
+Generates a formatted raw string for a `robots.txt` file.
+
+- Parameters:
+  - `options` (`RobotsOptions`): Configuration object containing rules, sitemap links, and host settings.
+- Returns: `string` (formatted `robots.txt` content).
 
 #### `chunkSitemapEntries(entries, size)`
 
@@ -330,6 +439,23 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 ---
 
 ### 7.2 Core Interfaces and Types
+
+#### `RobotsOptions` (v1.3.0)
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `rules` | `RobotsRule \| RobotsRule[]` | Yes | Rule or array of rules specifying user-agent access permissions. |
+| `sitemap` | `string \| string[]` | No | Absolute URL or array of URLs pointing to sitemap / index endpoints. |
+| `host` | `string` | No | Target domain host definition (e.g., `'https://example.com'`). |
+
+#### `RobotsRule` (v1.3.0)
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `userAgent` | `string \| string[]` | Yes | Targeted crawler identifier(s) (e.g. `'*'`, `'Googlebot'`, `['Bingbot', 'Slurp']`). |
+| `allow` | `string \| string[]` | No | Path or array of paths allowed for crawling (e.g., `'/'`, `['/public/', '/blog/']`). |
+| `disallow` | `string \| string[]` | No | Path or array of paths forbidden for crawling (e.g., `'/admin/'`, `['/api/', '/private/']`). |
+| `crawlDelay` | `number` | No | Crawl delay requirement in seconds. |
 
 #### `SitemapEntry`
 
@@ -391,8 +517,9 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ---
 
-## 8. Version Changelog Highlights (v1.0.0 - v1.2.8)
+## 8. Version Changelog Highlights (v1.0.0 - v1.3.0)
 
+- **v1.3.0**: Native `robots.txt` helper release. Introduced `buildRobotsText()` and type interfaces (`RobotsRule`, `RobotsOptions`) allowing Next.js developers to generate clean, RFC 9309-compliant `robots.txt` files synced with sitemap endpoints in a single line of code.
 - **v1.2.8**: Introduced Index Escaping & Query Parameters Safety for `<sitemapindex>` (`<loc>`), enforcing strict RFC 3986 and XML 1.0 entity escaping (`&` to `&amp;`, `?`, `=`, `<`, `>`) on child sitemap URLs.
 - **v1.2.7**: Introduced automatic lastmod fallback support for Sitemap Index files via `autoLastmod`.
 - **v1.2.6**: Added custom `maxAge` cache-control configuration for `getServerSitemapIndexResponse`.

@@ -1,0 +1,47 @@
+# * Copyright (c) 2026 Fordi / FomaDev.
+# * Licensed under FomaDev Public License.
+# * See LICENSE file in the project root for full license information.
+
+name: Robots Helper Validation
+
+on:
+  push:
+    branches: [ main, test, n ]
+    paths:
+      - 'src/types/robots.ts'
+      - 'src/core/builders/robots-builder.ts'
+      - 'src/index.ts'
+      - 'tests/robots.test.ts'
+      - 'package.json'
+  pull_request:
+    branches: [ main, test ]
+    paths:
+      - 'src/types/robots.ts'
+      - 'src/core/builders/robots-builder.ts'
+      - 'src/index.ts'
+      - 'tests/robots.test.ts'
+      - 'package.json'
+
+jobs:
+  robots-validation:
+    name: Validate Robots.js Helper
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run robots helper tests
+        run: npx vitest run tests/robots.test.ts
+
+      - name: Build package artifacts
+        run: npm run build

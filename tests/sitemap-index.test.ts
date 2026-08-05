@@ -8,7 +8,7 @@ import { buildSitemapIndexXml } from '../src/core/builders/index-builder.js';
 import { getServerSitemapIndexResponse } from '../src/index.js';
 import { SitemapIndexEntry } from '../src/types/sitemap.js';
 
-describe('v1.2.8 Sitemap Index Comprehensive Suite', () => {
+describe('Sitemap Index Comprehensive Suite', () => {
 
   describe('Core XML Generation & Volume Guardrails (v1.2.5)', () => {
     it('should accept and accurately parse a plain ISO string for lastmod', () => {
@@ -116,7 +116,6 @@ describe('v1.2.8 Sitemap Index Comprehensive Suite', () => {
 
       const xml = buildSitemapIndexXml(entries);
 
-      // Le caractère & doit impérativement être transformé en &amp; pour la validité XML
       expect(xml).toContain('<loc>https://fomadev.com/api/sitemap?page=1&amp;category=tech&amp;region=cd</loc>');
       expect(xml).not.toContain('&category=');
     });
@@ -130,6 +129,22 @@ describe('v1.2.8 Sitemap Index Comprehensive Suite', () => {
 
       expect(xml).toContain('&lt;active&gt;');
       expect(xml).toContain('&amp;lang=fr');
+    });
+  });
+
+  describe('Index String-Building Performance & Integrity', () => {
+    it('should accurately build large index payloads using the buffer array join pattern', () => {
+      const entries: SitemapIndexEntry[] = Array.from({ length: 1000 }, (_, i) => ({
+        loc: `https://fomadev.com/sitemap-part-${i + 1}.xml`,
+        lastmod: '2026-08-05T00:00:00.000Z'
+      }));
+
+      const xml = buildSitemapIndexXml(entries);
+
+      expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
+      expect(xml.endsWith('</sitemapindex>')).toBe(true);
+      expect(xml).toContain('<loc>https://fomadev.com/sitemap-part-1.xml</loc>');
+      expect(xml).toContain('<loc>https://fomadev.com/sitemap-part-1000.xml</loc>');
     });
   });
 });

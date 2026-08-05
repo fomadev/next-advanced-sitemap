@@ -6,9 +6,14 @@
 import { SitemapEntry, SitemapOptions, SitemapIndexEntry } from './types/sitemap.js';
 import { generateXml } from './core/generator.js';
 import { buildSitemapIndexXml } from './core/builders/index-builder.js';
-export { chunkSitemapEntries } from './utils/chunker.js';
 
+// Utilitaires et Types Sitemap
+export { chunkSitemapEntries } from './utils/chunker.js';
 export * from './types/sitemap.js';
+
+// Robots.txt Exports
+export { buildRobotsText } from './core/builders/robots-builder.js';
+export * from './types/robots.js';
 
 /**
  * Génère une réponse HTTP compatible Next.js (App Router) avec options de configuration.

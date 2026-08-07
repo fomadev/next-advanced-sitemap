@@ -6,13 +6,13 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://fomadev.com/news/fintech-drc</loc>
-    <lastmod>2026-08-05T17:35:02.895Z</lastmod>
+    <lastmod>2026-08-07T19:11:36.506Z</lastmod>
     <priority>1.0</priority>
     <video:video>
       <video:thumbnail_loc>https://fomadev.com/thumb.jpg</video:thumbnail_loc>
       <video:title>Masterclass Pricing and Paywall Architecture</video:title>
       <video:description>Deep dive into next-advanced-sitemap design schemas.</video:description>
-      <video:publication_date>2026-08-05T16:35:02.894Z</video:publication_date>
+      <video:publication_date>2026-08-07T18:11:36.505Z</video:publication_date>
       <video:requires_subscription>yes</video:requires_subscription>
       <video:price currency="USD" type="own">19.99</video:price>
       <video:category>Tech Education</video:category>
@@ -25,7 +25,7 @@
         <news:name>FomaDev Insights</news:name>
         <news:language>fr</news:language>
       </news:publication>
-      <news:publication_date>2026-08-05T16:35:02.894Z</news:publication_date>
+      <news:publication_date>2026-08-07T18:11:36.505Z</news:publication_date>
       <news:title>The Rise of FinTech Infrastructure in Central Africa &amp; DRC</news:title>
       <news:stock_tickers>NASDAQ:AAPL,NYSE:BABA</news:stock_tickers>
     </news:news>

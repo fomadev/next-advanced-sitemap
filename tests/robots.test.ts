@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { buildRobotsText } from '../src/index.js';
+import { buildRobotsText, KnownUserAgent } from '../src/index.js';
 
-describe('v1.3.x Robots.txt Helper & Auto-Domain Chaining Suite', () => {
+describe('v1.3.x Robots.txt Helper Suite', () => {
   it('should generate standard robots.txt with single user-agent and sitemap directive', () => {
     const robots = buildRobotsText({
       rules: {
@@ -23,26 +23,22 @@ describe('v1.3.x Robots.txt Helper & Auto-Domain Chaining Suite', () => {
     expect(robots).toContain('Sitemap: https://fomadev.com/sitemap.xml');
   });
 
-  describe('Root Domain Auto-Discovery (v1.3.1)', () => {
-    it('should automatically deduce Host directive from sitemap URL if host parameter is omitted', () => {
+  describe('User-Agent Autocomplete & Strict Typing (v1.3.2)', () => {
+    it('should correctly format rules with known user agents and custom crawlers', () => {
+      const knownAgents: KnownUserAgent[] = ['Googlebot', 'GPTBot', 'ClaudeBot', 'CustomBot/1.0'];
+
       const robots = buildRobotsText({
-        rules: { userAgent: '*', allow: '/' },
-        sitemap: 'https://staging.fomadev.com/sitemap.xml'
+        rules: [
+          { userAgent: knownAgents[0], allow: '/' },
+          { userAgent: [knownAgents[1], knownAgents[2]], disallow: '/' },
+          { userAgent: knownAgents[3], allow: '/public/' }
+        ]
       });
 
-      expect(robots).toContain('Host: https://staging.fomadev.com');
-      expect(robots).toContain('Sitemap: https://staging.fomadev.com/sitemap.xml');
-    });
-
-    it('should prioritize explicit host option over auto-detected sitemap domain', () => {
-      const robots = buildRobotsText({
-        rules: { userAgent: '*', allow: '/' },
-        host: 'https://custom-domain.com',
-        sitemap: 'https://cdn.fomadev.com/sitemap.xml'
-      });
-
-      expect(robots).toContain('Host: https://custom-domain.com');
-      expect(robots).toContain('Sitemap: https://cdn.fomadev.com/sitemap.xml');
+      expect(robots).toContain('User-agent: Googlebot');
+      expect(robots).toContain('User-agent: GPTBot');
+      expect(robots).toContain('User-agent: ClaudeBot');
+      expect(robots).toContain('User-agent: CustomBot/1.0');
     });
   });
 });

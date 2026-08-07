@@ -165,7 +165,7 @@ export async function GET() {
     sitemap: [
       'https://staging.example.com/sitemap.xml',
       'https://staging.example.com/sitemap-news.xml'
-    ]
+    ],
     // host is optional: v1.3.1 infers https://staging.example.com from the first sitemap URL
   });
 
@@ -320,7 +320,7 @@ const config: RobotsOptions = {
   sitemap: [
     'https://staging.example.com/sitemap.xml',
     'https://staging.example.com/sitemap-news.xml'
-  ]
+  ],
   // host is optional in v1.3.1; it is inferred from the first sitemap origin
 };
 

@@ -130,7 +130,7 @@ export async function GET() {
     sitemap: [
       'https://staging.fomadev.com/sitemap.xml',
       'https://staging.fomadev.com/sitemap-news.xml'
-    ]
+    ],
     // host is optional in v1.3.1: it is automatically inferred from the first sitemap URL
   });
 

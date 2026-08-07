@@ -3,11 +3,24 @@
  * See LICENSE file in the project root for full license information.
  */
 
-import { RobotsOptions, RobotsRule } from '../../types/robots.js';
+import { RobotsOptions } from '../../types/robots.js';
+
+/**
+ * Extraire l'origine (protocol + host) depuis une URL absolue.
+ */
+function extractRootDomain(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    return parsed.origin;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Génère le contenu texte brut pour le fichier robots.txt.
- * v1.3.0 : Integration native du helper Robots.txt.
+ * v1.3.0 : Intégration native du helper Robots.txt.
+ * v1.3.1 : Détection et chaînage automatique du domaine racine (Root Domain Auto-Discovery).
  */
 export function buildRobotsText(options: RobotsOptions): string {
   const buffer: string[] = [];
@@ -40,12 +53,26 @@ export function buildRobotsText(options: RobotsOptions): string {
     buffer.push('\n');
   }
 
-  if (options.host) {
-    buffer.push(`Host: ${options.host}\n`);
+  // 🚀 v1.3.1 : Auto-détection du domaine racine si non spécifié explicitement
+  let effectiveHost = options.host;
+  const sitemaps = options.sitemap
+    ? Array.isArray(options.sitemap)
+      ? options.sitemap
+      : [options.sitemap]
+    : [];
+
+  if (!effectiveHost && sitemaps.length > 0) {
+    const autoDetectedHost = extractRootDomain(sitemaps[0]);
+    if (autoDetectedHost) {
+      effectiveHost = autoDetectedHost;
+    }
   }
 
-  if (options.sitemap) {
-    const sitemaps = Array.isArray(options.sitemap) ? options.sitemap : [options.sitemap];
+  if (effectiveHost) {
+    buffer.push(`Host: ${effectiveHost}\n`);
+  }
+
+  if (sitemaps.length > 0) {
     for (const sm of sitemaps) {
       buffer.push(`Sitemap: ${sm}\n`);
     }

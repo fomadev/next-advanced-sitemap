@@ -1,4 +1,4 @@
-# next-advanced-sitemap (v1.3.0) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.3.1) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
@@ -6,7 +6,7 @@
 
 While Next.js offers basic out-of-the-box metadata support via `MetadataRoute.Sitemap` and `MetadataRoute.Robots`, enterprise web platforms require rich metadata extensions, dynamic index generation, multi-sitemap orchestration, and unified `robots.txt` synchronization to maximize discovery across search engine crawler matrices. `next-advanced-sitemap` fills this architectural gap by supplying full native support for:
 
-- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.0)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules and link them directly to standard sitemaps or sitemap index endpoints.
+- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.1)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules, infer the root host from the first sitemap URL when `host` is omitted, and link them directly to standard sitemaps or sitemap index endpoints.
 - **Google Images Schema**: Captions, titles, local SEO positioning (`geo_location`), and copyright licensing (`license`).
 - **Google Video Schema**: Live stream markers (`live`), restrictions (`restriction`, `platform`), monetization models (`price`), paywall markers (`requires_subscription`), duration bounds, categories, and tags.
 - **Google News Schema**: Strict 48-hour freshness validation and stock tickers (`stock_tickers`).
@@ -39,13 +39,13 @@ Sitemaps and `robots.txt` files are frequently fetched by search engine crawlers
 - Default Header: `public, max-age=86400, stale-while-revalidate=3600` (optimized for Edge CDNs).
 - Custom Header (`maxAge: N`): `public, max-age=N, must-revalidate`.
 
-### 2.3 Robots.txt Builder & App Router Integration (v1.3.0)
+### 2.3 Robots.txt Builder & App Router Integration (v1.3.1)
 
-Version 1.3.0 introduces a dedicated helper (`buildRobotsText`) allowing Next.js developers to generate plain text `robots.txt` output dynamically. 
+Version 1.3.1 enhances the dedicated helper (`buildRobotsText`) so it can automatically detect the root domain from the first sitemap URL when the `host` field is omitted. This is especially useful across environments such as staging, preview, or production where the same robots policy is reused but the sitemap origin changes.
 
 By unifying `robots.txt` generation with sitemap management:
 - You ensure your `Sitemap:` directive in `robots.txt` always points to your primary sitemap or master `<sitemapindex>`.
-- You can specify single or multiple `userAgent` groups, fine-grained `allow` and `disallow` path rules, `crawlDelay` restrictions, and explicit `host` directives.
+- You can specify single or multiple `userAgent` groups, fine-grained `allow` and `disallow` path rules, `crawlDelay` restrictions, and explicit or inferred `host` directives.
 - You can return the result seamlessly from a Next.js App Router Route Handler (`app/robots.txt/route.ts`).
 
 ---
@@ -141,7 +141,7 @@ export async function GET() {
 }
 ```
 
-### 4.3 Creating a Native Robots.txt Route (v1.3.0)
+### 4.3 Creating a Native Robots.txt Route (v1.3.1)
 
 Create a Route Handler at `app/robots.txt/route.ts`:
 
@@ -163,10 +163,10 @@ export async function GET() {
       }
     ],
     sitemap: [
-      'https://example.com/sitemap.xml',
-      'https://example.com/sitemap-news.xml'
-    ],
-    host: 'https://example.com'
+      'https://staging.example.com/sitemap.xml',
+      'https://staging.example.com/sitemap-news.xml'
+    ]
+    // host is optional: v1.3.1 infers https://staging.example.com from the first sitemap URL
   });
 
   return new Response(robotsText, {
@@ -176,6 +176,14 @@ export async function GET() {
     }
   });
 }
+```
+
+This produces output equivalent to:
+
+```txt
+Host: https://staging.example.com
+Sitemap: https://staging.example.com/sitemap.xml
+Sitemap: https://staging.example.com/sitemap-news.xml
 ```
 
 ---
@@ -289,7 +297,7 @@ const entry: SitemapEntry = {
 };
 ```
 
-### 5.5 Robots.txt Configuration & Formatting (v1.3.0)
+### 5.5 Robots.txt Configuration & Formatting (v1.3.1)
 
 Build standard RFC 9309 `robots.txt` files directly using `buildRobotsText(options)`.
 
@@ -310,10 +318,10 @@ const config: RobotsOptions = {
     }
   ],
   sitemap: [
-    'https://example.com/sitemap.xml',
-    'https://example.com/sitemap-news.xml'
-  ],
-  host: 'https://example.com'
+    'https://staging.example.com/sitemap.xml',
+    'https://staging.example.com/sitemap-news.xml'
+  ]
+  // host is optional in v1.3.1; it is inferred from the first sitemap origin
 };
 
 const output = buildRobotsText(config);
@@ -332,15 +340,16 @@ User-agent: Bingbot
 Allow: /
 Allow: /public/
 
-Host: https://example.com
-Sitemap: https://example.com/sitemap.xml
-Sitemap: https://example.com/sitemap-news.xml
+Host: https://staging.example.com
+Sitemap: https://staging.example.com/sitemap.xml
+Sitemap: https://staging.example.com/sitemap-news.xml
 ```
 
 Features and Formatting Rules:
 - Polymorphic Acceptor: `userAgent`, `allow`, `disallow`, and `sitemap` accept either a single string or an array of strings.
 - Array Serialization: Arrays are flattened into repetitive directive lines (e.g. multiple `Disallow:` or `User-agent:` lines).
 - Crawl-Delay Formatting: Formatted as `Crawl-delay: <number>`.
+- Auto-Host Discovery: If `host` is omitted, the first sitemap URL origin is extracted automatically and used as `Host:`. Explicit `host` values still take precedence.
 - Host & Sitemap Appending: `Host:` and `Sitemap:` directives are placed cleanly at the end of the file buffer.
 
 ---
@@ -419,12 +428,12 @@ Generates an HTTP `Response` object containing a sitemap index XML structure.
   - `options` (`Pick<SitemapOptions, 'maxAge' | 'autoLastmod'>`, optional): Configuration options.
 - Returns: `Response` with `Content-Type: application/xml; charset=utf-8`.
 
-#### `buildRobotsText(options)` (v1.3.0)
+#### `buildRobotsText(options)` (v1.3.1)
 
 Generates a formatted raw string for a `robots.txt` file.
 
 - Parameters:
-  - `options` (`RobotsOptions`): Configuration object containing rules, sitemap links, and host settings.
+  - `options` (`RobotsOptions`): Configuration object containing rules, sitemap links, and optional host settings. If `host` is omitted, the helper infers it from the first provided sitemap URL origin.
 - Returns: `string` (formatted `robots.txt` content).
 
 #### `chunkSitemapEntries(entries, size)`
@@ -440,15 +449,15 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ### 7.2 Core Interfaces and Types
 
-#### `RobotsOptions` (v1.3.0)
+#### `RobotsOptions` (v1.3.1)
 
 | Property | Type | Required | Description |
 |---|---|---|---|
 | `rules` | `RobotsRule \| RobotsRule[]` | Yes | Rule or array of rules specifying user-agent access permissions. |
 | `sitemap` | `string \| string[]` | No | Absolute URL or array of URLs pointing to sitemap / index endpoints. |
-| `host` | `string` | No | Target domain host definition (e.g., `'https://example.com'`). |
+| `host` | `string` | No | Target domain host definition (e.g., `'https://example.com'`). If omitted, the helper derives it automatically from the first sitemap URL origin, while an explicit value still takes precedence. |
 
-#### `RobotsRule` (v1.3.0)
+#### `RobotsRule` (v1.3.1)
 
 | Property | Type | Required | Description |
 |---|---|---|---|
@@ -517,8 +526,9 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ---
 
-## 8. Version Changelog Highlights (v1.0.0 - v1.3.0)
+## 8. Version Changelog Highlights (v1.0.0 - v1.3.1)
 
+- **v1.3.1**: Added automatic root-domain discovery for `buildRobotsText()`. If `host` is omitted, the helper extracts the origin from the first sitemap URL and emits the matching `Host:` directive, reducing environment-specific duplication across staging, preview, and production.
 - **v1.3.0**: Native `robots.txt` helper release. Introduced `buildRobotsText()` and type interfaces (`RobotsRule`, `RobotsOptions`) allowing Next.js developers to generate clean, RFC 9309-compliant `robots.txt` files synced with sitemap endpoints in a single line of code.
 - **v1.2.8**: Introduced Index Escaping & Query Parameters Safety for `<sitemapindex>` (`<loc>`), enforcing strict RFC 3986 and XML 1.0 entity escaping (`&` to `&amp;`, `?`, `=`, `<`, `>`) on child sitemap URLs.
 - **v1.2.7**: Introduced automatic lastmod fallback support for Sitemap Index files via `autoLastmod`.

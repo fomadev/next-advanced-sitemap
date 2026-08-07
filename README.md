@@ -13,7 +13,7 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 
 ## Key Features
 
-- **Native Robots.txt Generator (`buildRobotsText`) (v1.3.0)**: Instantly generate standardized, clean `robots.txt` text content with full support for user-agents, allow/disallow paths, crawl-delay directives, custom host rules, and sitemap/sitemap index links.
+- **Native Robots.txt Generator (`buildRobotsText`) (v1.3.1)**: Instantly generate standardized, clean `robots.txt` text content with full support for user-agents, allow/disallow paths, crawl-delay directives, inline host rules, and sitemap/sitemap index links. If `host` is omitted, the helper now auto-detects the root origin from the first sitemap URL to simplify staging, preview, and production setups.
 - **Master Sitemap Indexing (`getServerSitemapIndexResponse`)**: Seamlessly link multiple child sitemaps to bypass search engine structural limits (50,000 URLs / 50MB per file).
 - **Index URL Escaping & Query Parameters Safety (v1.2.8)**: Rigorous URL sanitization and XML entity escaping (`&` to `&amp;`, `<`, `>`, `"`, `'`) for `<sitemapindex>` child `<loc>` URLs, guaranteeing RFC 3986 and XML 1.0 compliance when index locations contain query parameters (`?`, `&`, `=`) or reserved characters.
 - **Google Images Extensions**: Full support for titles, captions, local SEO positioning (`geo_location`), and copyright licensing (`license`).
@@ -128,10 +128,10 @@ export async function GET() {
       }
     ],
     sitemap: [
-      'https://fomadev.com/sitemap.xml',
-      'https://fomadev.com/sitemap-news.xml'
-    ],
-    host: 'https://fomadev.com'
+      'https://staging.fomadev.com/sitemap.xml',
+      'https://staging.fomadev.com/sitemap-news.xml'
+    ]
+    // host is optional in v1.3.1: it is automatically inferred from the first sitemap URL
   });
 
   return new Response(robots, {
@@ -142,6 +142,8 @@ export async function GET() {
   });
 }
 ```
+
+> In v1.3.1, if `host` is omitted, the helper automatically extracts the origin from the first sitemap URL and writes `Host: https://staging.fomadev.com` for you. An explicit `host` still takes precedence if you need to override the detected value.
 
 ### 4. Large Dataset Chunking (`chunkSitemapEntries`)
 
@@ -172,4 +174,4 @@ This project is licensed under the [FomaDev Public License (FPL)](LICENSE).
 - **Contributions**: Authorized via Pull Requests to the official repository.
 - **Restrictions**: Independent forks, source code redistribution, or building competing products based on this engine require a paid commercial license.
 
-Copyright (c) 2026 Fordi / FomaDev.
+Copyright (c) 2026 Fordi / FomaDev.

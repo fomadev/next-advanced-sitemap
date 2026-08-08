@@ -11,6 +11,9 @@ export default defineConfig({
   // Génère des fichiers de types distincts (.d.ts pour ESM et .d.cts pour CJS)
   dts: {
     resolve: true,
+    compilerOptions: {
+      ignoreDeprecations: '6.0'
+    }
   },
   splitting: false,
   sourcemap: true,

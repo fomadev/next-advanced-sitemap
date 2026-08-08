@@ -1,4 +1,4 @@
-# next-advanced-sitemap (v1.3.2) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.3.3) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
@@ -6,7 +6,7 @@
 
 While Next.js offers basic out-of-the-box metadata support via `MetadataRoute.Sitemap` and `MetadataRoute.Robots`, enterprise web platforms require rich metadata extensions, dynamic index generation, multi-sitemap orchestration, and unified `robots.txt` synchronization to maximize discovery across search engine crawler matrices. `next-advanced-sitemap` fills this architectural gap by supplying full native support for:
 
-- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.2)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules, infer the root host from the first sitemap URL when `host` is omitted, expose IDE autocomplete for major crawlers via `KnownUserAgent`, and link them directly to standard sitemaps or sitemap index endpoints.
+- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.3)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules, infer the root host from the first sitemap URL when `host` is omitted, expose IDE autocomplete for major crawlers via `KnownUserAgent`, and link them directly to standard sitemaps or sitemap index endpoints.
 - **Google Images Schema**: Captions, titles, local SEO positioning (`geo_location`), and copyright licensing (`license`).
 - **Google Video Schema**: Live stream markers (`live`), restrictions (`restriction`, `platform`), monetization models (`price`), paywall markers (`requires_subscription`), duration bounds, categories, and tags.
 - **Google News Schema**: Strict 48-hour freshness validation and stock tickers (`stock_tickers`).
@@ -41,7 +41,7 @@ Sitemaps and `robots.txt` files are frequently fetched by search engine crawlers
 
 ### 2.3 Robots.txt Builder & App Router Integration (v1.3.2)
 
-Version 1.3.2 extends the helper with a typed `KnownUserAgent` union for IDE autocomplete while preserving custom crawler strings. It also keeps the v1.3.1 root-domain auto-discovery feature, making it ideal across environments such as staging, preview, or production where the same robots policy is reused but the sitemap origin changes.
+Version 1.3.3 extends the helper with a typed `KnownUserAgent` union for IDE autocomplete while preserving custom crawler strings. It also keeps the v1.3.1 root-domain auto-discovery feature, making it ideal across environments such as staging, preview, or production where the same robots policy is reused but the sitemap origin changes.
 
 By unifying `robots.txt` generation with sitemap management:
 - You ensure your `Sitemap:` directive in `robots.txt` always points to your primary sitemap or master `<sitemapindex>`.
@@ -141,7 +141,7 @@ export async function GET() {
 }
 ```
 
-### 4.3 Creating a Native Robots.txt Route (v1.3.2)
+### 4.3 Creating a Native Robots.txt Route (v1.3.3)
 
 Create a Route Handler at `app/robots.txt/route.ts`:
 

@@ -13,7 +13,7 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 
 ## Key Features
 
-- **Native Robots.txt Generator (`buildRobotsText`) (v1.3.2)**: Instantly generate standardized, clean `robots.txt` text content with full support for typed user-agents, allow/disallow paths, crawl-delay directives, inline host rules, and sitemap/sitemap index links. The IDE now offers autocomplete for major crawlers like `Googlebot`, `Bingbot`, `GPTBot`, `ClaudeBot`, and you can still use custom values such as `CustomBot/1.0`. If `host` is omitted, the helper auto-detects the root origin from the first sitemap URL to simplify staging, preview, and production setups.
+- **Native Robots.txt Generator (`buildRobotsText`) (v1.3.3)**: Instantly generate standardized, clean `robots.txt` text content with full support for typed user-agents, allow/disallow paths, crawl-delay directives, inline host rules, and sitemap/sitemap index links. The IDE now offers autocomplete for major crawlers like `Googlebot`, `Bingbot`, `GPTBot`, `ClaudeBot`, and you can still use custom values such as `CustomBot/1.0`. If `host` is omitted, the helper auto-detects the root origin from the first sitemap URL to simplify staging, preview, and production setups.
 - **Master Sitemap Indexing (`getServerSitemapIndexResponse`)**: Seamlessly link multiple child sitemaps to bypass search engine structural limits (50,000 URLs / 50MB per file).
 - **Index URL Escaping & Query Parameters Safety (v1.2.8)**: Rigorous URL sanitization and XML entity escaping (`&` to `&amp;`, `<`, `>`, `"`, `'`) for `<sitemapindex>` child `<loc>` URLs, guaranteeing RFC 3986 and XML 1.0 compliance when index locations contain query parameters (`?`, `&`, `=`) or reserved characters.
 - **Google Images Extensions**: Full support for titles, captions, local SEO positioning (`geo_location`), and copyright licensing (`license`).
@@ -149,7 +149,7 @@ export async function GET() {
 }
 ```
 
-> In v1.3.2, if `host` is omitted, the helper automatically extracts the origin from the first sitemap URL and writes `Host: https://staging.fomadev.com` for you. An explicit `host` still takes precedence if you need to override the detected value. The `KnownUserAgent` type also gives IDE autocomplete for the main crawlers while preserving custom string values.
+> In v1.3.3, if `host` is omitted, the helper automatically extracts the origin from the first sitemap URL and writes `Host: https://staging.fomadev.com` for you. An explicit `host` still takes precedence if you need to override the detected value. The `KnownUserAgent` type also gives IDE autocomplete for the main crawlers while preserving custom string values.
 
 ### 4. Large Dataset Chunking (`chunkSitemapEntries`)
 

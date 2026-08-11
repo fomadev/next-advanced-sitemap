@@ -6,7 +6,7 @@ name: Robots Helper Validation
 
 on:
   push:
-    branches: [ main, test, n ]
+    branches: [ main, test]
     paths:
       - 'src/types/robots.ts'
       - 'src/core/builders/robots-builder.ts'

@@ -45,7 +45,7 @@ export function buildRobotsText(options: RobotsOptions): string {
     if (rule.disallow) {
       const disallows = Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow];
       for (const path of disallows) {
-        buffer.push(`Disallow: ${path}\n`);
+        if (path) buffer.push(`Disallow: ${path}\n`);
       }
     }
 

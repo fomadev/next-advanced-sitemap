@@ -1,4 +1,4 @@
-# next-advanced-sitemap (v1.3.3) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.3.4) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
@@ -6,7 +6,7 @@
 
 While Next.js offers basic out-of-the-box metadata support via `MetadataRoute.Sitemap` and `MetadataRoute.Robots`, enterprise web platforms require rich metadata extensions, dynamic index generation, multi-sitemap orchestration, and unified `robots.txt` synchronization to maximize discovery across search engine crawler matrices. `next-advanced-sitemap` fills this architectural gap by supplying full native support for:
 
-- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.3)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules, infer the root host from the first sitemap URL when `host` is omitted, expose IDE autocomplete for major crawlers via `KnownUserAgent`, and link them directly to standard sitemaps or sitemap index endpoints.
+- **Robots.txt Builder Engine (`buildRobotsText`) (v1.3.4)**: Instant, zero-dependency helper to format RFC-compliant `robots.txt` rules, infer the root host from the first sitemap URL when `host` is omitted, expose IDE autocomplete for major crawlers via `KnownUserAgent`, flatten array-based `allow` / `disallow` directives, and omit blank values from generated rules.
 - **Google Images Schema**: Captions, titles, local SEO positioning (`geo_location`), and copyright licensing (`license`).
 - **Google Video Schema**: Live stream markers (`live`), restrictions (`restriction`, `platform`), monetization models (`price`), paywall markers (`requires_subscription`), duration bounds, categories, and tags.
 - **Google News Schema**: Strict 48-hour freshness validation and stock tickers (`stock_tickers`).
@@ -39,7 +39,7 @@ Sitemaps and `robots.txt` files are frequently fetched by search engine crawlers
 - Default Header: `public, max-age=86400, stale-while-revalidate=3600` (optimized for Edge CDNs).
 - Custom Header (`maxAge: N`): `public, max-age=N, must-revalidate`.
 
-### 2.3 Robots.txt Builder & App Router Integration (v1.3.2)
+### 2.3 Robots.txt Builder & App Router Integration
 
 Version 1.3.3 extends the helper with a typed `KnownUserAgent` union for IDE autocomplete while preserving custom crawler strings. It also keeps the v1.3.1 root-domain auto-discovery feature, making it ideal across environments such as staging, preview, or production where the same robots policy is reused but the sitemap origin changes.
 
@@ -303,7 +303,7 @@ const entry: SitemapEntry = {
 };
 ```
 
-### 5.5 Robots.txt Configuration & Formatting (v1.3.2)
+### 5.5 Robots.txt Configuration & Formatting (v1.3.4)
 
 Build standard RFC 9309 `robots.txt` files directly using `buildRobotsText(options)`.
 
@@ -333,7 +333,7 @@ const config: RobotsOptions = {
     'https://staging.example.com/sitemap.xml',
     'https://staging.example.com/sitemap-news.xml'
   ],
-  // host is optional in v1.3.2; it is inferred from the first sitemap origin
+  // host is optional; it is inferred from the first sitemap origin
 };
 
 const output = buildRobotsText(config);
@@ -444,7 +444,7 @@ Generates an HTTP `Response` object containing a sitemap index XML structure.
   - `options` (`Pick<SitemapOptions, 'maxAge' | 'autoLastmod'>`, optional): Configuration options.
 - Returns: `Response` with `Content-Type: application/xml; charset=utf-8`.
 
-#### `buildRobotsText(options)` (v1.3.2)
+#### `buildRobotsText(options)` (v1.3.4)
 
 Generates a formatted raw string for a `robots.txt` file.
 
@@ -452,7 +452,7 @@ Generates a formatted raw string for a `robots.txt` file.
   - `options` (`RobotsOptions`): Configuration object containing rules, sitemap links, and optional host settings. If `host` is omitted, the helper infers it from the first provided sitemap URL origin.
 - Returns: `string` (formatted `robots.txt` content).
 
-#### `KnownUserAgent` (v1.3.2)
+#### `KnownUserAgent`
 
 Typed union exposing the main public crawler identifiers with IDE autocomplete support while preserving custom bot strings via `(string & {})`.
 
@@ -471,7 +471,7 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ### 7.2 Core Interfaces and Types
 
-#### `RobotsOptions` (v1.3.2)
+#### `RobotsOptions`
 
 | Property | Type | Required | Description |
 |---|---|---|---|
@@ -479,7 +479,7 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 | `sitemap` | `string \| string[]` | No | Absolute URL or array of URLs pointing to sitemap / index endpoints. |
 | `host` | `string` | No | Target domain host definition (e.g., `'https://example.com'`). If omitted, the helper derives it automatically from the first sitemap URL origin, while an explicit value still takes precedence. |
 
-#### `RobotsRule` (v1.3.2)
+#### `RobotsRule`
 
 | Property | Type | Required | Description |
 |---|---|---|---|
@@ -549,6 +549,8 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 ---
 
 ## 8. Version Changelog Highlights (v1.0.0 - v1.3.2)
+
+- **v1.3.4**: Added automatic array flattening for `allow` / `disallow` directives and blank-value omission in `buildRobotsText()`, while preserving typed `KnownUserAgent` support and automatic host discovery.
 
 - **v1.3.2**: Added `KnownUserAgent` autocomplete support for major crawlers in the TypeScript IDE while preserving custom crawler strings. This improves DX for rules such as `Googlebot`, `Bingbot`, `GPTBot`, `ClaudeBot`, and other known bots without blocking custom values.
 - **v1.3.1**: Added automatic root-domain discovery for `buildRobotsText()`. If `host` is omitted, the helper extracts the origin from the first sitemap URL and emits the matching `Host:` directive, reducing environment-specific duplication across staging, preview, and production.

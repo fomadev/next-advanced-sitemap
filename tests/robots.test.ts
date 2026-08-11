@@ -41,4 +41,41 @@ describe('v1.3.x Robots.txt Helper Suite', () => {
       expect(robots).toContain('User-agent: CustomBot/1.0');
     });
   });
+
+  describe('Disallow Array Mapping (v1.3.4)', () => {
+    it('should seamlessly map an array of disallowed paths into standard single-line directives', () => {
+      const robots = buildRobotsText({
+        rules: {
+          userAgent: '*',
+          disallow: ['/admin', '/api', '/private/', '/dashboard/settings']
+        },
+        sitemap: 'https://fomadev.com/sitemap.xml'
+      });
+
+      const expectedBlock = [
+        'User-agent: *',
+        'Disallow: /admin',
+        'Disallow: /api',
+        'Disallow: /private/',
+        'Disallow: /dashboard/settings'
+      ].join('\n');
+
+      expect(robots).toContain(expectedBlock);
+    });
+
+    it('should support both string array for disallow and allow in parallel', () => {
+      const robots = buildRobotsText({
+        rules: {
+          userAgent: 'Googlebot',
+          allow: ['/public/', '/assets/'],
+          disallow: ['/drafts/', '/temp/']
+        }
+      });
+
+      expect(robots).toContain('Allow: /public/');
+      expect(robots).toContain('Allow: /assets/');
+      expect(robots).toContain('Disallow: /drafts/');
+      expect(robots).toContain('Disallow: /temp/');
+    });
+  });
 });

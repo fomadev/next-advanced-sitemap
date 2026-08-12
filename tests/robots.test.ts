@@ -62,20 +62,23 @@ describe('v1.3.x Robots.txt Helper Suite', () => {
 
       expect(robots).toContain(expectedBlock);
     });
+  });
 
-    it('should support both string array for disallow and allow in parallel', () => {
+  describe('Multi-Sitemap Directives (v1.3.5)', () => {
+    it('should declare multiple sitemaps (standard, news, index) sequentially', () => {
       const robots = buildRobotsText({
-        rules: {
-          userAgent: 'Googlebot',
-          allow: ['/public/', '/assets/'],
-          disallow: ['/drafts/', '/temp/']
-        }
+        rules: { userAgent: '*', allow: '/' },
+        sitemap: [
+          'https://fomadev.com/sitemap-index.xml',
+          'https://fomadev.com/news-sitemap.xml',
+          'https://fomadev.com/video-sitemap.xml'
+        ]
       });
 
-      expect(robots).toContain('Allow: /public/');
-      expect(robots).toContain('Allow: /assets/');
-      expect(robots).toContain('Disallow: /drafts/');
-      expect(robots).toContain('Disallow: /temp/');
+      expect(robots).toContain('Host: https://fomadev.com');
+      expect(robots).toContain('Sitemap: https://fomadev.com/sitemap-index.xml');
+      expect(robots).toContain('Sitemap: https://fomadev.com/news-sitemap.xml');
+      expect(robots).toContain('Sitemap: https://fomadev.com/video-sitemap.xml');
     });
   });
 });

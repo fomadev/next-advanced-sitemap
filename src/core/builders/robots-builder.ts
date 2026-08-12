@@ -23,6 +23,7 @@ function extractRootDomain(url: string): string | null {
  * v1.3.1 : Détection et chaînage automatique du domaine racine (Root Domain Auto-Discovery).
  * v1.3.2 : Typage strict KnownUserAgent avec autocomplétion IDE.
  * v1.3.4 : Mapping automatique de tableaux pour les directives d'exclusion (Disallow Array Mapping).
+ * v1.3.5 : Support multi-sitemaps (Multi-Sitemap Array Injection).
  */
 export function buildRobotsText(options: RobotsOptions): string {
   const buffer: string[] = [];
@@ -41,7 +42,6 @@ export function buildRobotsText(options: RobotsOptions): string {
       }
     }
 
-    // 🚀 v1.3.4 : Transformation propre des directives Disallow fournies sous forme de tableau
     if (rule.disallow) {
       const disallows = Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow];
       for (const path of disallows) {
@@ -56,7 +56,7 @@ export function buildRobotsText(options: RobotsOptions): string {
     buffer.push('\n');
   }
 
-  // Auto-détection du domaine racine si non spécifié explicitement
+  // Auto-détection du domaine racine depuis le premier sitemap si non spécifié explicitement
   let effectiveHost = options.host;
   const sitemaps = options.sitemap
     ? Array.isArray(options.sitemap)
@@ -75,9 +75,10 @@ export function buildRobotsText(options: RobotsOptions): string {
     buffer.push(`Host: ${effectiveHost}\n`);
   }
 
+  // 🚀 v1.3.5 : Rendu séquentiel de multiples directives Sitemap:
   if (sitemaps.length > 0) {
     for (const sm of sitemaps) {
-      buffer.push(`Sitemap: ${sm}\n`);
+      if (sm) buffer.push(`Sitemap: ${sm}\n`);
     }
   }
 

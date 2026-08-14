@@ -24,6 +24,7 @@ function extractRootDomain(url: string): string | null {
  * v1.3.2 : Typage strict KnownUserAgent avec autocomplétion IDE.
  * v1.3.4 : Mapping automatique de tableaux pour les directives d'exclusion (Disallow Array Mapping).
  * v1.3.5 : Support multi-sitemaps (Multi-Sitemap Array Injection).
+ * v1.3.6 : Prise en charge complète de la directive Allow pour autoriser des sous-routes spécifiques dans des répertoires bloqués.
  */
 export function buildRobotsText(options: RobotsOptions): string {
   const buffer: string[] = [];
@@ -75,7 +76,6 @@ export function buildRobotsText(options: RobotsOptions): string {
     buffer.push(`Host: ${effectiveHost}\n`);
   }
 
-  // 🚀 v1.3.5 : Rendu séquentiel de multiples directives Sitemap:
   if (sitemaps.length > 0) {
     for (const sm of sitemaps) {
       if (sm) buffer.push(`Sitemap: ${sm}\n`);

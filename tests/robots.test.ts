@@ -81,4 +81,22 @@ describe('v1.3.x Robots.txt Helper Suite', () => {
       expect(robots).toContain('Sitemap: https://fomadev.com/video-sitemap.xml');
     });
   });
+
+  describe('Explicit Allow Directives & Sub-route Overrides (v1.3.6)', () => {
+    it('should allow override of specific sub-routes within blocked parent directories', () => {
+      const robots = buildRobotsText({
+        rules: {
+          userAgent: '*',
+          disallow: ['/assets/', '/private/'],
+          allow: ['/assets/open-graph/', '/private/public-doc.pdf']
+        },
+        sitemap: 'https://fomadev.com/sitemap.xml'
+      });
+
+      expect(robots).toContain('Allow: /assets/open-graph/');
+      expect(robots).toContain('Allow: /private/public-doc.pdf');
+      expect(robots).toContain('Disallow: /assets/');
+      expect(robots).toContain('Disallow: /private/');
+    });
+  });
 });

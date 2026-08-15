@@ -99,4 +99,19 @@ describe('v1.3.x Robots.txt Helper Suite', () => {
       expect(robots).toContain('Disallow: /private/');
     });
   });
+
+  describe('Crawl-Delay Directive (v1.3.7)', () => {
+    it('should correctly output Crawl-delay for rate-limiting aggressive bots', () => {
+      const robots = buildRobotsText({
+        rules: [
+          { userAgent: 'Bingbot', allow: '/', crawlDelay: 10 },
+          { userAgent: 'Baiduspider', disallow: '/api/', crawlDelay: 5 }
+        ],
+        sitemap: 'https://fomadev.com/sitemap.xml'
+      });
+
+      expect(robots).toContain('User-agent: Bingbot\nAllow: /\nCrawl-delay: 10');
+      expect(robots).toContain('User-agent: Baiduspider\nDisallow: /api/\nCrawl-delay: 5');
+    });
+  });
 });

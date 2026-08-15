@@ -24,7 +24,8 @@ function extractRootDomain(url: string): string | null {
  * v1.3.2 : Typage strict KnownUserAgent avec autocomplétion IDE.
  * v1.3.4 : Mapping automatique de tableaux pour les directives d'exclusion (Disallow Array Mapping).
  * v1.3.5 : Support multi-sitemaps (Multi-Sitemap Array Injection).
- * v1.3.6 : Prise en charge complète de la directive Allow pour autoriser des sous-routes spécifiques dans des répertoires bloqués.
+ * v1.3.6 : Prise en charge complète de la directive Allow.
+ * v1.3.7 : Support de la directive non-standard Crawl-delay pour modérer la fréquence de collecte des bots.
  */
 export function buildRobotsText(options: RobotsOptions): string {
   const buffer: string[] = [];

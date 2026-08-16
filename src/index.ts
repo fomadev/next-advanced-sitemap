@@ -4,8 +4,10 @@
  */
 
 import { SitemapEntry, SitemapOptions, SitemapIndexEntry } from './types/sitemap.js';
+import { RobotsOptions } from './types/robots.js';
 import { generateXml } from './core/generator.js';
 import { buildSitemapIndexXml } from './core/builders/index-builder.js';
+import { buildRobotsText } from './core/builders/robots-builder.js';
 
 // Utilitaires et Types Sitemap
 export { chunkSitemapEntries } from './utils/chunker.js';
@@ -73,4 +75,31 @@ export function getServerSitemapIndexResponse(
   }
 
   return new Response(xml, { status: 200, headers });
+}
+
+/**
+ * 🛡️ v1.3.9 : Contrôle de l'en-tête de contenu (Text/Plain Response Guard)
+ * Génère une instance de Response Next.js (App Router) pour le fichier robots.txt.
+ * Applique automatiquement 'Content-Type: text/plain; charset=utf-8' pour éviter les erreurs d'interprétation HTML.
+ * 
+ * @param options - Options de configuration pour le robots.txt (règles, host, sitemaps, maxAge)
+ * @returns Une instance de Response contenant le texte brut configuré
+ */
+export function getRobotsTextResponse(
+  options: RobotsOptions
+): Response {
+  const content = buildRobotsText(options);
+
+  const headers = new Headers({
+    'Content-Type': 'text/plain; charset=utf-8',
+    'X-Content-Type-Options': 'nosniff',
+  });
+
+  if (options.maxAge !== undefined && options.maxAge >= 0) {
+    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
+  } else {
+    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
+  }
+
+  return new Response(content, { status: 200, headers });
 }

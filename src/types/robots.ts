@@ -44,4 +44,10 @@ export interface RobotsOptions {
   rules: RobotsRule | RobotsRule[];
   sitemap?: string | string[];
   host?: string;
+
+  /**
+   * Durée de mise en cache HTTP en secondes (Cache-Control: max-age).
+   * Par défaut : 86400 (24h) avec stale-while-revalidate.
+   */
+  maxAge?: number;
 }

@@ -16,6 +16,96 @@ describe('Video Builder Integration Tests', () => {
   };
 
   // =========================================================================
+  // family_friendly
+  // =========================================================================
+  describe('buildVideoXml - family_friendly', () => {
+    it('should not render <video:family_friendly> if it is undefined', () => {
+      const videos: SitemapEntry['videos'] = [
+        { ...baseVideo }
+      ];
+
+      const xml = buildVideoXml(videos);
+      expect(xml).not.toContain('<video:family_friendly>');
+    });
+
+    it('should transform boolean true to "yes"', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          family_friendly: true,
+        }
+      ];
+
+      const xml = buildVideoXml(videos);
+      expect(xml).toContain('<video:family_friendly>yes</video:family_friendly>');
+    });
+
+    it('should transform boolean false to "no"', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          family_friendly: false,
+        }
+      ];
+
+      const xml = buildVideoXml(videos);
+      expect(xml).toContain('<video:family_friendly>no</video:family_friendly>');
+    });
+
+    it('should allow strict string "yes"', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          family_friendly: 'yes',
+        }
+      ];
+
+      const xml = buildVideoXml(videos);
+      expect(xml).toContain('<video:family_friendly>yes</video:family_friendly>');
+    });
+
+    it('should allow strict string "no"', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          family_friendly: 'no',
+        }
+      ];
+
+      const xml = buildVideoXml(videos);
+      expect(xml).toContain('<video:family_friendly>no</video:family_friendly>');
+    });
+
+    it('should throw a fail-fast error when an invalid string value is passed', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          // @ts-expect-error - Testing runtime security barrier
+          family_friendly: 'maybe',
+        }
+      ];
+
+      expect(() => buildVideoXml(videos)).toThrowError(
+        '[next-advanced-sitemap] Invalid value for family_friendly: "maybe". Expected boolean or strict string \'yes\' | \'no\'.'
+      );
+    });
+
+    it('should throw a fail-fast error when an invalid type is passed', () => {
+      const videos: SitemapEntry['videos'] = [
+        {
+          ...baseVideo,
+          // @ts-expect-error - Testing runtime boundary exception
+          family_friendly: 42,
+        }
+      ];
+
+      expect(() => buildVideoXml(videos)).toThrowError(
+        '[next-advanced-sitemap] Invalid value for family_friendly: "42". Expected boolean or strict string \'yes\' | \'no\'.'
+      );
+    });
+  });
+
+  // =========================================================================
   // v1.1.5 - requires_subscription
   // =========================================================================
   describe('buildVideoXml - v1.1.5 (requires_subscription)', () => {

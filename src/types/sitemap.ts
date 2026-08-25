@@ -85,7 +85,8 @@ export interface SitemapVideo {
   content_loc?: string;
   player_loc?: string;
   publication_date?: Date | string;
-  family_friendly?: 'yes' | 'no';
+  /** (Optional) Indique si la vidéo est accessible avec SafeSearch ('yes' | 'no' ou boolean). */
+  family_friendly?: boolean | 'yes' | 'no';
   /** (Optional) v1.1.1: Indique si la vidéo est une diffusion en direct ('yes' ou 'no'). */
   live?: 'yes' | 'no';
   /** (Optional) v1.1.3: La durée de la vidéo en secondes. */

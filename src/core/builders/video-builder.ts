@@ -55,6 +55,23 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:live>${vid.live}</video:live>\n`;
     }
 
+    // ✨ Validation et Sérialisation de family_friendly
+    if (vid.family_friendly !== undefined) {
+      let ffValue: 'yes' | 'no';
+
+      if (typeof vid.family_friendly === 'boolean') {
+        ffValue = vid.family_friendly ? 'yes' : 'no';
+      } else if (vid.family_friendly === 'yes' || vid.family_friendly === 'no') {
+        ffValue = vid.family_friendly;
+      } else {
+        throw new Error(
+          `[next-advanced-sitemap] Invalid value for family_friendly: "${vid.family_friendly}". Expected boolean or strict string 'yes' | 'no'.`
+        );
+      }
+
+      xml += `      <video:family_friendly>${ffValue}</video:family_friendly>\n`;
+    }
+
     // ✨ Validation et Sérialisation des Restrictions Pays (v1.1.4)
     if (vid.restriction) {
       if (!vid.restriction.countries || vid.restriction.countries.length === 0) {

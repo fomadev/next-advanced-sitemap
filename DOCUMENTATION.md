@@ -545,6 +545,7 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 | `duration` | `number` | No | Video duration in seconds (0 - 28800). |
 | `view_count` | `number` | No | Number of views (non-negative). |
 | `live` | `'yes' \| 'no'` | No | Live broadcast indicator. |
+| `family_friendly` | `boolean \| 'yes' \| 'no'` | No | SafeSearch availability indicator (`<video:family_friendly>`). |
 | `requires_subscription` | `boolean \| 'yes' \| 'no'` | No | Paywall requirement indicator. |
 | `price` | `VideoPrice` | No | Commercial price parameters object. |
 | `category` | `string` | No | General category string (max 256 chars). |

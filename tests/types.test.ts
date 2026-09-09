@@ -4,8 +4,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { generateXml } from '../src/core/generator';
-import { SitemapEntry } from '../src/types/sitemap';
+import { generateXml } from '../src/core/generator.js';
+import { SitemapEntry } from '../src/types/sitemap.js';
 
 describe('Strict SEO Enums and Types Validation (v1.0.5)', () => {
   it('should compile and successfully parse valid changefreq and priority values', () => {

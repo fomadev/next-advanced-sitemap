@@ -27,8 +27,10 @@ export function buildSitemapIndexXml(
   xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
   for (const entry of entries) {
-    const targetLoc = entry.loc || (entry as any).url || '';
-    const cleanLoc = sanitizeAndValidateUrl(targetLoc, 'sitemap index location');
+    // 🛡️ v1.2.8 : Contrat strict — SitemapIndexEntry ne supporte que `loc`.
+    // L'ancien fallback implicite vers `(entry as any).url` a été supprimé car il
+    // contournait la sécurité des types et créait une surface API non documentée.
+    const cleanLoc = sanitizeAndValidateUrl(entry.loc, 'sitemap index location');
     
     xml += `  <sitemap>\n`;
     // 🛡️ v1.2.8 : Nettoyage et échappement strict de l'URL d'index (Query params & caractères XML réservés)

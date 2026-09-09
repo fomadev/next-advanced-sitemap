@@ -49,7 +49,7 @@ To contribute code:
 
 4. Run tests:
     ```bash
-    Run tests
+    npm test
     ```
 
 ## Design Principles

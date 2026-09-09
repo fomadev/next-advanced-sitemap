@@ -8,9 +8,11 @@ import { RobotsOptions } from './types/robots.js';
 import { generateXml } from './core/generator.js';
 import { buildSitemapIndexXml } from './core/builders/index-builder.js';
 import { buildRobotsText } from './core/builders/robots-builder.js';
+import { buildCacheControlHeader } from './utils/cache-control.js';
 
 // Utilitaires et Types Sitemap
 export { chunkSitemapEntries } from './utils/chunker.js';
+export { buildCacheControlHeader } from './utils/cache-control.js';
 export * from './types/sitemap.js';
 
 // Robots.txt Exports
@@ -36,12 +38,8 @@ export function getServerSitemapResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // Détermination de la stratégie de mise en cache
-  if (options.maxAge !== undefined && options.maxAge >= 0) {
-    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
-  } else {
-    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
-  }
+  // Stratégie de cache unifiée et partagée (v1.0.9 / v1.2.6 / v1.3.9)
+  headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(xml, { status: 200, headers });
 }
@@ -66,13 +64,8 @@ export function getServerSitemapIndexResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // ⚡ Alignement : Gestion dynamique du cache Edge/CDN pour la structure d'index
-  if (options.maxAge !== undefined && options.maxAge >= 0) {
-    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
-  } else {
-    // Stratégie CDN par défaut haute performance
-    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
-  }
+  // ⚡ Stratégie de cache Edge/CDN unifiée et partagée (v1.2.6)
+  headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(xml, { status: 200, headers });
 }
@@ -95,11 +88,8 @@ export function getRobotsTextResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  if (options.maxAge !== undefined && options.maxAge >= 0) {
-    headers.set('Cache-Control', `public, max-age=${options.maxAge}, must-revalidate`);
-  } else {
-    headers.set('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
-  }
+  // Stratégie de cache unifiée et partagée (v1.3.9)
+  headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(content, { status: 200, headers });
 }

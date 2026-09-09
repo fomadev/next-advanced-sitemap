@@ -31,4 +31,22 @@ describe('Custom Cache-Control Configuration (v1.0.9 / v1.2.6 Aligned)', () => {
     // 🚀 Mis à jour pour correspondre à la stratégie d'infrastructure unifiée de la v1.2.6
     expect(cacheHeader).toBe('public, max-age=86400, stale-while-revalidate=3600');
   });
+
+  it('should throw a clear error when maxAge is negative (v1.3.10)', () => {
+    expect(() => getServerSitemapResponse(mockEntries, { maxAge: -1 })).toThrowError(
+      '[next-advanced-sitemap] Invalid maxAge value: -1'
+    );
+  });
+
+  it('should throw a clear error when maxAge is NaN (v1.3.10)', () => {
+    expect(() => getServerSitemapResponse(mockEntries, { maxAge: NaN })).toThrowError(
+      '[next-advanced-sitemap] Invalid maxAge value: NaN'
+    );
+  });
+
+  it('should throw a clear error when maxAge is Infinity (v1.3.10)', () => {
+    expect(() => getServerSitemapResponse(mockEntries, { maxAge: Infinity })).toThrowError(
+      '[next-advanced-sitemap] Invalid maxAge value: Infinity'
+    );
+  });
 });

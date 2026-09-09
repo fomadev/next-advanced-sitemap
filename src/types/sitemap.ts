@@ -170,6 +170,7 @@ export interface SitemapOptions {
    * Maximum cache duration (TTL) expressed in seconds.
    * If defined, the Cache-Control header becomes: public, max-age=X, must-revalidate.
    * If omitted, keeps the highly-performant default CDN strategy.
+   * Must be a finite number >= 0; negative, NaN, or Infinity values throw.
    */
   maxAge?: number; // Option added in v1.0.9
 }

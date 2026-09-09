@@ -48,6 +48,7 @@ export interface RobotsOptions {
   /**
    * HTTP cache duration in seconds (Cache-Control: max-age).
    * Default: 86400 (24h) with stale-while-revalidate.
+   * Must be a finite number >= 0; negative, NaN, or Infinity values throw.
    */
   maxAge?: number;
 }

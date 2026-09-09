@@ -47,6 +47,46 @@ describe('v1.1.9 Cross-Field Validation Suite', () => {
     );
   });
 
+  it('should throw an error if a video requires a subscription (boolean true) but is sold for ownership', () => {
+    const invalidEntry: SitemapEntry[] = [{
+      url: 'https://fomadev.com/premium-video-boolean',
+      videos: [{
+        thumbnail_loc: 'https://fomadev.com/thumb.jpg',
+        title: 'Premium Masterclass Boolean',
+        description: 'Advanced engineering systems.',
+        requires_subscription: true,
+        price: {
+          value: 49.99,
+          currency: 'USD',
+          type: 'own'
+        }
+      }]
+    }];
+
+    expect(() => generateXml(invalidEntry)).toThrowError(
+      '[next-advanced-sitemap] Cross-field validation error'
+    );
+  });
+
+  it('should not throw an error if requires_subscription is false with price type own', () => {
+    const validEntry: SitemapEntry[] = [{
+      url: 'https://fomadev.com/premium-video-not-sub',
+      videos: [{
+        thumbnail_loc: 'https://fomadev.com/thumb.jpg',
+        title: 'Purchasable Video',
+        description: 'Advanced engineering systems.',
+        requires_subscription: false,
+        price: {
+          value: 49.99,
+          currency: 'USD',
+          type: 'own'
+        }
+      }]
+    }];
+
+    expect(() => generateXml(validEntry)).not.toThrow();
+  });
+
   it('should throw an error if a Google News article is older than 48 hours', () => {
     const dynamicPastDate = new Date();
     dynamicPastDate.setDate(dynamicPastDate.getDate() - 5); // 5 jours en arrière

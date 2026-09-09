@@ -37,7 +37,7 @@ describe('E2E XML Generation for CI Compliance', () => {
             publication_date: dynamicRecentDate.toISOString(), // Format ISO dynamique
             category: 'Tech Education',
             tags: ['nextjs', 'seo', 'typescript'],
-            price: { value: 19.99, currency: 'USD', type: 'own' },
+            price: { value: 19.99, currency: 'USD', type: 'rent' },
             requires_subscription: true
           }
         ]

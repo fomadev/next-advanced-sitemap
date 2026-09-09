@@ -22,7 +22,7 @@ export function validateCrossFields(entry: SitemapEntry): void {
       }
 
       // RÈGLE B : Conflit d'abonnement requis vs Prix d'achat direct sans logique transactionnelle définie
-      if (vid.requires_subscription === 'yes' && vid.price && vid.price.type === 'own') {
+      if ((vid.requires_subscription === 'yes' || vid.requires_subscription === true) && vid.price && vid.price.type === 'own') {
         throw new Error(
           `[next-advanced-sitemap] Cross-field validation error on URL "${entry.url}": Video cannot simultaneously require a global subscription and be available for full individual ownership ("own").`
         );

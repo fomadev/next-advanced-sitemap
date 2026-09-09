@@ -20,7 +20,7 @@ export function buildNewsXml(news: SitemapEntry['news']): string {
   xml += `      <news:publication_date>${nDate}</news:publication_date>\n`;
   xml += `      <news:title>${escapeXml(news.title)}</news:title>\n`;
 
-  // ✨ Validation et Sérialisation des Stock Tickers (v1.1.8)
+  // ✨ Stock tickers validation and serialization (v1.1.8)
   if (news.stock_tickers) {
     if (!Array.isArray(news.stock_tickers)) {
       throw new Error(
@@ -45,7 +45,7 @@ export function buildNewsXml(news: SitemapEntry['news']): string {
       });
 
     if (validatedTickers.length > 0) {
-      // Google demande une liste séparée par des virgules (sans espaces superflus)
+      // Google expects a comma-separated list (without extra whitespaces)
       const tickersString = validatedTickers.join(',');
       xml += `      <news:stock_tickers>${escapeXml(tickersString)}</news:stock_tickers>\n`;
     }

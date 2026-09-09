@@ -4,22 +4,22 @@
  */
 
 /**
- * Construit la valeur de l'en-tête HTTP Cache-Control selon une stratégie unifiée.
+ * Builds the HTTP Cache-Control header value according to a unified strategy.
  *
- * Si `maxAge` est fourni (>= 0), la réponse est validable immédiatement auprès de
- * l'origine via `must-revalidate`. Sinon, une stratégie CDN par défaut haute
- * performance est appliquée (24h de cache + 1h de stale-while-revalidate).
+ * If `maxAge` is provided (>= 0), the response can be immediately revalidated
+ * against the origin via `must-revalidate`. Otherwise, a high-performance
+ * default CDN strategy is applied (24h cache + 1h stale-while-revalidate).
  *
- * Centraliser cette logique garantit que toute évolution de la politique de cache
- * est répercutée uniformément sur tous les générateurs de réponses (v1.0.9 / v1.2.6 / v1.3.9).
+ * Centralizing this logic guarantees that any evolution of the caching policy
+ * is uniformly propagated to all response generators (v1.0.9 / v1.2.6 / v1.3.9).
  *
- * @param maxAge - Durée de mise en cache HTTP en secondes (optionnelle)
- * @returns La valeur complète de l'en-tête Cache-Control
+ * @param maxAge - HTTP cache duration in seconds (optional)
+ * @returns The full Cache-Control header value
  */
 export function buildCacheControlHeader(maxAge?: number): string {
   if (maxAge !== undefined && maxAge >= 0) {
     return `public, max-age=${maxAge}, must-revalidate`;
   }
-  // Stratégie CDN par défaut haute performance
+  // Default high-performance CDN strategy
   return 'public, max-age=86400, stale-while-revalidate=3600';
 }

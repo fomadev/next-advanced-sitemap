@@ -8,15 +8,15 @@ import { escapeXml } from '../../utils/xml-escape.js';
 import { sanitizeAndValidateUrl } from './url-builder.js';
 
 /**
- * Génère la structure brute XML pour un fichier d'indexation de sitemaps.
- * v1.2.7 : Support de l'auto-remplissage de date (Index Auto-Lastmod).
- * v1.2.8 : Échappement des URLs d'Index (Index Escaping & Query Parameters).
+ * Generates the raw XML structure for a sitemap index file.
+ * v1.2.7: Auto date backfill support (Index Auto-Lastmod).
+ * v1.2.8: Index URL escaping (Index Escaping & Query Parameters).
  */
 export function buildSitemapIndexXml(
   entries: SitemapIndexEntry[],
   options: Pick<SitemapOptions, 'autoLastmod'> = {}
 ): string {
-  // 🔥 Guardrail de volume v1.2.5
+  // 🔥 Volume guardrail v1.2.5
   if (entries.length > 50000) {
     throw new Error(
       `[next-advanced-sitemap] Index volume threshold breach: A single sitemap index cannot contain more than 50,000 sub-sitemaps. Detected: ${entries.length}. Please leverage chunkSitemapEntries() to segment your dataset.`
@@ -27,16 +27,16 @@ export function buildSitemapIndexXml(
   xml += `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
   for (const entry of entries) {
-    // 🛡️ v1.2.8 : Contrat strict — SitemapIndexEntry ne supporte que `loc`.
-    // L'ancien fallback implicite vers `(entry as any).url` a été supprimé car il
-    // contournait la sécurité des types et créait une surface API non documentée.
+    // 🛡️ v1.2.8: Strict contract — SitemapIndexEntry only supports `loc`.
+    // The old implicit fallback to `(entry as any).url` was removed because it
+    // bypassed type safety and created an undocumented API surface.
     const cleanLoc = sanitizeAndValidateUrl(entry.loc, 'sitemap index location');
     
     xml += `  <sitemap>\n`;
-    // 🛡️ v1.2.8 : Nettoyage et échappement strict de l'URL d'index (Query params & caractères XML réservés)
+    // 🛡️ v1.2.8: Strict cleaning and escaping of the index URL (Query params & reserved XML characters)
     xml += `    <loc>${escapeXml(cleanLoc)}</loc>\n`;
     
-    // 🕒 v1.2.7 : Détermination de la date
+    // 🕒 v1.2.7: Date resolution
     const rawDate = entry.lastmod || (options.autoLastmod ? new Date() : undefined);
     
     if (rawDate) {

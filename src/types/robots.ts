@@ -4,8 +4,8 @@
  */
 
 /**
- * Principaux robots d'indexation du marché mondial avec support d'autocomplétion IDE.
- * Le type `(string & {})` préserve la suggestion tout en autorisant des chaînes personnalisées.
+ * Main indexing robots of the global market with IDE autocompletion support.
+ * The `(string & {})` type keeps suggestions while still allowing custom strings.
  */
 export type KnownUserAgent =
   | '*'
@@ -32,7 +32,7 @@ export type KnownUserAgent =
 
 export interface RobotsRule {
   /**
-   * Identifiant du ou des robots ciblés par la règle (autocomplétion disponible pour les principaux bots).
+   * Identifier of the robot(s) targeted by the rule (autocompletion available for major bots).
    */
   userAgent: KnownUserAgent | KnownUserAgent[];
   allow?: string | string[];
@@ -46,8 +46,8 @@ export interface RobotsOptions {
   host?: string;
 
   /**
-   * Durée de mise en cache HTTP en secondes (Cache-Control: max-age).
-   * Par défaut : 86400 (24h) avec stale-while-revalidate.
+   * HTTP cache duration in seconds (Cache-Control: max-age).
+   * Default: 86400 (24h) with stale-while-revalidate.
    */
   maxAge?: number;
 }

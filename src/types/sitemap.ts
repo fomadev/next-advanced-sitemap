@@ -4,7 +4,7 @@
  */
 
 /**
- * Fréquences de changement autorisées dans la spécification des sitemaps
+ * Allowed change frequency values from the sitemap protocol specification
  */
 export type SitemapChangeFreq = 
   | 'always' 
@@ -16,16 +16,16 @@ export type SitemapChangeFreq =
   | 'never';
 
 /**
- * Priorités recommandées (de 0.0 à 1.0)
- * L'intersection (number & {}) permet de conserver l'autocomplétion des paliers
- * tout en acceptant n'importe quel autre nombre flottant.
+ * Recommended priorities (from 0.0 to 1.0)
+ * The (number & {}) intersection keeps IDE autocompletion for common steps
+ * while still accepting any other floating-point number.
  */
 export type SitemapPriority = 
   | 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1.0
   | (number & {});
 
 /**
- * Interface pour les liens alternatifs (Hreflang / Multilingue)
+ * Interface for alternate links (Hreflang / Multilingual)
  * @see https://developers.google.com/search/docs/specialty/international/localized-versions#sitemap
  */
 export interface SitemapAlternate {
@@ -34,48 +34,48 @@ export interface SitemapAlternate {
 }
 
 /**
- * Interface pour les images dans le sitemap avec support SEO Local et Licences (v1.1.0)
+ * Interface for sitemap images with Local SEO and License support (v1.1.0)
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/image-sitemaps
  */
 export interface SitemapImage {
   loc: string;
   caption?: string;
   title?: string;
-  /** (Optional) v1.1.0: Description géographique de l'image (ex: "Kinshasa, DRC"). */
+  /** (Optional) v1.1.0: Geographic description of the image (e.g. "Kinshasa, DRC"). */
   geo_location?: string;
-  /** (Optional) v1.1.0: URL pointant vers les conditions d'utilisation ou le contrat de licence de l'image. */
+  /** (Optional) v1.1.0: URL pointing to the image's usage terms or license contract. */
   license?: string;
 }
 
 /**
- * Interface pour les restrictions géographiques des vidéos (v1.1.4)
+ * Interface for geographic restrictions on videos (v1.1.4)
  */
 export interface VideoRestriction {
   relationship: 'allow' | 'deny';
-  /** Tableau de codes pays ISO 3166-1 alpha-2 (ex: ['FR', 'US', 'CA']) */
+  /** Array of ISO 3166-1 alpha-2 country codes (e.g. ['FR', 'US', 'CA']) */
   countries: string[];
 }
 
 /**
- * Interface pour les restrictions de plateformes des vidéos (v1.1.4)
+ * Interface for video platform restrictions (v1.1.4)
  */
 export interface VideoPlatform {
   relationship: 'allow' | 'deny';
-  /** Tableau de plateformes autorisées ou interdites */
+  /** Array of allowed or disallowed platforms */
   platforms: ('web' | 'mobile' | 'tv')[];
 }
 
 export interface VideoPrice {
-  /** Valeur numérique du prix (ex: 9.99) */
+  /** Numeric price value (e.g. 9.99) */
   value: number;
-  /** Code de devise ISO 4217 à 3 lettres (ex: 'USD', 'EUR', 'CDF') */
+  /** ISO 4217 3-letter currency code (e.g. 'USD', 'EUR', 'CDF') */
   currency: string;
-  /** Optionnel : Type de transaction, soit 'rent' (location) ou 'own' (achat) */
+  /** Optional: Transaction type, either 'rent' or 'own' (purchase) */
   type?: 'rent' | 'own';
 }
 
 /**
- * Interface pour les vidéos dans le sitemap
+ * Interface for videos in the sitemap
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
  */
 export interface SitemapVideo {
@@ -85,43 +85,43 @@ export interface SitemapVideo {
   content_loc?: string;
   player_loc?: string;
   publication_date?: Date | string;
-  /** (Optional) Indique si la vidéo est accessible avec SafeSearch ('yes' | 'no' ou boolean). */
+  /** (Optional) Indicates whether the video is SafeSearch-compatible ('yes' | 'no' or boolean). */
   family_friendly?: boolean | 'yes' | 'no';
-  /** (Optional) v1.1.1: Indique si la vidéo est une diffusion en direct ('yes' ou 'no'). */
+  /** (Optional) v1.1.1: Indicates whether the video is a live stream ('yes' or 'no'). */
   live?: 'yes' | 'no';
-  /** (Optional) v1.1.3: La durée de la vidéo en secondes. */
+  /** (Optional) v1.1.3: Video duration in seconds. */
   duration?: number;
-  /** (Optional) v1.1.3: Le nombre de vues de la vidéo. */
+  /** (Optional) v1.1.3: Number of video views. */
   view_count?: number;
-  /** (Optional) v1.1.4: Restriction géographique de diffusion (ISO 3166-1 alpha-2). */
+  /** (Optional) v1.1.4: Geographic broadcast restriction (ISO 3166-1 alpha-2). */
   restriction?: VideoRestriction;
-  /** (Optional) v1.1.4: Restriction selon le type d'appareil / plateforme. */
+  /** (Optional) v1.1.4: Restriction by device / platform type. */
   platform?: VideoPlatform;
   /**
-   * v1.1.5 : Indique si l'accès à la vidéo nécessite un abonnement payant.
-   * Accepte true/false ou de manière stricte 'yes'/'no'.
+   * v1.1.5: Indicates whether accessing the video requires a paid subscription.
+   * Accepts true/false or, strictly, 'yes'/'no'.
    * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
    */
   requires_subscription?: boolean | 'yes' | 'no';
   /**
-   * v1.1.6 : Tarification de la vidéo pour l'achat ou la location (VOD).
+   * v1.1.6: Video pricing for purchase or rental (VOD).
    * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/video-sitemaps
    */
   price?: VideoPrice;
   /** 
-   * ✨ v1.1.7 : Catégorie thématique générale de la vidéo (ex: 'Éducation', 'Technologie'). 
-   * Chaîne de caractères de 256 caractères maximum.
+   * ✨ v1.1.7: General thematic category of the video (e.g. 'Education', 'Technology'). 
+   * Maximum 256 characters.
    */
   category?: string;
   /** 
-   * ✨ v1.1.7 : Mots-clés décrivant la vidéo. 
-   * Tableau de chaînes de caractères, limité à 32 tags maximum par vidéo.
+   * ✨ v1.1.7: Keywords describing the video. 
+   * Array of strings, limited to 32 tags per video.
    */
   tags?: string[];
 }
 
 /**
- * Interface pour Google News
+ * Interface for Google News
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemaps
  */
 export interface SitemapNews {
@@ -130,15 +130,15 @@ export interface SitemapNews {
   publication_date: Date | string;
   title: string;
   /**
-   * ✨ v1.1.8 : Liste des symboles boursiers associés à l'article.
-   * Exemple : ['NASDAQ:AAPL', 'NYSE:GE']
+   * ✨ v1.1.8: List of stock ticker symbols associated with the article.
+   * Example: ['NASDAQ:AAPL', 'NYSE:GE']
    * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/news-sitemap
    */
   stock_tickers?: string[];
 }
 
 /**
- * Interface principale représentant une entrée du sitemap
+ * Main interface representing a sitemap entry
  */
 export interface SitemapEntry {
   url: string;
@@ -152,35 +152,35 @@ export interface SitemapEntry {
 }
 
 /**
- * Options de configuration pour la génération du sitemap
+ * Configuration options for sitemap generation
  */
 export interface SitemapOptions {
   /**
-   * Si true, injecte la date système actuelle (ISO) pour toutes les entrées 
-   * qui n'ont pas de champ 'lastmod' défini.
+   * If true, injects the current system date (ISO) for every entry
+   * that does not define a 'lastmod' field.
    */
   autoLastmod?: boolean;
   /**
-   * Si true, trie le tableau des URLs de la priorité la plus haute (1.0) 
-   * à la plus basse (0.0) avant de lancer la génération du flux XML.
-   * Les entrées sans priorité héritent d'une valeur par défaut de 0.5.
+   * If true, sorts the URL array from the highest priority (1.0)
+   * to the lowest (0.0) before generating the XML stream.
+   * Entries without a priority default to 0.5.
    */
-  sortByPriority?: boolean; // Option ajoutée pour la v1.0.8
+  sortByPriority?: boolean; // Option added in v1.0.8
   /**
-   * Durée maximale de mise en cache (TTL) exprimée en secondes.
-   * Si définie, l'en-tête Cache-Control prendra la forme : public, max-age=X, must-revalidate.
-   * Si omise, conserve la stratégie par défaut hautement performante pour CDN.
+   * Maximum cache duration (TTL) expressed in seconds.
+   * If defined, the Cache-Control header becomes: public, max-age=X, must-revalidate.
+   * If omitted, keeps the highly-performant default CDN strategy.
    */
-  maxAge?: number; // Option ajoutée pour la v1.0.9
+  maxAge?: number; // Option added in v1.0.9
 }
 
 /**
- * Interface pour une entrée individuelle dans un index de sitemaps
+ * Interface for an individual entry within a sitemap index
  * @see https://developers.google.com/search/docs/crawling-indexing/sitemaps/large-sitemaps
  */
 export interface SitemapIndexEntry {
-  /** URL absolue du sous-sitemap (ex: 'https://fomadev.com/sitemap-vidéos.xml') */
+  /** Absolute URL of the child sitemap (e.g. 'https://fomadev.com/sitemap-videos.xml') */
   loc: string;
-  /** Date de la dernière modification du sous-sitemap */
+  /** Last modification date of the child sitemap */
   lastmod?: string | Date;
 }

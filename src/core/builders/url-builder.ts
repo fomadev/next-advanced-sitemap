@@ -7,8 +7,8 @@ import { SitemapEntry, SitemapOptions } from '../../types/sitemap.js';
 import { escapeXml } from '../../utils/xml-escape.js';
 
 /**
- * Nettoie et valide de manière stricte le format et la structure d'une URL.
- * v1.0.7 : Intégration de l'Auto-Trimming (nettoyage des espaces de début et de fin)
+ * Strictly cleans and validates the format and structure of a URL.
+ * v1.0.7: Auto-trimming integration (removes leading and trailing spaces)
  */
 export function sanitizeAndValidateUrl(rawUrl: string, context: string): string {
   const url = rawUrl ? rawUrl.trim() : '';
@@ -47,7 +47,7 @@ export function sanitizeAndValidateUrl(rawUrl: string, context: string): string 
 }
 
 /**
- * Génère le bloc XML de base pour un nœud URL (loc, alternates, lastmod, changefreq, priority).
+ * Generates the base XML block for a URL node (loc, alternates, lastmod, changefreq, priority).
  */
 export function buildUrlBaseXml(entry: SitemapEntry, options: SitemapOptions, nowIso: string): string {
   let xml = '';

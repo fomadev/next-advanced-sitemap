@@ -10,7 +10,7 @@ import { buildSitemapIndexXml } from './core/builders/index-builder.js';
 import { buildRobotsText } from './core/builders/robots-builder.js';
 import { buildCacheControlHeader } from './utils/cache-control.js';
 
-// Utilitaires et Types Sitemap
+// Sitemap utilities and types
 export { chunkSitemapEntries } from './utils/chunker.js';
 export { buildCacheControlHeader } from './utils/cache-control.js';
 export * from './types/sitemap.js';
@@ -20,12 +20,12 @@ export { buildRobotsText } from './core/builders/robots-builder.js';
 export * from './types/robots.js';
 
 /**
- * Génère une réponse HTTP compatible Next.js (App Router) avec options de configuration.
- * v1.0.9 : Injection dynamique et personnalisable de l'en-tête Cache-Control via l'option maxAge.
+ * Generates an HTTP response compatible with Next.js (App Router) with configuration options.
+ * v1.0.9: Dynamic and customizable Cache-Control header injection via the maxAge option.
  * 
- * @param entries - Liste des entrées du sitemap
- * @param options - Options de génération et de mise en cache (ex: autoLastmod, maxAge)
- * @returns Une instance de Response contenant le flux XML configuré
+ * @param entries - List of sitemap entries
+ * @param options - Generation and caching options (e.g. autoLastmod, maxAge)
+ * @returns A Response instance containing the configured XML stream
  */
 export function getServerSitemapResponse(
   entries: SitemapEntry[], 
@@ -38,25 +38,25 @@ export function getServerSitemapResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // Stratégie de cache unifiée et partagée (v1.0.9 / v1.2.6 / v1.3.9)
+  // Unified shared cache strategy (v1.0.9 / v1.2.6 / v1.3.9)
   headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(xml, { status: 200, headers });
 }
 
 /**
- * ✨ v1.2.8 : Génère une instance de Response Next.js pour l'index de sitemaps.
- * Support complet de maxAge (v1.2.6), autoLastmod (v1.2.7) et échappement strict des URLs d'index (v1.2.8).
+ * ✨ v1.2.8: Generates a Next.js Response instance for the sitemap index.
+ * Full support for maxAge (v1.2.6), autoLastmod (v1.2.7) and strict escaping of index URLs (v1.2.8).
  * 
- * @param entries - Liste des sous-sitemaps composant l'index
- * @param options - Options de configuration (maxAge pour le cache, autoLastmod pour les dates dynamiques)
- * @returns Une instance de Response contenant le flux XML de l'index
+ * @param entries - List of child sitemaps composing the index
+ * @param options - Configuration options (maxAge for cache, autoLastmod for dynamic dates)
+ * @returns A Response instance containing the XML index stream
  */
 export function getServerSitemapIndexResponse(
   entries: SitemapIndexEntry[],
   options: Pick<SitemapOptions, 'maxAge' | 'autoLastmod'> = {}
 ): Response {
-  // Passation de l'option autoLastmod au builder d'index
+  // Forward the autoLastmod option to the index builder
   const xml = buildSitemapIndexXml(entries, { autoLastmod: options.autoLastmod });
 
   const headers = new Headers({
@@ -64,19 +64,19 @@ export function getServerSitemapIndexResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // ⚡ Stratégie de cache Edge/CDN unifiée et partagée (v1.2.6)
+  // ⚡ Unified shared Edge/CDN cache strategy (v1.2.6)
   headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(xml, { status: 200, headers });
 }
 
 /**
- * 🛡️ v1.3.9 : Contrôle de l'en-tête de contenu (Text/Plain Response Guard)
- * Génère une instance de Response Next.js (App Router) pour le fichier robots.txt.
- * Applique automatiquement 'Content-Type: text/plain; charset=utf-8' pour éviter les erreurs d'interprétation HTML.
+ * 🛡️ v1.3.9: Content-Type header guard (Text/Plain Response Guard)
+ * Generates a Next.js (App Router) Response instance for the robots.txt file.
+ * Automatically applies 'Content-Type: text/plain; charset=utf-8' to avoid HTML interpretation errors.
  * 
- * @param options - Options de configuration pour le robots.txt (règles, host, sitemaps, maxAge)
- * @returns Une instance de Response contenant le texte brut configuré
+ * @param options - Configuration options for robots.txt (rules, host, sitemaps, maxAge)
+ * @returns A Response instance containing the configured plain-text content
  */
 export function getRobotsTextResponse(
   options: RobotsOptions
@@ -88,7 +88,7 @@ export function getRobotsTextResponse(
     'X-Content-Type-Options': 'nosniff',
   });
 
-  // Stratégie de cache unifiée et partagée (v1.3.9)
+  // Unified shared cache strategy (v1.3.9)
   headers.set('Cache-Control', buildCacheControlHeader(options.maxAge));
 
   return new Response(content, { status: 200, headers });

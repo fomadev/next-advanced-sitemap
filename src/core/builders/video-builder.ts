@@ -29,7 +29,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:publication_date>${vDate}</video:publication_date>\n`;
     }
 
-    // ✨ Validation et Sérialisation de la durée (0 - 28800s)
+    // ✨ Duration validation and serialization (0 - 28800s)
     if (vid.duration !== undefined) {
       const finalDuration = Math.floor(vid.duration);
       if (finalDuration < 0 || finalDuration > 28800) {
@@ -40,7 +40,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:duration>${finalDuration}</video:duration>\n`;
     }
 
-    // ✨ Validation et Sérialisation du nombre de vues (>= 0)
+    // ✨ View count validation and serialization (>= 0)
     if (vid.view_count !== undefined) {
       const finalViewCount = Math.floor(vid.view_count);
       if (finalViewCount < 0) {
@@ -55,7 +55,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:live>${vid.live}</video:live>\n`;
     }
 
-    // ✨ Validation et Sérialisation de family_friendly
+    // ✨ family_friendly validation and serialization
     if (vid.family_friendly !== undefined) {
       let ffValue: 'yes' | 'no';
 
@@ -72,7 +72,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:family_friendly>${ffValue}</video:family_friendly>\n`;
     }
 
-    // ✨ Validation et Sérialisation des Restrictions Pays (v1.1.4)
+    // ✨ Country restrictions validation and serialization (v1.1.4)
     if (vid.restriction) {
       if (!vid.restriction.countries || vid.restriction.countries.length === 0) {
         throw new Error(
@@ -94,7 +94,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:restriction relationship="${vid.restriction.relationship}">${countriesStr}</video:restriction>\n`;
     }
 
-    // ✨ Validation et Sérialisation des Plateformes (v1.1.4)
+    // ✨ Platforms validation and serialization (v1.1.4)
     if (vid.platform) {
       if (!vid.platform.platforms || vid.platform.platforms.length === 0) {
         throw new Error(
@@ -131,7 +131,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:requires_subscription>${subValue}</video:requires_subscription>\n`;
     }
 
-    // ✨ Validation et Sérialisation des Prix et Achats (v1.1.6)
+    // ✨ Price and purchase validation and serialization (v1.1.6)
     if (vid.price) {
       const { value, currency, type } = vid.price;
 
@@ -162,7 +162,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += priceXml;
     }
 
-    // ✨ Validation et Sérialisation de la Catégorie (v1.1.7)
+    // ✨ Category validation and serialization (v1.1.7)
     if (vid.category !== undefined) {
       const cleanCategory = vid.category.trim();
       if (!cleanCategory) {
@@ -178,7 +178,7 @@ export function buildVideoXml(videos: SitemapEntry['videos']): string {
       xml += `      <video:category>${escapeXml(cleanCategory)}</video:category>\n`;
     }
 
-    // ✨ Validation et Sérialisation des Tags (v1.1.7)
+    // ✨ Tags validation and serialization (v1.1.7)
     if (vid.tags) {
       if (vid.tags.length > 32) {
         throw new Error(

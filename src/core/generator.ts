@@ -31,8 +31,8 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
   xml += `        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n`;
 
   for (const entry of finalEntries) {
-    // 💡 Normalisation préventive : Si l'utilisateur fournit "video" au lieu de "videos",
-    // on s'assure que le tableau "videos" est peuplé pour l'analyse et la génération.
+    // 💡 Preventive normalization: if the user provides "video" instead of "videos",
+    // make sure the "videos" array is populated for analysis and generation.
     const normalizedEntry = { ...entry };
     
     if ((entry as any).video && !normalizedEntry.videos) {
@@ -43,16 +43,16 @@ export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {
 
     xml += `  <url>\n`;
     
-    // 1. Éléments de base et hreflang alternatifs
+    // 1. Base elements and alternative hreflang links
     xml += buildUrlBaseXml(normalizedEntry, options, now);
 
-    // 2. Extension Images Google
+    // 2. Google Images extension
     xml += buildImageXml(normalizedEntry.images);
 
-    // 3. Extension Vidéos Google (Validations v1.1.3 & v1.1.4 intégrées)
+    // 3. Google Videos extension (built-in validations v1.1.3 & v1.1.4)
     xml += buildVideoXml(normalizedEntry.videos);
 
-    // 4. Extension News Google
+    // 4. Google News extension
     xml += buildNewsXml(normalizedEntry.news);
 
     xml += `  </url>\n`;

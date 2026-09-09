@@ -4,8 +4,8 @@
  */
 
 /**
- * Convertit les caractères spéciaux en entités XML pour éviter la corruption du fichier.
- * Gère : <, >, &, ", '
+ * Converts special characters into XML entities to prevent file corruption.
+ * Handles: <, >, &, ", '
  */
 export function escapeXml(unsafe: string | undefined | null): string {
   if (!unsafe) return '';

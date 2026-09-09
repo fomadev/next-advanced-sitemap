@@ -6,11 +6,11 @@
 import { SitemapEntry } from '../types/sitemap.js';
 
 /**
- * Sépare un tableau massif d'entrées de sitemap en sous-tableaux de taille fixe.
- * v1.2.4 : Helper pur de découpage de listes (Chunking Utility) pour sitemaps volumineux.
- * * @param entries Le tableau complet des entrées à segmenter.
- * @param size La taille maximale de chaque segment (ex: 10000 ou 40000).
- * @returns Un tableau à deux dimensions contenant les sous-paquets découpés.
+ * Splits a massive sitemap entries array into fixed-size sub-arrays.
+ * v1.2.4: Pure list chunking helper (Chunking Utility) for large sitemaps.
+ * * @param entries The full array of entries to segment.
+ * @param size The maximum size of each segment (e.g. 10000 or 40000).
+ * @returns A two-dimensional array containing the split sub-batches.
  */
 export function chunkSitemapEntries(entries: SitemapEntry[], size: number): SitemapEntry[][] {
   if (!size || size <= 0) {

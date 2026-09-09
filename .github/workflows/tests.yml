@@ -41,7 +41,13 @@ jobs:
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 2 : Validation de conformité structurale XML de Google
       - name: Install Linux XML Validation Engine
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
+          sudo rm -f /etc/apt/sources.list.d/google.list
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libxml2-utils
 
       - name: Verify XML Compliance Against Official W3C/Google Patterns
         run: |

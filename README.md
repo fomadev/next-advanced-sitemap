@@ -1,6 +1,7 @@
 # next-advanced-sitemap
 
 [![License: FPL](https://img.shields.io/badge/License-FPL-orange.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](DOCUMENTATION.md)
 ![CI Status](https://github.com/fomadev/next-advanced-sitemap/actions/workflows/tests.yml/badge.svg)
 
 A robust, type-safe XML sitemap, sitemap index, and robots.txt generator for Next.js App Router applications (`>= 13.0.0`). 
@@ -11,19 +12,31 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 
 ---
 
+## What's New in v1.4.0 (Hardening & Strict Contract Release)
+
+- **`<video:family_friendly>` is now serialized** — the property was previously declared in the type but silently dropped from the XML output (fix #39).
+- **Cross-field validation handles booleans** — `requires_subscription: true` now correctly triggers Rule B rejection with `price.type: 'own'` (fix #40).
+- **Strict `loc`-only sitemap index contract** — the undocumented `url` fallback on `SitemapIndexEntry` was removed; passing `url` now throws a clear validation error (breaking change, fix #47).
+- **Strict `maxAge` validation** — negative, `NaN`, `Infinity`, or non-numeric values now throw a descriptive error instead of silently falling back (fix #49).
+- **50,000-URL guardrail on single sitemaps** — `generateXml()` now enforces the sitemaps.org upper bound, like the existing index guardrail; use `chunkSitemapEntries()` for larger payloads (fix #50).
+- **Shared `buildCacheControlHeader()`** — deduplicated Cache-Control logic across all response generators into one exported utility (fix #45).
+- **English-first, modernized codebase** — all internal comments/JSDoc migrated to English; `tsconfig.json` and test imports hardened for NodeNext / strict JSON tooling (fixes #41-#44, #48).
+
+---
+
 ## Key Features
 
 - **Native Robots.txt Generator (`buildRobotsText`) (v1.3.10)**: Instantly generate standardized, clean `robots.txt` text content with full support for typed user-agents, allow/disallow paths, crawl-delay directives, inline host rules, sitemap links, and array-based `allow` / `disallow` directives. v1.3.10 adds the final RFC compliance sanitization pass — it removes excessive blank lines, trims trailing whitespace, normalizes paths to begin with `/`, strips Windows carriage returns, and preserves `getRobotsTextResponse()` text/plain delivery hardening with `X-Content-Type-Options: nosniff`. The IDE still offers autocomplete for major crawlers like `Googlebot`, `Bingbot`, `GPTBot`, `ClaudeBot`, and you can still use custom values such as `CustomBot/1.0`. If `host` is omitted, the helper auto-detects the root origin from the first sitemap URL to simplify staging, preview, and production setups.
 - **Master Sitemap Indexing (`getServerSitemapIndexResponse`)**: Seamlessly link multiple child sitemaps to bypass search engine structural limits (50,000 URLs / 50MB per file).
 - **Index URL Escaping & Query Parameters Safety (v1.2.8)**: Rigorous URL sanitization and XML entity escaping (`&` to `&amp;`, `<`, `>`, `"`, `'`) for `<sitemapindex>` child `<loc>` URLs, guaranteeing RFC 3986 and XML 1.0 compliance when index locations contain query parameters (`?`, `&`, `=`) or reserved characters.
 - **Google Images Extensions**: Full support for titles, captions, local SEO positioning (`geo_location`), and copyright licensing (`license`).
-- **Google Video Extensions**: Support for live stream markers (`live`), monetization models (`price`), paywall signals (`requires_subscription`), restrictions (`restriction`, `platform`), categories, and tags.
+- **Google Video Extensions**: Support for live stream markers (`live`), SafeSearch (`family_friendly`, serialized since v1.4.0), monetization models (`price`), paywall signals (`requires_subscription`), restrictions (`restriction`, `platform`), categories, and tags.
 - **Google News Extensions**: Support for required metadata, 48-hour freshness rules, and stock market tickers (`stock_tickers`).
 - **Multilingual (Hreflang)**: Native `xhtml:link` alternate language/region links.
 - **Large-Scale Data Chunking (`chunkSitemapEntries`)**: High-performance O(N) utility function to segment large database outputs into compliant sub-arrays.
-- **Cross-Field Semantic Validation**: Pre-generation validation engine that catches logical data contradictions before XML emission.
-- **Payload Guardrails**: Fail-fast volume checks preventing index payloads from exceeding 50,000 child sitemaps.
-- **Edge Cache Optimization**: Dynamic header generation for CDN caching with custom TTL support (`maxAge`).
+- **Cross-Field Semantic Validation**: Pre-generation validation engine that catches logical data contradictions before XML emission (including boolean `requires_subscription` since v1.4.0).
+- **Payload Guardrails**: Fail-fast volume checks — 50,000-URL limit on single sitemaps and 50,000-child limit on index payloads.
+- **Edge Cache Optimization**: Dynamic header generation for CDN caching with custom TTL support (`maxAge`), built on a single shared `buildCacheControlHeader()` utility. Invalid values (negative, `NaN`, `Infinity`) throw a clear error since v1.4.0.
 - **Automatic Sanitization & Escaping**: Deep XML escaping (`&`, `<`, `>`, `"`, `'`) and automatic whitespace trimming. `escapeXml()` is a single-pass encoder over **raw** input — always pass unescaped text (e.g. `&`, not `&amp;`) to avoid double-encoding.
 
 ---

@@ -1,4 +1,4 @@
-# next-advanced-sitemap (v1.3.10) - Technical Documentation and Reference Manual
+# next-advanced-sitemap (v1.4.0) - Technical Documentation and Reference Manual
 
 ## 1. Introduction
 
@@ -433,7 +433,7 @@ All input URLs undergo strict sanitization and XML entity escaping:
 Generates an HTTP `Response` object containing the standard sitemap XML structure.
 
 - Parameters:
-  - `entries` (`SitemapEntry[]`): Array of sitemap entries.
+  - `entries` (`SitemapEntry[]`): Array of sitemap entries. A single sitemap must not exceed 50,000 URLs (v1.4.0 guardrail).
   - `options` (`SitemapOptions`, optional): Configuration options.
 - Returns: `Response` with `Content-Type: application/xml; charset=utf-8` and configured `Cache-Control` headers.
 
@@ -442,9 +442,18 @@ Generates an HTTP `Response` object containing the standard sitemap XML structur
 Generates an HTTP `Response` object containing a sitemap index XML structure.
 
 - Parameters:
-  - `entries` (`SitemapIndexEntry[]`): Array of child sitemap index references.
+  - `entries` (`SitemapIndexEntry[]`): Array of child sitemap index references. Strict `loc`-only contract since v1.4.0 (`url` is rejected).
   - `options` (`Pick<SitemapOptions, 'maxAge' | 'autoLastmod'>`, optional): Configuration options.
 - Returns: `Response` with `Content-Type: application/xml; charset=utf-8`.
+
+#### `buildCacheControlHeader(maxAge?)` (v1.4.0)
+
+Builds the `Cache-Control` header value for a unified caching strategy across all response generators.
+
+- Parameters:
+  - `maxAge` (`number`, optional): HTTP cache TTL in seconds (finite, `>= 0`). Negative, `NaN`, `Infinity`, or non-numeric values throw `[next-advanced-sitemap] Invalid maxAge value`.
+- Returns: `string` — `public, max-age=X, must-revalidate` when `maxAge` is set, otherwise the default `public, max-age=86400, stale-while-revalidate=3600`.
+
 #### `getRobotsTextResponse(options)` (v1.3.10)
 
 Generates an HTTP `Response` object containing the `robots.txt` text payload with strict `text/plain` content handling.
@@ -513,7 +522,7 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 | Property | Type | Required | Description |
 |---|---|---|---|
-| `loc` | `string` | Yes | Absolute URL to the child sitemap XML file. |
+| `loc` | `string` | Yes | Absolute URL to the child sitemap XML file. Strict `loc`-only since v1.4.0 — the legacy `url` alias is rejected. |
 | `lastmod` | `string \| Date` | No | Timestamp of last child sitemap modification. |
 
 #### `SitemapOptions`
@@ -522,7 +531,7 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 |---|---|---|---|
 | `autoLastmod` | `boolean` | `false` | Dynamically injects system runtime date for missing `lastmod` fields. |
 | `sortByPriority` | `boolean` | `false` | Sorts sitemap entries descending from priority 1.0 to 0.0. |
-| `maxAge` | `number` | `undefined` | Defines custom TTL max-age in seconds for `Cache-Control` header. |
+| `maxAge` | `number` | `undefined` | Defines custom TTL max-age in seconds for `Cache-Control` header. Must be a finite number `>= 0`; negative, `NaN`, or `Infinity` values throw (v1.4.0). |
 
 #### `SitemapImage`
 
@@ -557,7 +566,18 @@ Utility function to slice an array of sitemap entries into smaller chunks.
 
 ---
 
-## 8. Version Changelog Highlights (v1.0.0 - v1.3.10)
+## 8. Version Changelog Highlights (v1.0.0 - v1.4.0)
+
+- **v1.4.0 (Hardening & Strict Contract Release)**: This release aligns the engine with strict spec contracts and modern TypeScript/CI hygiene.
+  - **`video:family_friendly` now serialized (fix #39)**: The `family_friendly` property (boolean or `'yes'`/`'no'`) was declared in the type but silently dropped; it is now emitted as `<video:family_friendly>` in the generated XML.
+  - **Cross-field boolean handling (fix #40)**: `requires_subscription: true` now correctly triggers the Rule B cross-field rejection when combined with `price.type: 'own'`, matching the `boolean | 'yes' | 'no'` union instead of only the string form.
+  - **Strict `loc`-only sitemap index contract (breaking, fix #47)**: `SitemapIndexEntry` accepts only `loc`. The undocumented `(entry as any).url` fallback was removed; passing `url` now throws a clear validation error instead of silently resolving.
+  - **`maxAge` strict validation (fix #49)**: Negative, `NaN`, `Infinity`, or non-numeric `maxAge` values now throw a descriptive `[next-advanced-sitemap] Invalid maxAge value` error instead of silently falling back (or emitting `max-age=Infinity`).
+  - **50,000-URL guardrail in `generateXml()` (fix #50)**: A single sitemap now enforces the sitemaps.org 50,000-URL upper bound, mirroring the existing index guardrail; larger payloads must be segmented via `chunkSitemapEntries()`.
+  - **`escapeXml()` raw-input contract (fix #51)**: Documented that input must always be raw/unescaped (a single-pass strict encoder); pre-escaped entities such as `&amp;` are not auto-decoded.
+  - **Shared `buildCacheControlHeader()` (refactor, fix #45)**: Extracted the duplicated Cache-Control logic from the three response generators into one exported utility (`public, max-age=X, must-revalidate` / default `public, max-age=86400, stale-while-revalidate=3600`).
+  - **TypeScript/CI hardening (fixes #41-#44)**: Added explicit `.js` import extensions for NodeNext in test files, added `"types": ["node"]` to `tsconfig.json` for `node:` protocol imports, removed the block comment from `tsconfig.json` for strict JSON parsers, and fixed the broken `Run tests` command in `CONTRIBUTING.md`.
+  - **English-first internal codebase (fix #48)**: Migrated source comments, JSDoc, and inline docs to English to match the English-facing public API and lower the contribution barrier for international contributors.
 
 - **v1.3.10**: Added the final RFC compliance sanitizer and guard to `buildRobotsText()`, trimming trailing whitespace, normalizing missing leading slashes for `Allow`/`Disallow` values, stripping Windows `\r`, and collapsing excessive blank lines while preserving the `getRobotsTextResponse()` safe HTTP wrapper and all earlier robots features.
 - **v1.3.9**: Added `getRobotsTextResponse()` to generate a safe `robots.txt` `Response` with `Content-Type: text/plain; charset=utf-8`, `X-Content-Type-Options: nosniff`, and optional `maxAge` cache control, while preserving generation metadata, `Crawl-delay`, explicit `Allow` overrides, and multi-sitemap support.

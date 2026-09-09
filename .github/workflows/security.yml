@@ -128,8 +128,14 @@ jobs:
       # 🛡️ BARRIÈRE DE CYBERSÉCURITÉ : Protection contre les attaques par expansion XML (Billion Laughs)
       - name: Install Linux XML Engine for Security Tests
         run: |
-          sudo rm -f /etc/apt/sources.list.d/google-chrome.list
-          sudo rm -f /etc/apt/sources.list.d/google.list
+          # The ubuntu-latest runner preloads a Google Chrome apt source whose CDN
+          # intermittently serves a corrupt Packages index ("Hash Sum mismatch" on
+          # dl.google.com), which aborts apt-get update. Chrome's source file uses a
+          # non-standard name on the runner, so remove ANY source file that is named
+          # after google/chrome or whose content references dl.google.com.
+          sudo find /etc/apt/sources.list.d -maxdepth 1 -type f -iname '*google*' -delete 2>/dev/null || true
+          sudo find /etc/apt/sources.list.d -maxdepth 1 -type f -iname '*chrome*' -delete 2>/dev/null || true
+          { sudo grep -rls 'dl\.google\.com' /etc/apt/sources.list /etc/apt/sources.list.d/ 2>/dev/null || true; } | sudo xargs -r rm -f
           sudo apt-get clean
           sudo rm -rf /var/lib/apt/lists/*
           sudo apt-get update

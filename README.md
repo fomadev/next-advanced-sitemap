@@ -24,7 +24,7 @@ It provides native support for Google Images, Google Video, Google News, Hreflan
 - **Cross-Field Semantic Validation**: Pre-generation validation engine that catches logical data contradictions before XML emission.
 - **Payload Guardrails**: Fail-fast volume checks preventing index payloads from exceeding 50,000 child sitemaps.
 - **Edge Cache Optimization**: Dynamic header generation for CDN caching with custom TTL support (`maxAge`).
-- **Automatic Sanitization & Escaping**: Deep XML escaping (`&`, `<`, `>`, `"`, `'`) and automatic whitespace trimming.
+- **Automatic Sanitization & Escaping**: Deep XML escaping (`&`, `<`, `>`, `"`, `'`) and automatic whitespace trimming. `escapeXml()` is a single-pass encoder over **raw** input — always pass unescaped text (e.g. `&`, not `&amp;`) to avoid double-encoding.
 
 ---
 

@@ -420,6 +420,8 @@ All input URLs undergo strict sanitization and XML entity escaping:
 - **Parsing Check**: Validated via native `URL.canParse()` or `new URL()`.
 - **Sitemap Index Escaping & Query Parameters Safety (v1.2.8)**: In `buildSitemapIndexXml()`, child sitemap location URLs (`loc`) are sanitized with `sanitizeAndValidateUrl()` and XML entity-escaped using `escapeXml()`. This guarantees strict RFC 3986 and XML 1.0 compliance when index locations contain query parameters (e.g. `?page=1&category=tech` becomes `?page=1&amp;category=tech`) or XML reserved characters (`<`, `>`, `"`, `'`).
 
+> **⚠️ Raw-Input Contract (v1.3.10):** `escapeXml()` is a single-pass **strict encoder** over **raw, unescaped** text. Always provide the original unescaped value (e.g. a URL containing `&` is passed as `&`, never as `&amp;`). The library does **not** auto-detect or decode pre-escaped entities, so feeding an already-escaped string (e.g. `&amp;` coming from an HTML pre-escape layer or database) will produce a double-encoded `&amp;amp;` in the output. If your data source stores HTML/XML-escaped entities, decode them back to raw characters before passing them to the sitemap builders.
+
 ---
 
 ## 7. API Reference

@@ -12,6 +12,14 @@ import { validateCrossFields } from './validation/cross-validator.js';
 
 
 export function generateXml(entries: SitemapEntry[], options: SitemapOptions = {}): string {
+  // 🔥 Volume guardrail (sitemaps.org): a single sitemap file must not exceed
+  // 50,000 URLs. Aligned with the 50,000-entry index guardrail in index-builder.ts.
+  if (entries.length > 50000) {
+    throw new Error(
+      `[next-advanced-sitemap] Sitemap volume threshold breach: A single sitemap cannot contain more than 50,000 URLs. Detected: ${entries.length}. Please leverage chunkSitemapEntries() to segment your dataset.`
+    );
+  }
+
   const now = new Date().toISOString();
   let finalEntries = [...entries];
 

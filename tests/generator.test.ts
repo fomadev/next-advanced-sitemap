@@ -74,4 +74,23 @@ describe('generateXml', () => {
     expect(result).toContain('search?q=next&amp;sort=asc');
     expect(result).toContain('Jean &amp; Jacques');
   });
+
+  it('must throw a strict volume guardrail exception if entries exceed 50,000 URLs', () => {
+    const massiveEntries: SitemapEntry[] = Array.from({ length: 50001 }, () => ({
+      url: 'https://fomadev.com/sitemap-mock'
+    }));
+
+    expect(() => generateXml(massiveEntries)).toThrowError(
+      '[next-advanced-sitemap] Sitemap volume threshold breach'
+    );
+  });
+
+  it('must allow exactly 50,000 entries (upper bound inclusive)', () => {
+    const maxEntries: SitemapEntry[] = Array.from({ length: 50000 }, () => ({
+      url: 'https://fomadev.com/sitemap-mock'
+    }));
+
+    const result = generateXml(maxEntries);
+    expect(result).toContain('<urlset');
+  });
 });

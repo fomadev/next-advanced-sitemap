@@ -30,13 +30,16 @@ describe('Sitemap Index Comprehensive Suite', () => {
       expect(xml).toContain(`<lastmod>${mockDate.toISOString()}</lastmod>`);
     });
 
-    it('should fallback natively from url property to loc and pass validation', () => {
+    it('should reject url-only entries and enforce the strict loc-only contract (v1.2.8)', () => {
       const entries: any[] = [
         { url: 'https://fomadev.com/sitemap-fallback.xml', lastmod: '2026-07-05T00:00:00.000Z' }
       ];
 
-      const xml = buildSitemapIndexXml(entries);
-      expect(xml).toContain('<loc>https://fomadev.com/sitemap-fallback.xml</loc>');
+      // 🛡️ v1.2.8: The undocumented `url` alias fallback was removed.
+      // SitemapIndexEntry now strictly requires `loc` (see issue #47).
+      expect(() => buildSitemapIndexXml(entries)).toThrowError(
+        '[next-advanced-sitemap] Invalid URL in sitemap index location'
+      );
     });
 
     it('should throw strict validation error for invalid index URLs', () => {

@@ -449,7 +449,32 @@ jobs:
           echo "$SANDBOX_ROUTE" > app/sitemap.xml/route.ts
 
           npm install --no-package-lock --no-workspaces file:./package-local.tgz
-          npm install --no-package-lock --no-workspaces next@latest react@latest react-dom@latest @types/react@latest @types/node@latest
+
+          # npm's "latest" dist-tag can momentarily point to a version that the
+          # registry has not fully propagated yet, yielding "ETARGET / No matching
+          # version found" right after a publish (e.g. @types/react@latest). Retry
+          # with exponential backoff and force fresh metadata (--prefer-online) to
+          # absorb this transient registry race.
+          install_with_retry() {
+            local attempts=8
+            local delay=5
+            local i=1
+            until "$@"; do
+              local code=$?
+              if [ "$i" -ge "$attempts" ]; then
+                echo "❌ Échec définitif de l'installation après $attempts tentatives (code $code)."
+                return "$code"
+              fi
+              echo "⚠️ Tentative $i/$attempts échouée (code $code). Nouvel essai dans ${delay}s..."
+              sleep "$delay"
+              delay=$((delay * 2))
+              i=$((i + 1))
+            done
+          }
+
+          install_with_retry npm install --no-package-lock --no-workspaces --prefer-online \
+            --fetch-retries=5 --fetch-retry-maxtimeout=60000 \
+            next@latest react@latest react-dom@latest @types/react@latest @types/node@latest
 
           npx next build 2>&1 | tee build.log
           BUILD_EXIT_CODE=${PIPESTATUS[0]}

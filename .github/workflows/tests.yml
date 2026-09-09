@@ -95,8 +95,8 @@ jobs:
             }];
             
             const validIndexPayload = [
-              { url: 'https://fomadev.com/sitemap-products.xml', lastmod: new Date() },
-              { url: 'https://fomadev.com/sitemap-articles.xml', lastmod: new Date() }
+              { loc: 'https://fomadev.com/sitemap-products.xml', lastmod: new Date() },
+              { loc: 'https://fomadev.com/sitemap-articles.xml', lastmod: new Date() }
             ];
 
             let errorInterceptionSuccess = false;
@@ -149,7 +149,7 @@ jobs:
             console.log(`Poids initial de la mémoire : ${(memInitiale / 1024 / 1024).toFixed(2)} Mo`);
             
             const liensMassifs = Array.from({ length: 50000 }, (_, i) => ({
-              url: `https://fomadev.com/sitemap-${i}.xml`,
+              loc: `https://fomadev.com/sitemap-${i}.xml`,
               lastmod: new Date()
             }));
             
@@ -369,7 +369,7 @@ jobs:
             fs.writeFileSync('generated-child.xml', childXml);
 
             // 2. Génération d'un flux d'index racine et extraction textuelle
-            const indexResponse = getServerSitemapIndexResponse([{ url: 'https://fomadev.com/sitemap-1.xml', lastmod: new Date() }]);
+            const indexResponse = getServerSitemapIndexResponse([{ loc: 'https://fomadev.com/sitemap-1.xml', lastmod: new Date() }]);
             const indexXml = await indexResponse.text();
             fs.writeFileSync('generated-index.xml', indexXml);
 

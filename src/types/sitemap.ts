@@ -149,7 +149,28 @@ export interface SitemapEntry {
   videos?: SitemapVideo[];
   news?: SitemapNews;
   alternates?: SitemapAlternate[];
+  /**
+   * v2.0.0: Explicit removal flag. When true, the generator forces
+   * `priority` to 0.0, `changefreq` to 'never', strips all image/video
+   * nodes, and (unless disabled) injects an XML removal comment above
+   * the `<url>` block. Guarded against being set on the site root.
+   * @see filterActiveEntries, filterRemovedEntries, buildNoIndexTagHeader
+   */
+  isDeleted?: boolean;
+  /**
+   * v2.0.0: Expiration timestamp. Once the system clock passes this
+   * value, the entry is treated exactly like `isDeleted: true` at
+   * generation time (without needing to mutate your source data).
+   */
+  expiresAt?: Date | string;
 }
+
+/**
+ * v2.0.0: Trailing slash normalization strategy applied to every URL
+ * (main `loc` and `alternates`) before it is written to the XML output.
+ * The site root ("/") is always left untouched.
+ */
+export type TrailingSlashMode = 'add' | 'remove' | 'preserve';
 
 /**
  * Configuration options for sitemap generation
@@ -173,6 +194,33 @@ export interface SitemapOptions {
    * Must be a finite number >= 0; negative, NaN, or Infinity values throw.
    */
   maxAge?: number; // Option added in v1.0.9
+  /**
+   * v2.0.0 (Breaking): Enforces Google's strict production requirements on
+   * every entry before it is serialized — HTTPS-only `url`, a defined
+   * `lastmod` (or `autoLastmod: true`), a defined `changefreq` and
+   * `priority`, and at least one of `content_loc` / `player_loc` on every
+   * video. Throws a descriptive error on the first violation encountered.
+   */
+  strict?: boolean;
+  /**
+   * v2.0.0: When enabled, entries whose URL is recognized as a non-production
+   * host (localhost, `*.vercel.app`, or any host containing "staging") are
+   * silently dropped before generation, preventing preview/staging URLs
+   * from leaking into a public sitemap. Pass a string array to override the
+   * default pattern list. @see isStagingUrl
+   */
+  excludeStaging?: boolean | string[];
+  /**
+   * v2.0.0: Normalizes trailing slashes on every URL (main `loc` and
+   * `alternates`) to prevent duplicate-content signals. The site root is
+   * never modified. @see normalizeTrailingSlash
+   */
+  trailingSlash?: TrailingSlashMode;
+  /**
+   * v2.0.0: When true, prints a concise generation summary to the console
+   * (total entries, staging exclusions, entries marked for removal).
+   */
+  debug?: boolean;
 }
 
 /**

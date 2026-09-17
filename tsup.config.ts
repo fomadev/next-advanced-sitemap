@@ -6,7 +6,10 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  entry: {
+    index: 'src/index.ts',
+    scanner: 'src/scanner-entry.ts',
+  },
   format: ['cjs', 'esm'],
   // Génère des fichiers de types distincts (.d.ts pour ESM et .d.cts pour CJS)
   dts: {

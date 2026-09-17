@@ -1,8 +1,8 @@
 {
   "name": "next-advanced-sitemap",
-  "version": "1.4.0",
+  "version": "2.0.0",
   "type": "module",
-  "description": "Advanced sitemap generator for Next.js. Powerful support for Google Images, Video, News, and Hreflang (multilingual). Type-safe and built for App Router.",
+  "description": "Advanced sitemap generator for Next.js. Streaming XML, strict mode, deletion/expiration lifecycle, route auto-scanning, IndexNow, and full Google Images/Video/News/Hreflang support. Type-safe and built for App Router.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -15,6 +15,16 @@
       "require": {
         "types": "./dist/index.d.cts",
         "default": "./dist/index.cjs"
+      }
+    },
+    "./scanner": {
+      "import": {
+        "types": "./dist/scanner.d.ts",
+        "default": "./dist/scanner.js"
+      },
+      "require": {
+        "types": "./dist/scanner.d.cts",
+        "default": "./dist/scanner.cjs"
       }
     }
   },
@@ -38,7 +48,10 @@
     "hreflang",
     "multilingual",
     "typescript",
-    "app-router"
+    "app-router",
+    "streaming",
+    "indexnow",
+    "robots-txt"
   ],
   "author": "fomadev",
   "license": "FomaDev Public License",
@@ -61,11 +74,21 @@
   "size-limit": [
     {
       "path": "dist/index.js",
-      "limit": "4 KB"
+      "limit": "40 KB"
     },
     {
       "path": "dist/index.cjs",
-      "limit": "4 KB"
+      "limit": "40 KB"
+    },
+    {
+      "path": "dist/scanner.js",
+      "limit": "8 KB",
+      "ignore": ["node:fs", "node:path", "fs", "path"]
+    },
+    {
+      "path": "dist/scanner.cjs",
+      "limit": "8 KB",
+      "ignore": ["node:fs", "node:path", "fs", "path"]
     }
   ],
   "peerDependencies": {

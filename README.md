@@ -1,26 +1,29 @@
 # next-advanced-sitemap
 
 [![License: FPL](https://img.shields.io/badge/License-FPL-orange.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.4.0-blue.svg)](DOCUMENTATION.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](DOCUMENTATION.md)
 ![CI Status](https://github.com/fomadev/next-advanced-sitemap/actions/workflows/tests.yml/badge.svg)
 
 A robust, type-safe XML sitemap, sitemap index, and robots.txt generator for Next.js App Router applications (`>= 13.0.0`). 
 
-It provides native support for Google Images, Google Video, Google News, Hreflang (multilingual), Master Sitemap Indexes (`<sitemapindex>`), Robots.txt Builder (`buildRobotsText`), Large-Scale Dataset Chunking, and Cross-Field Semantic Validation.
+It provides native support for Google Images, Google Video, Google News, Hreflang (multilingual), Master Sitemap Indexes (`<sitemapindex>`), Robots.txt Builder (`buildRobotsText`), Streaming XML generation, a deletion/expiration lifecycle, an experimental route auto-scanner, an IndexNow client, Large-Scale Dataset Chunking, and Cross-Field Semantic Validation.
 
 > **Full Documentation & API Reference**: For complete technical specifications, in-depth extension guides, and validation rules, see [DOCUMENTATION.md](DOCUMENTATION.md).
 
 ---
 
-## What's New in v1.4.0 (Hardening & Strict Contract Release)
+## What's New in v2.0.0 (The Pro Release — Performance, Lifecycle & Automation)
 
-- **`<video:family_friendly>` is now serialized** — the property was previously declared in the type but silently dropped from the XML output (fix #39).
-- **Cross-field validation handles booleans** — `requires_subscription: true` now correctly triggers Rule B rejection with `price.type: 'own'` (fix #40).
-- **Strict `loc`-only sitemap index contract** — the undocumented `url` fallback on `SitemapIndexEntry` was removed; passing `url` now throws a clear validation error (breaking change, fix #47).
-- **Strict `maxAge` validation** — negative, `NaN`, `Infinity`, or non-numeric values now throw a descriptive error instead of silently falling back (fix #49).
-- **50,000-URL guardrail on single sitemaps** — `generateXml()` now enforces the sitemaps.org upper bound, like the existing index guardrail; use `chunkSitemapEntries()` for larger payloads (fix #50).
-- **Shared `buildCacheControlHeader()`** — deduplicated Cache-Control logic across all response generators into one exported utility (fix #45).
-- **English-first, modernized codebase** — all internal comments/JSDoc migrated to English; `tsconfig.json` and test imports hardened for NodeNext / strict JSON tooling (fixes #41-#44, #48).
+This is a major, breaking release built around Next.js at scale:
+
+- **Streaming XML generation** — `getServerSitemapStreamResponse()` streams the sitemap over a `ReadableStream` instead of building one giant string, and can consume an `AsyncIterable<SitemapEntry>` (a database cursor) so memory stays flat even for six-figure URL counts.
+- **Strict Mode (`strict: true`, breaking when enabled)** — enforces HTTPS-only URLs and required `lastmod`/`changefreq`/`priority`/video locations, for a guaranteed 100% Search Console score.
+- **Deletion & expiration lifecycle** — `isDeleted` / `expiresAt` on any entry auto-coerce `priority`/`changefreq`, strip media, and inject removal comments, with a guardrail against ever de-indexing your homepage. Plus `filterActiveEntries`, `filterRemovedEntries`, `buildNoIndexTagHeader`.
+- **Experimental route auto-scanner** — `scanAppRouterRoutes()` (imported from `next-advanced-sitemap/scanner`) walks your `app/` directory to discover static pages automatically, with exclusion patterns, i18n locale expansion, and special-file/API-route guardrails.
+- **IndexNow client** — `submitIndexNow()` pushes updated URLs to Bing/Yandex/Seznam instantly instead of waiting for the next crawl.
+- **SEO utility belt** — depth-based auto-priority, staging URL filtering, trailing-slash normalization, CSV/JSON export, sitemap diffing, per-type splitting, dry-run health scoring, and opt-in broken-link checking.
+
+See [DOCUMENTATION.md](DOCUMENTATION.md) for full usage guides on every v2.0.0 feature.
 
 ---
 
@@ -167,6 +170,35 @@ const massiveDatabaseRows: SitemapEntry[] = [ /* 120,000 database items */ ];
 
 // Slice into compliant batches of 40,000 links
 const partitionedSitemaps = chunkSitemapEntries(massiveDatabaseRows, 40000);
+```
+
+### 5. Streaming Sitemap for Massive Datasets (`getServerSitemapStreamResponse`, v2.0.0)
+
+```typescript
+import { getServerSitemapStreamResponse, SitemapEntry } from 'next-advanced-sitemap';
+
+async function* fetchFromDatabase(): AsyncGenerator<SitemapEntry> {
+  let cursor: string | undefined;
+  do {
+    const { rows, nextCursor } = await db.products.page({ cursor, limit: 5000 });
+    for (const row of rows) yield { url: `https://fomadev.com/products/${row.slug}`, lastmod: row.updatedAt };
+    cursor = nextCursor;
+  } while (cursor);
+}
+
+export async function GET() {
+  return getServerSitemapStreamResponse(fetchFromDatabase(), { autoLastmod: true, maxAge: 3600 });
+}
+```
+
+### 6. Removing a Page from the Index (`isDeleted` / `expiresAt`, v2.0.0)
+
+```typescript
+const entries: SitemapEntry[] = [
+  { url: 'https://fomadev.com/promo/summer-sale', isDeleted: true },
+  { url: 'https://fomadev.com/events/webinar', expiresAt: '2026-09-01T00:00:00.000Z' },
+];
+// priority/changefreq are coerced automatically and a removal comment is injected — see DOCUMENTATION.md §5.8
 ```
 
 ---

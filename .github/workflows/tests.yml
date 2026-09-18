@@ -71,7 +71,12 @@ jobs:
       - name: Run Strict Type Integrity Checks (Are the Types Wrong?)
         run: |
           echo "Analyse des fichiers de déclaration de types générés..."
-          npx @arethetypeswrong/cli --pack .
+          # --profile node16 : le package utilise le champ "exports" (sous-chemins ./scanner),
+          # que la résolution node10 (legacy, pré-Node 12) ne sait pas lire. Le profil node16
+          # n'ignore QUE ces échecs node10 et conserve les vérifications strictes
+          # node16-CJS / node16-ESM / bundler. Alternative équivalente : --ignore-rules no-resolution,
+          # mais elle masquerait aussi de vrais échecs de résolution dans les modes modernes.
+          npx --yes @arethetypeswrong/cli --pack . --profile node16
           echo "✅ PARFAIT : La matrice de types exportée est 100% valide et interopérable !"
 
       # 🛡️ BARRIÈRE DE SÉCURITÉ 3.5 : Validation sémantique croisée négative (Anti-Contradiction de Données v1.1.9 & v1.2.0)

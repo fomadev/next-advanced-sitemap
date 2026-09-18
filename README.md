@@ -4,7 +4,7 @@
 [![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](DOCUMENTATION.md)
 ![CI Status](https://github.com/fomadev/next-advanced-sitemap/actions/workflows/tests.yml/badge.svg)
 
-A robust, type-safe XML sitemap, sitemap index, and robots.txt generator for Next.js App Router applications (`>= 13.0.0`). 
+A robust, type-safe XML sitemap, sitemap index, and robots.txt generator for Next.js App Router applications (`>= 13.0.0`).
 
 It provides native support for Google Images, Google Video, Google News, Hreflang (multilingual), Master Sitemap Indexes (`<sitemapindex>`), Robots.txt Builder (`buildRobotsText`), Streaming XML generation, a deletion/expiration lifecycle, an experimental route auto-scanner, an IndexNow client, Large-Scale Dataset Chunking, and Cross-Field Semantic Validation.
 

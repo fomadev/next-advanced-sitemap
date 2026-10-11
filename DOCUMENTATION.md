@@ -863,10 +863,12 @@ Scans an App Router `app/` directory for static pages. Requires the Node.js runt
 
 ## 9. License
 
-`next-advanced-sitemap` is released under the **FomaDev Public License (FPL)**.
+`next-advanced-sitemap` is released under the **Fordima Public License (FPL) v1.0**. See the [LICENSE](./LICENSE) file for the full text.
 
-- **Free Use**: Authorized for personal and commercial projects as a dependency.
-- **Contributions**: Pull requests are welcome via the official repository.
-- **Restrictions**: Independent forks, source code redistribution, or building competing standalone software products based on this engine require a paid commercial license.
+- **Free Use**: Free for individuals, education, and companies, including commercial projects and revenue-generating products. Use it as a dependency or integrate it into your own systems at no cost.
+- **Contributions**: Forks are welcome for contributing. Improvements, bug fixes, and new features must be submitted via a Pull Request to the official repository.
+- **Restrictions**: Using this source code to build a similar or competing product, redistributing the source code as a standalone product, offering a paid hosted or "as a service" version, or maintaining an independent permanent fork requires a paid commercial license from Fordima Inc.
 
-Copyright (c) 2026 Fordi / FomaDev.
+For commercial licensing, please contact the management of Fordima Inc.
+
+Copyright (c) 2026 Fordima Inc. All rights reserved.

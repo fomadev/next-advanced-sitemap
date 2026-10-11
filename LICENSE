@@ -1,24 +1,67 @@
-FomaDev Public License (FPL)
+Fordima Public License (FPL)
+Version 1.0
 
-Copyright (c) 2026 FomaDev. All rights reserved.
+Copyright (c) 2026 Fordima Inc. All rights reserved.
 
-This license protects next-advanced-sitemap innovation while encouraging community collaboration.
+This license protects the innovation behind next-advanced-sitemap while
+encouraging open collaboration. The source code is public, free to use, and
+open to contributions.
 
-1. Personal and Educational Use
-The use of the next-advanced-sitemap library is entirely free for developers and companies, including within commercial projects, as long as it is used as a dependency. You may integrate and use this tool in your websites or applications without any payment to FomaDev.
+1. Free Use (Individuals, Education, and Companies)
+You may use, run, study, and integrate the next-advanced-sitemap library free
+of charge, for personal, educational, and commercial purposes. This includes
+use as a dependency within a company, inside commercial websites,
+applications, products or services, and in projects that generate revenue.
+No fee, royalty, or registration is owed to Fordima for such use.
 
-2. Contributions (Fork & Pull Request)
-Forks are authorized ONLY for contributing to the official FomaDev project. Any improvements, bug fixes, or new features must be submitted via a Pull Request to the original repository. By contributing, you agree that your code will be integrated under this same license.
+2. Fork, Modify, and Contribute
+You may fork this repository, study the source code, and modify it. Forks are
+authorized for the purpose of contributing improvements, bug fixes, or new
+features back to the official project through a Pull Request to the original
+repository. By submitting a contribution, you agree that it is released under
+this same license and that Fordima Inc. may integrate it into the official
+project.
 
-3. Commercial Use and Competition (PAID)
-A paid commercial license is MANDATORY for the following cases:
-- Selling, redistributing, or sub-licensing the source code of this library.
-- Creating a derivative sitemap generation tool or library based on this source code.
-- Integrating this source code directly into another commercial library or framework intended for sale.
-- Building a paid "Sitemap as a Service" platform based on this specific engine.
+3. Internal Integration
+You may incorporate portions of this source code into your own systems,
+websites, applications, or internal tools, and use them in your business,
+provided that the result is not a product or service covered by Section 4.
 
-4. Prohibition of Independent Forks
-Maintaining a separate version (permanent Fork) of this project to bypass FomaDev's authority or to create a competing package on registries (such as npm) is strictly prohibited.
+4. Restricted Use (Paid License Required)
+A paid commercial license from Fordima Inc. is MANDATORY if you use this
+source code, in whole or in part, to:
+  a) Create, publish, or distribute a library, tool, or service that is
+     similar to, or competes with, next-advanced-sitemap (for example, a
+     sitemap generation tool or library);
+  b) Build a derivative product or a replacement based on this source code,
+     whether open source or proprietary;
+  c) Keep a private copy of this code in order to produce the same
+     functionality or the same kind of product for your own commercial
+     offering;
+  d) Sell, redistribute, or sub-license the source code or a modified version
+     of it as a standalone product, or integrate it directly into another
+     commercial library or framework intended for sale;
+  e) Offer a paid hosted, cloud, or "as a service" version (such as a
+     "Sitemap as a Service" platform) based on this source code.
 
-5. Licensing Contact
-To obtain commercial authorization, negotiate an exploitation license, or for any questions regarding professional use, contact Fordi (FomaDev) directly.
+5. Prohibition of Independent Forks
+Maintaining a separate, permanent fork of this project in order to bypass the
+authority of Fordima Inc., or to publish a competing package on any registry
+or marketplace (such as npm), is strictly prohibited.
+
+6. Attribution
+You must keep this license and the copyright notice with any copy of the
+source code you use or redistribute.
+
+7. No Warranty
+This software is provided "as is", without warranty of any kind, express or
+implied. Fordima Inc. shall not be liable for any claim, damages, or other
+liability arising from the use of this software.
+
+8. Termination
+Any use in violation of Section 4 or Section 5 automatically terminates your
+rights under this license until a commercial license is obtained.
+
+9. Commercial Licensing
+To obtain a commercial license or negotiate an exploitation agreement, please
+contact the management of Fordima Inc.

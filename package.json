@@ -64,7 +64,7 @@
   },
   "homepage": "https://github.com/fomadev/next-advanced-sitemap#readme",
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^13.0.3",
+    "@size-limit/preset-small-lib": "^14.2.0",
     "@types/node": "^26.6.4",
     "size-limit": "^14.1.0",
     "tsup": "^8.5.1",
